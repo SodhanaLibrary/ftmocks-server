@@ -1,0 +1,31 @@
+{
+  "name": "nile-fe-mock-server",
+  "version": "0.0.1",
+  "description": "Mock server for nile frontend applications ",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://srinivas_dasari_nile@bitbucket.org/nileglobalsw/nile-fe-mock-server.git"
+  },
+  "keywords": [
+    "Mock",
+    "Node"
+  ],
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.17.2",
+    "nocache": "^3.0.1"
+  },
+  "author": "Srinivas Dasari",
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/nileglobalsw/nile-fe-mock-server#readme",
+  "devDependencies": {
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^9.0.1"
+  }
+}
