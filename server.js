@@ -6,6 +6,8 @@ const mockServer = require('./mockServer');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const { processHAR } = require('./mockGenerator');
+const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, createHarMockDataForTest, updateMockDataForTest } = require('./src/TestRoutes');
+const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/DefaultMockRoutes');
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -23,187 +25,42 @@ const mockFolder = process.env.MOCK_DIR;
 // Middleware to parse JSON in the request body
 app.use(bodyParser.json());
 
-function processURL(url) {
-  const processedURL = new URL(`http://domain.com${url}`);
-  const params = new URLSearchParams(processedURL.search);
-
-  params.delete("endTime");
-  params.delete("startMin");
-  params.delete("startTime");
-  params.delete("startDate");
-  params.delete("endDate");
-  params.sort();
-  return decodeURIComponent(`${processedURL.pathname}?${params}`);
-}
-
-
 // Router for /api/v1/tests GET method
-app.get('/api/v1/tests', (req, res) => {
-  console.log(req.url);
-  // TODO: Implement the logic for handling GET requests to /api/v1/tests
-  // This is a placeholder response
-  const indexPath = path.join(__dirname, 'sample', 'my-project', 'tests.json');
-  try {
-    const indexData = fs.readFileSync(indexPath, 'utf8');
-    const parsedData = JSON.parse(indexData);
-    
-    // Map the data to a more suitable format for the response
-    const formattedData = parsedData.map(item => ({
-      id: item.id,
-      name: item.name,
-      mockFile: item.mockFile
-    }));
+app.get('/api/v1/tests', getTests);
 
-    res.status(200).json(formattedData);
-  } catch (error) {
-    console.error('Error reading or parsing index.json:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+// Router for /api/v1/tests DELETE method
+app.delete('/api/v1/tests/:id', deleteTest);
+
+// Router for /api/v1/tests PUT method
+app.put('/api/v1/tests/:id', updateTest);
 
 // Router for /api/v1/tests POST method
-app.post('/api/v1/tests', (req, res) => {
-  console.log(req.body, req.url);
-  const fs = require('fs');
-  const path = require('path');
-
-  // Read existing tests
-  const testsPath = path.join(__dirname, 'sample', 'my-project', 'tests.json');
-  let tests = [];
-  try {
-    const testsData = fs.readFileSync(testsPath, 'utf8');
-    tests = JSON.parse(testsData);
-    const newTest = {
-      id: uuidv4(),
-      name: req.body.name,
-      mockFile: []
-    };
-    tests.push(newTest);
-    fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
-    
-    res.status(201).json({
-      message: "New test created successfully",
-      test: newTest
-    });
-    return;
-  } catch (error) {
-    console.error('Error reading tests.json:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-});
+app.post('/api/v1/tests', createTest);
 
 // Router for /api/v1/defaultmocks GET method
-app.get('/api/v1/defaultmocks', (req, res) => {
-  console.log(req.url);
-  const defaultPath = path.join(__dirname, 'sample', 'my-project', 'default.json');
+app.get('/api/v1/defaultmocks', getDefaultMocks);
 
-  try {
-    const defaultData = fs.readFileSync(defaultPath, 'utf8');
-    let parsedData = JSON.parse(defaultData);
-    
-    // Read and attach mock data for each entry in parsedData
-    parsedData = parsedData.map(entry => {
-      const mockFilePath = path.join(__dirname, 'sample', 'my-project', entry.path);
-      try {
-        const mockData = fs.readFileSync(mockFilePath, 'utf8');
-        return {
-          ...entry,
-          mockData: JSON.parse(mockData)
-        };
-      } catch (error) {
-        console.error(`Error reading mock data for ${entry.path}:`, error);
-        return entry; // Return the original entry if there's an error
-      }
-    });
-    res.status(200).json(parsedData);
-  } catch (error) {
-    console.error('Error reading or parsing default.json:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+// Router for /api/v1/defaultmocks/:id DELETE method
+app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);
 
+// Router for /api/v1/defaultmocks/:id PUT method
+app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
 
 // Router for /api/v1/tests/:id/mockdata GET method
-app.get('/api/v1/tests/:id/mockdata', (req, res) => {
-  console.log(req.url);
-  const testId = req.params.id;
-  const indexPath = path.join(__dirname, 'sample', 'my-project', 'tests.json');
-
-  try {
-    const indexData = fs.readFileSync(indexPath, 'utf8');
-    const parsedData = JSON.parse(indexData);
-    
-    const test = parsedData.find(item => item.id === testId);
-    
-    if (!test) {
-      return res.status(404).json({ error: 'Test not found' });
-    }
-
-    // Read and parse all mock files for the test
-    const mockDataArray = test.mockFile.map(fileName => {
-      const mockFilePath = path.join(__dirname, 'sample', 'my-project', fileName);
-      if (!fs.existsSync(mockFilePath)) {
-        console.warn(`Mock file not found: ${fileName}`);
-        return null;
-      }
-      const mockData = fs.readFileSync(mockFilePath, 'utf8');
-      return JSON.parse(mockData);
-    }).filter(data => data !== null);
-
-    if (mockDataArray.length === 0) {
-      return res.status(404).json({ error: 'No valid mock files found' });
-    }
-
-    res.status(200).json(mockDataArray);
-    return;
-  } catch (error) {
-    console.error('Error reading or parsing mock data:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+app.get('/api/v1/tests/:id/mockdata', getMockDataForTest);
 
 // Router for /api/v1/tests/:id/mockdata POST method
-app.post('/api/v1/tests/:id/mockdata', (req, res) => {
-  const testId = req.params.id;
-  const mockData = req.body;
-  const testsPath = path.join(__dirname, 'sample', 'my-project', 'tests.json');
+app.post('/api/v1/tests/:id/mockdata', createMockDataForTest);
 
-  try {
-    // Read and parse the tests.json file
-    const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
-    
-    // Find the test with the given id
-    const testIndex = testsData.findIndex(test => test.id === testId);
-    
-    if (testIndex === -1) {
-      return res.status(404).json({ error: 'Test not found' });
-    }
+// Router for /api/v1/tests/:id/harMockdata POST method
+app.post('/api/v1/tests/:id/harMockdata', upload.single('harFile'), createHarMockDataForTest);
 
-    // Generate a unique filename for the new mock data
-    const fileName = `response_${Date.now()}.json`;
-    const filePath = path.join(__dirname, 'sample', 'my-project', fileName);
+// Router for /api/v1/tests/:id/mockdata/:mockId DELETE method
+app.delete('/api/v1/tests/:id/mockdata/:mockId', deleteMockDataForTest);
 
-    // Write the mock data to the new file
-    fs.writeFileSync(filePath, JSON.stringify(mockData, null, 2));
+// Router for /api/v1/tests/:id/mockdata/:mockId PUT method
+app.put('/api/v1/tests/:id/mockdata/:mockId', updateMockDataForTest);
 
-    // Add the new filename to the test's mockFile array
-    if (!testsData[testIndex].mockFile) {
-      testsData[testIndex].mockFile = [];
-    }
-    testsData[testIndex].mockFile.push(fileName);
-
-    // Save the updated tests data back to tests.json
-    fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
-
-    res.status(201).json({
-      message: "Mock data added successfully",
-      fileName: fileName
-    });
-  } catch (error) {
-    console.error('Error adding mock data:', error);
-    res.status(500).json({ error: 'Failed to add mock data' });
-  }
-});
 
 // Router for /api/v1/mockServer GET method
 app.get('/api/v1/mockServer', (req, res) => {
@@ -240,7 +97,7 @@ app.post('/api/v1/mockServer', (req, res) => {
     return res.status(400).json({ error: 'Test ID and port are required' });
   }
 
-  const testsPath = path.join(__dirname, 'sample', 'my-project', 'tests.json');
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
 
   try {
     // Read and parse the tests.json file
@@ -327,28 +184,7 @@ app.delete('/api/v1/mockServer', (req, res) => {
   }
 });
 
-app.post('/api/v1/defaultHarMocks', upload.single('harFile'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No HAR file uploaded' });
-  }
-
-  try {
-    const harFilePath = req.file.path;
-    const outputFolder = path.join(mockFolder);
-
-    await processHAR(harFilePath, outputFolder, 'default.json');
-
-    // Clean up the uploaded file
-    fs.unlinkSync(harFilePath);
-
-    res.status(200).json({ message: 'HAR file processed successfully' });
-  } catch (error) {
-    console.error('Error processing HAR file:', error);
-    res.status(500).json({ error: 'Failed to process HAR file' });
-  }
-});
-
-
+app.post('/api/v1/defaultHarMocks', upload.single('harFile'), uploadDefaultHarMocs);
 
 
 // Function to handle all unmatched URLs
