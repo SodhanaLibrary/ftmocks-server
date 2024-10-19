@@ -4,7 +4,6 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const { getDefaultMockData, processURL } = require('./MockUtils');
 
-const defaultMockData = getDefaultMockData();
 
 const app = express();
 
@@ -19,21 +18,13 @@ function loadMockData() {
     const testId = config.testId;
 
     // Read the tests from tests.json
-    const testsPath = path.join(__dirname, 'sample', 'my-project', 'tests.json');
-    const testsData = fs.readFileSync(testsPath, 'utf8');
-    const tests = JSON.parse(testsData);
+    const mocksPath = path.join(process.env.MOCK_DIR, `test_${testId}.json`);
+    const mocksData = fs.readFileSync(mocksPath, 'utf8');
+    const mocks = JSON.parse(mocksData);
 
-    // Find the test with the matching ID
-    const test = tests.find(t => t.id === testId);
-
-    if (!test) {
-      throw new Error(`Test with ID ${testId} not found`);
-    }
-
-    mockData = new Map(test.mockFile.map(fileName => {
-      const filePath = path.join(__dirname, 'sample', 'my-project', fileName);
-      const fileContent = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-      return [processURL(fileContent.request.url), { fileName }];
+    const mockData = new Map(mocks.map(mock => {
+      const fileContent = JSON.parse(fs.readFileSync(mock.path, 'utf8'));
+      return [processURL(fileContent.url), fileContent];
     }));
 
     return mockData;
@@ -48,11 +39,12 @@ app.all("*", (req, res) => {
   console.log(originalUrl);
   const processedURL = processURL(originalUrl);
   const mockData = loadMockData();
+  const defaultMockData = getDefaultMockData();
 
+  console.log(mockData, defaultMockData);
   if (mockData?.has(processedURL) || defaultMockData?.has(processedURL)) {
     const responseData = mockData?.get(processedURL) || defaultMockData?.get(processedURL);
-    const completeResponse = responseData.mockData;
-    const { content, headers, status } = completeResponse.response;
+    const { content, headers, status } = responseData.response;
     const includedHeaders = ["content-type"];
 
     const headerKeys = Object.keys(headers);
@@ -66,6 +58,7 @@ app.all("*", (req, res) => {
       var img = Buffer.from(content, 'base64');
       res.status(status).end(img);
     } else {
+      // console.log(responseData, response.content);
       res.status(status).json(JSON.parse(content));
     }
   } else {

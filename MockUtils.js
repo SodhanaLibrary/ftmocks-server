@@ -2,7 +2,9 @@ const fs = require('fs');
 const path = require('path');
     
 const processURL = (url) => {
-  const processedURL = new URL(`http://domain.com${url}`);
+  // Remove the hostname from the URL
+  const urlWithoutHost = url.replace(/^(https?:\/\/)?[^\/]+/, '');
+  const processedURL = new URL(`http://domain.com${urlWithoutHost}`);
   const params = new URLSearchParams(processedURL.search);
 //   params.delete("endTime");
 //   params.delete("startMin");
@@ -14,7 +16,7 @@ const processURL = (url) => {
 }
 
 const getDefaultMockData = () => {
-    const defaultPath = path.join(__dirname, 'sample', 'my-project', 'default.json');
+    const defaultPath = process.env.MOCK_DIR+'/'+process.env.MOCK_DEFAULT_FILE;
 
   try {
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
@@ -22,13 +24,10 @@ const getDefaultMockData = () => {
     
     // Read and attach mock data for each entry in parsedData
     parsedData = parsedData.map(entry => {
-      const mockFilePath = path.join(__dirname, 'sample', 'my-project', entry.path);
+      const mockFilePath = entry.path;
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
-        return {
-          ...entry,
-          mockData: JSON.parse(mockData)
-        };
+        return JSON.parse(mockData);
       } catch (error) {
         console.error(`Error reading mock data for ${entry.path}:`, error);
         return entry; // Return the original entry if there's an error

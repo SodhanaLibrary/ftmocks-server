@@ -1,5 +1,6 @@
 const fs = require('fs');
 const urlmodule = require('url');
+const path = require('path');
 const uuid = require('uuid');
 const { processURL } = require('./MockUtils');
 
@@ -17,7 +18,18 @@ function isJsonResponse(entry) {
   );
 }
 
-function processHAR(harFilePath, outputFolder, fileName = 'default.json') {
+function extractFileName(filePath) {
+  // Use the path module to handle file paths across different operating systems
+  const path = require('path');
+  
+  // Extract the base name (file name with extension) from the full path
+  const baseName = path.basename(filePath);
+  
+  return baseName;
+}
+
+
+function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId) {
   // Read the HAR file
   const harData = fs.readFileSync(harFilePath, 'utf8');
 
@@ -77,9 +89,15 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json') {
           existResps = existResps.filter(resp => !(resp.url === responseInfo.url && resp.method === responseInfo.method));
         }
 
-        console.log(eresp, url);
-        const responseFileName = eresp ? eresp.fileName : `response_${uuid.v4()}.json`;
-        const responseFilePath = `${outputFolder}/${responseFileName}`;
+        const mockId = eresp?.id || uuid.v4();
+
+        const responseFileName = eresp ? extractFileName(eresp.fileName) : `mock_${mockId}.json`;
+        
+        if (!fs.existsSync(path.join(outputFolder, testId || 'defaultMocks'))) {
+          fs.mkdirSync(path.join(outputFolder, testId || 'defaultMocks'));
+        }
+        const responseFilePath = path.join(outputFolder, testId || 'defaultMocks', responseFileName);
+        responseInfo.id = mockId;
 
         fs.writeFileSync(
           responseFilePath,
@@ -92,6 +110,7 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json') {
           path: responseFilePath,
           postData,
           url,
+          id: mockId,
         };
       }
       return null;
