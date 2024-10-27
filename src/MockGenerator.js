@@ -2,7 +2,7 @@ const fs = require('fs');
 const urlmodule = require('url');
 const path = require('path');
 const uuid = require('uuid');
-const { processURL } = require('./MockUtils');
+const { processURL, getDefaultMockDataSummaryList, isSameRequest, removeDuplicates } = require('./utils/MockUtils');
 
 function isJsonResponse(entry) {
   // Check if the response has a content type header and it is JSON
@@ -28,8 +28,12 @@ function extractFileName(filePath) {
   return baseName;
 }
 
-
-function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId) {
+function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId, avoidDuplicates) {
+  let defaultMockData = [];
+  if(avoidDuplicates) {
+    defaultMockData = getDefaultMockDataSummaryList();
+  }
+  console.log(defaultMockData);
   // Read the HAR file
   const harData = fs.readFileSync(harFilePath, 'utf8');
 
@@ -49,31 +53,30 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
   }
 
   // Extract information and create individual JSON files for each response
-  const respHash = {};
   const responses = harObject.log.entries
     .map((entry, index) => {
       if (isJsonResponse(entry)) {
         const url = processURL(entry.request.url);
         const { method, postData } = entry.request;
 
-        // if(respHash[method+ '___'+url]) {
-        //   return null;
-        // }
-
         const responseInfo = {
           url,
           method,
-          headers: entry.request.headers.reduce((headers, header) => {
-            if(header.name !== 'cookie') {
-              headers[header.name] = header.value;
-            }
-            return headers;
-          }, {}),
+          request : {
+            headers: entry.request.headers.reduce((headers, header) => {
+              if(header.name.toLowerCase() !== 'cookie') {
+                headers[header.name] = header.value;
+              }
+              return headers;
+            }, {}),
+            queryString: entry.request.queryString,
+            postData: entry.request.postData,
+          },
           response: {
             status: entry.response.status,
             headers: entry.response.headers.reduce(
               (headers, header) => {
-              if(header.name !== 'set-cookie') {
+              if(header.name.toLowerCase() !== 'set-cookie') {
                 headers[header.name] = header.value;
               }
               return headers;
@@ -84,9 +87,20 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
           },
         };
 
-        const eresp = existResps.find(resp => resp.url === responseInfo.url && resp.method === responseInfo.method);
+        const summaryResponsInfo = {
+          method,
+          postData,
+          url,
+        };
+
+        if(avoidDuplicates && defaultMockData.find(mock => isSameRequest(mock, summaryResponsInfo))) {
+          return null;
+        }
+
+
+        const eresp = existResps.find(resp => isSameRequest(resp, summaryResponsInfo));
         if(eresp) {
-          existResps = existResps.filter(resp => !(resp.url === responseInfo.url && resp.method === responseInfo.method));
+          existResps = existResps.filter(resp => !isSameRequest(resp, summaryResponsInfo));
         }
 
         const mockId = eresp?.id || uuid.v4();
@@ -103,8 +117,7 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
           responseFilePath,
           JSON.stringify(responseInfo, null, 2)
         );
-        respHash[method+ '___'+url] = true;
-        return {
+        const responseSummaryRecord = {
           fileName: responseFileName,
           method,
           path: responseFilePath,
@@ -112,14 +125,17 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
           url,
           id: mockId,
         };
+        existResps.push(responseSummaryRecord);
+        return responseSummaryRecord;
       }
       return null;
     })
     .filter(Boolean); // Filter out non-JSON responses
 
+  const finalResponses = removeDuplicates(existResps.concat(responses));
   // Create an index file with references to individual response files
   const indexFilePath = `${outputFolder}/${fileName}`;
-  fs.writeFileSync(indexFilePath, JSON.stringify(existResps.concat(responses), null, 2));
+  fs.writeFileSync(indexFilePath, JSON.stringify(finalResponses, null, 2));
 
   console.log(
     `Individual response files and index file created in ${outputFolder}`
@@ -128,4 +144,5 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
 
 module.exports = {
   processHAR,
+  isSameRequest
 };
