@@ -4,10 +4,8 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const mockServer = require('./mockServer');
 const multer = require('multer');
-const { v4: uuidv4 } = require('uuid');
-const { processHAR } = require('./mockGenerator');
-const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, createHarMockDataForTest, updateMockDataForTest } = require('./src/TestRoutes');
-const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/DefaultMockRoutes');
+const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, createHarMockDataForTest, updateMockDataForTest } = require('./src/routes/TestRoutes');
+const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -63,10 +61,15 @@ app.put('/api/v1/tests/:id/mockdata/:mockId', updateMockDataForTest);
 
 
 // Router for /api/v1/mockServer GET method
-app.get('/api/v1/mockServer', (req, res) => {
-  const configPath = path.join(__dirname, 'mockServer.config.json');
+app.get('/api/v1/mockServer', async (req, res) => {
+  const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
 
   try {
+    if(!fs.existsSync(configPath)) {
+      await fs.appendFile(configPath, '{}', () => {
+        console.log('mockServer.config.json created successfully');
+      });
+    }
     // Read the config file
     const configData = fs.readFileSync(configPath, 'utf8');
     const config = JSON.parse(configData);
@@ -106,7 +109,7 @@ app.post('/api/v1/mockServer', (req, res) => {
     // Find the test with the given id
     const test = testsData.find(test => test.id === testId);
     // Save the test ID to mockServer.config.json
-    const configPath = path.join(__dirname, 'mockServer.config.json');
+    const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
     let config = {};
     
     try {
