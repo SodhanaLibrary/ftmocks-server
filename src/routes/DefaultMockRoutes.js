@@ -1,10 +1,9 @@
 const path = require('path');
 const fs = require('fs');
-const { processHAR } = require('../mockGenerator');
+const { processHAR } = require('../MockGenerator');
 
 
 const getDefaultMocks = async (req, res) => {
-    console.log(req.url);
     const defaultPath = process.env.MOCK_DIR+'/'+process.env.MOCK_DEFAULT_FILE;
   
     try {
@@ -33,7 +32,6 @@ const getDefaultMocks = async (req, res) => {
   };
 
   const deleteDefaultMock = async (req, res) => {
-    console.log(req.url);
     const mockId = req.params.id;
     const defaultPath = process.env.MOCK_DIR+'/'+process.env.MOCK_DEFAULT_FILE;
   

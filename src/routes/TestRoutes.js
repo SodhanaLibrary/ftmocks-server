@@ -1,16 +1,18 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
-const { processHAR } = require('../mockGenerator');
+const { processHAR } = require('../MockGenerator');
 
 const getTests = async (req, res) => {
-    console.log(req.url);
-    // TODO: Implement the logic for handling GET requests to /api/v1/tests
-    // This is a placeholder response
     const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
     try {
+      if (!fs.existsSync(indexPath)) {
+        await fs.appendFile(indexPath, '[]', () => {
+          console.log('file created successfully', indexPath);
+        })
+      }  
       const indexData = fs.readFileSync(indexPath, 'utf8');
-      const parsedData = JSON.parse(indexData);
+      const parsedData = JSON.parse(indexData || '[]');
       
       // Map the data to a more suitable format for the response
       const formattedData = parsedData.map(item => ({
@@ -62,7 +64,6 @@ const deleteTest = async (req, res) => {
   };
 
 const createTest = async (req, res) => {
-    console.log(req.body, req.url);
     const fs = require('fs');
     const path = require('path');
   
@@ -234,7 +235,7 @@ const createHarMockDataForTest = async (req, res) => {
     const harFilePath = req.file.path;
     
     // Process the HAR file and create mock data
-    await processHAR(harFilePath, process.env.MOCK_DIR, `test_${testId}.json`, testId);
+    await processHAR(harFilePath, process.env.MOCK_DIR, `test_${testId}.json`, testId, req.body.avoidDuplicates);
 
     // Update the test's mockFile array with the new mock data file
     const mockFileName = `test_${testId}.json`;
