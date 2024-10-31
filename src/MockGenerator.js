@@ -2,7 +2,7 @@ const fs = require('fs');
 const urlmodule = require('url');
 const path = require('path');
 const uuid = require('uuid');
-const { processURL, getDefaultMockDataSummaryList, isSameRequest, removeDuplicates } = require('./utils/MockUtils');
+const { processURL, getDefaultMockData, isSameRequest, removeDuplicates, compareMockToHarEntry, loadMockDataFromMockListFile } = require('./utils/MockUtils');
 
 function isJsonResponse(entry) {
   // Check if the response has a content type header and it is JSON
@@ -28,12 +28,11 @@ function extractFileName(filePath) {
   return baseName;
 }
 
-function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId, avoidDuplicates) {
+function processHAR(harFilePath, outputFolder, fileName = 'default.json', testName, avoidDuplicates) {
   let defaultMockData = [];
   if(avoidDuplicates) {
-    defaultMockData = getDefaultMockDataSummaryList();
+    defaultMockData = getDefaultMockData();
   }
-  console.log(defaultMockData);
   // Read the HAR file
   const harData = fs.readFileSync(harFilePath, 'utf8');
 
@@ -47,9 +46,8 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
 
   let existResps = [];
 
-  if (fs.existsSync(`${outputFolder}/${fileName}`)) {
-    const data = fs.readFileSync(`${outputFolder}/${fileName}`, "utf8");
-    existResps = JSON.parse(data);
+  if (fs.existsSync(path.join(outputFolder, fileName))) {
+    existResps = loadMockDataFromMockListFile(outputFolder, fileName, testName);
   }
 
   // Extract information and create individual JSON files for each response
@@ -87,31 +85,26 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
           },
         };
 
-        const summaryResponsInfo = {
-          method,
-          postData,
-          url,
-        };
-
-        if(avoidDuplicates && defaultMockData.find(mock => isSameRequest(mock, summaryResponsInfo))) {
+        if(avoidDuplicates && defaultMockData.find(mock => compareMockToHarEntry(mock, entry))) {
           return null;
         }
 
 
-        const eresp = existResps.find(resp => isSameRequest(resp, summaryResponsInfo));
+        const eresp = existResps.find(resp => compareMockToHarEntry(resp, entry));
         if(eresp) {
-          existResps = existResps.filter(resp => !isSameRequest(resp, summaryResponsInfo));
+          existResps = existResps.filter(resp => !compareMockToHarEntry(resp, entry));
         }
 
         const mockId = eresp?.id || uuid.v4();
 
-        const responseFileName = eresp ? extractFileName(eresp.fileName) : `mock_${mockId}.json`;
+        const responseFileName = `mock_${mockId}.json`;
         
-        if (!fs.existsSync(path.join(outputFolder, testId || 'defaultMocks'))) {
-          fs.mkdirSync(path.join(outputFolder, testId || 'defaultMocks'));
+        if (!fs.existsSync(path.join(outputFolder, !testName ? 'defaultMocks' : ''))) {
+          fs.mkdirSync(path.join(outputFolder, !testName ? 'defaultMocks' : ''));
         }
-        const responseFilePath = path.join(outputFolder, testId || 'defaultMocks', responseFileName);
+        const responseFilePath = path.join(outputFolder, !testName ? 'defaultMocks' : '', responseFileName);
         responseInfo.id = mockId;
+        responseInfo.ignoreParams = eresp?.fileContent.ignoreParams;
 
         fs.writeFileSync(
           responseFilePath,
@@ -125,7 +118,7 @@ function processHAR(harFilePath, outputFolder, fileName = 'default.json', testId
           url,
           id: mockId,
         };
-        existResps.push(responseSummaryRecord);
+        existResps.push(Object.assign({}, responseSummaryRecord, {fileContent: responseInfo}));
         return responseSummaryRecord;
       }
       return null;

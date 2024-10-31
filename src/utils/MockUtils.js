@@ -28,47 +28,45 @@ const areJsonEqual = (jsonObj1, jsonObj2) => {
     return jsonObj1 === jsonObj2;
   }
 }
+
+const nameToFolder = name => {
+  console.log(name);
+  return name.replaceAll(' ', '_');
+};
     
-const processURL = (url) => {
+const processURL = (url, ignoreParams=[]) => {
   // Remove the hostname from the URL
   const urlWithoutHost = url.replace(/^(https?:\/\/)?[^\/]+/, '');
   const processedURL = new URL(`http://domain.com${urlWithoutHost}`);
   const params = new URLSearchParams(processedURL.search);
-//   params.delete("endTime");
-//   params.delete("startMin");
-//   params.delete("startTime");
-//   params.delete("startDate");
-//   params.delete("endDate");
+  if(ignoreParams?.length > 0) {
+    ignoreParams.forEach(ip => {
+      params.delete(ip);
+    });
+  }
   params.sort();
   return decodeURIComponent(`${processedURL.pathname}?${params}`);
 }
 
 const getDefaultMockData = () => {
-    const defaultPath = process.env.MOCK_DIR+'/'+process.env.MOCK_DEFAULT_FILE;
+    const defaultPath = path.join(process.env.MOCK_DIR, process.env.MOCK_DEFAULT_FILE);
 
   try {
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
     let parsedData = JSON.parse(defaultData);
     
     // Read and attach mock data for each entry in parsedData
-    parsedData = parsedData.map(entry => {
-      const mockFilePath = entry.path;
+    parsedData.forEach(entry => {
+      const mockFilePath = path.join(process.env.MOCK_DIR, process.env.MOCK_DEFAULT_DIR, `mock_${entry.id}.json`);;
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
-        return JSON.parse(mockData);
+        entry.fileContent = JSON.parse(mockData);
       } catch (error) {
         console.error(`Error reading mock data for ${entry.path}:`, error);
         return entry; // Return the original entry if there's an error
       }
     });
-    // Create a map with processedURL as key
-    const defaultMockMap = new Map();
-    parsedData.forEach(entry => {
-      const processedURL = processURL(entry.url);
-      defaultMockMap.set(`${entry.method}'___'${processedURL}`, entry);
-    });
-    
-    return defaultMockMap;
+    return parsedData;
   } catch (error) {
     console.error('Error reading or parsing default.json:', error);
     return [];
@@ -76,7 +74,7 @@ const getDefaultMockData = () => {
 }
 
 const getDefaultMockDataSummaryList = () => {
-  const defaultPath = process.env.MOCK_DIR+'/'+process.env.MOCK_DEFAULT_FILE;
+  const defaultPath = path.join(process.env.MOCK_DIR, process.env.MOCK_DEFAULT_FILE);
 
   try {
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
@@ -94,47 +92,39 @@ const loadMockData = () => {
     const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
     const configData = fs.readFileSync(configPath, 'utf8');
     const config = JSON.parse(configData);
-    const testId = config.testId;
+    const testName = config.testName;
 
     // Read the tests from tests.json
-    const mocksPath = path.join(process.env.MOCK_DIR, `test_${testId}.json`);
+    const mocksPath = path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`, '_mock_list.json');
     const mocksData = fs.readFileSync(mocksPath, 'utf8');
     const mocks = JSON.parse(mocksData);
 
-    const mockData = new Map(mocks.map(mock => {
-      const fileContent = JSON.parse(fs.readFileSync(mock.path, 'utf8'));
-      return [`${fileContent.method}'___'${processURL(fileContent.url)}`, fileContent];
-    }));
+    mocks.forEach(mock => {
+      const fileContent = JSON.parse(fs.readFileSync(path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`, `mock_${mock.id}.json`), 'utf8'));
+      mock.fileContent = fileContent;
+    });
 
-    return mockData;
+    return mocks;
   } catch (error) {
     console.error('Error loading test data:', error.message);
-    return null;
+    return [];
   }
 }
 
-const loadMockDataList = () => {
+const loadMockDataFromMockListFile = (mockFolder, mockListFile, testName) => {
   try {
-    // Read the test ID from mockServer.config.json
-    const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
-    const configData = fs.readFileSync(configPath, 'utf8');
-    const config = JSON.parse(configData);
-    const testId = config.testId;
-
-    // Read the tests from tests.json
-    const mocksPath = path.join(process.env.MOCK_DIR, `test_${testId}.json`);
-    const mocksData = fs.readFileSync(mocksPath, 'utf8');
+    const mocksData = fs.readFileSync(path.join(mockFolder, mockListFile), 'utf8');
     const mocks = JSON.parse(mocksData);
 
-    const mockData = mocks.map(mock => {
-      const fileContent = JSON.parse(fs.readFileSync(mock.path, 'utf8'));
-      return fileContent;
+    mocks.forEach(mock => {
+      const fileContent = JSON.parse(fs.readFileSync(path.join(mockFolder, testName ? '' : 'defaultMocks', `mock_${mock.id}.json`), 'utf8'));
+      mock.fileContent = fileContent;
     });
 
-    return mockData;
+    return mocks;
   } catch (error) {
     console.error('Error loading test data:', error.message);
-    return null;
+    return [];
   }
 }
 
@@ -144,11 +134,44 @@ const isSameRequest = (req1, req2) => {
     matched = false;
   } else if(req1.method !== req2.method) {
     matched = false;
-  } else if(!areJsonEqual(req1.postData ,  req2.postData)) {
+  } else if(req1.postData && req2.postData && !areJsonEqual(req1.postData ,  req2.postData)) {
+    // console.log('--------start-----------');
+    // console.log(req1.postData);
+    // console.log('-------------------');
+    // console.log(req2.postData);
+    // console.log('--------end-----------');
     matched = false;
   }
   return matched;
 }
+
+const compareMockToRequest = (mock, req) => {
+  const mockURL = processURL(mock.fileContent.url, mock.fileContent.ignoreParams);
+  const reqURL = processURL(req.originalUrl, mock.fileContent.ignoreParams);
+  const postData = mock.fileContent.request?.postData?.text ? JSON.parse(mock.fileContent.request?.postData?.text) : mock.fileContent.request?.postData;
+  return isSameRequest({url: mockURL, method: mock.fileContent.method, postData}, {
+    method: req.method,
+    postData: req.body,
+    url: reqURL,
+  });
+};
+
+const compareMockToHarEntry = (mock, harEntry) => {
+  try {
+    const mockURL = processURL(mock.fileContent.url, mock.fileContent.ignoreParams);
+    const reqURL = processURL(harEntry.request.url, mock.fileContent.ignoreParams);
+    const postData = mock.fileContent.request?.postData;
+    return isSameRequest({url: mockURL, method: mock.fileContent.method, postData}, {
+      method: harEntry.request.method,
+      postData: harEntry.request.postData,
+      url: reqURL,
+    });
+  } catch(error) {
+    console.error(error);
+    console.log(mock, harEntry);
+    return false;
+  }
+};
 
 const removeDuplicates = (jsonArray) => {
   const uniqueObjects = new Set();
@@ -174,9 +197,12 @@ module.exports = {
     processURL,
     getDefaultMockData,
     getDefaultMockDataSummaryList,
+    loadMockDataFromMockListFile,
     loadMockData,
-    loadMockDataList,
     isSameRequest,
     areJsonEqual,
-    removeDuplicates
+    removeDuplicates,
+    nameToFolder,
+    compareMockToRequest,
+    compareMockToHarEntry
 }
