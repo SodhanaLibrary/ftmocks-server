@@ -31,7 +31,7 @@ const getDefaultMocks = async (req, res) => {
       });
       res.status(200).json(parsedData);
     } catch (error) {
-      console.error('Error reading or parsing default.json:', error);
+      console.error(`Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`, error);
       res.status(500).json({ error: 'Internal server error' });
     }
   };
@@ -41,7 +41,7 @@ const getDefaultMocks = async (req, res) => {
     const defaultPath = process.env.MOCK_DIR+'/'+process.env.MOCK_DEFAULT_FILE;
   
     try {
-      // Read and parse the default.json file
+      // Read and parse the process.env.MOCK_DEFAULT_FILE file
       let defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
   
       // Find the index of the mock to be deleted
@@ -57,7 +57,7 @@ const getDefaultMocks = async (req, res) => {
       // Remove the mock from the array
       defaultData.splice(mockIndex, 1);
   
-      // Write the updated data back to default.json
+      // Write the updated data back to process.env.MOCK_DEFAULT_FILE
       fs.writeFileSync(defaultPath, JSON.stringify(defaultData, null, 2));
   
       // Delete the associated mock file
@@ -93,7 +93,7 @@ const getDefaultMocks = async (req, res) => {
     try {
       const harFilePath = req.file.path;
       
-      await processHAR(harFilePath, process.env.MOCK_DIR, 'default.json');
+      await processHAR(harFilePath, process.env.MOCK_DIR, process.env.MOCK_DEFAULT_FILE);
   
       // Clean up the uploaded file
       fs.unlinkSync(harFilePath);
