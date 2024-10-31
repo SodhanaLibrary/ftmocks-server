@@ -27,9 +27,9 @@ To run this project, ensure you have the following installed on your machine:
    ```
 
 ### Configuration
-1. Create .env file for your project
+1. Create my-project.env file for your project
 
-2. Create a .env file in the project root.
+2. Create a my-project.env file in the project root.
    ```bash
    MOCK_DIR=/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/sample/my-project
    PORT=5000
@@ -41,7 +41,7 @@ To run this project, ensure you have the following installed on your machine:
 ### Running the Project
 To start the project, use:
    ```bash
-   npm start
+   npm start my-project
    ```
 
 ### Contributing
