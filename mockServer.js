@@ -2,7 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const bodyParser = require("body-parser");
 const path = require('path');
-const { getDefaultMockData, processURL, loadMockData } = require('./src/utils/MockUtils');
+const { getDefaultMockData, processURL, loadMockData, isSameRequest, compareMockToRequest } = require('./src/utils/MockUtils');
 
 
 const app = express();
@@ -10,16 +10,20 @@ const app = express();
 app.use(bodyParser.json());
 
 app.all("*", (req, res) => {
-  const { originalUrl, method, body } = req;
-  console.log(originalUrl, method, body);
-  const processedURL = processURL(originalUrl);
   const mockData = loadMockData();
   const defaultMockData = getDefaultMockData();
-  const method__url = `${method}'___'${processedURL}`;
-
+  
+  let foundMock = mockData?.find(mock => {
+    return compareMockToRequest(mock, req);
+  });
+  if(!foundMock) {
+    foundMock = defaultMockData?.find(mock => {
+      return compareMockToRequest(mock, req)
+    });
+  }
   // console.log(mockData, defaultMockData);
-  if (mockData?.has(method__url) || defaultMockData?.has(method__url)) {
-    const responseData = mockData?.get(method__url) || defaultMockData?.get(method__url);
+  if (foundMock) {
+    const responseData = foundMock.fileContent;
     const { content, headers, status } = responseData.response;
     const includedHeaders = ["content-type"];
 
@@ -35,7 +39,11 @@ app.all("*", (req, res) => {
       res.status(status).end(img);
     } else {
       // console.log(responseData, response.content);
-      res.status(status).json(JSON.parse(content));
+      if(content) {
+        res.status(status).json(JSON.parse(content));
+      } else {
+        res.status(status).end('');
+      }
     }
   } else {
     res.status(404).json({ error: 'Not found' });
