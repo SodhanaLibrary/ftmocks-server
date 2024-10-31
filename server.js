@@ -100,10 +100,10 @@ app.post('/api/v1/mockServer', (req, res) => {
     return res.status(400).json({ error: 'Test ID and port are required' });
   }
 
-  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+  const testsPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
 
   try {
-    // Read and parse the tests.json file
+    // Read and parse the process.env.MOCK_TEST_FILE file
     const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
     
     // Find the test with the given id

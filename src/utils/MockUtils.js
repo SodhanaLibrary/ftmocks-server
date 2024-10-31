@@ -68,7 +68,7 @@ const getDefaultMockData = () => {
     });
     return parsedData;
   } catch (error) {
-    console.error('Error reading or parsing default.json:', error);
+    console.error(`Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`, error);
     return [];
   }
 }
@@ -81,7 +81,7 @@ const getDefaultMockDataSummaryList = () => {
     let parsedData = JSON.parse(defaultData);
     return parsedData;
   } catch (error) {
-    console.error('Error reading or parsing default.json:', error);
+    console.error(`Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`, error);
     return [];
   }
 }
@@ -94,7 +94,7 @@ const loadMockData = () => {
     const config = JSON.parse(configData);
     const testName = config.testName;
 
-    // Read the tests from tests.json
+    // Read the tests from process.env.MOCK_TEST_FILE
     const mocksPath = path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`, '_mock_list.json');
     const mocksData = fs.readFileSync(mocksPath, 'utf8');
     const mocks = JSON.parse(mocksData);

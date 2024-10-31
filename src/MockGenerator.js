@@ -28,7 +28,7 @@ function extractFileName(filePath) {
   return baseName;
 }
 
-function processHAR(harFilePath, outputFolder, fileName = 'default.json', testName, avoidDuplicates) {
+function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAULT_FILE, testName, avoidDuplicates) {
   let defaultMockData = [];
   if(avoidDuplicates) {
     defaultMockData = getDefaultMockData();
