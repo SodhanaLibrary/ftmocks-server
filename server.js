@@ -74,8 +74,8 @@ app.get('/api/v1/mockServer', async (req, res) => {
     const configData = fs.readFileSync(configPath, 'utf8');
     const config = JSON.parse(configData);
 
-    // Check if testId exists in the config
-    if (!config.testId) {
+    // Check if testName exists in the config
+    if (!config.testName) {
       return res.status(404).json({ error: 'No active mock server found' });
     }
 
@@ -83,7 +83,7 @@ app.get('/api/v1/mockServer', async (req, res) => {
     const port = mockServerInstance ? mockServerInstance.address().port : null;
 
     res.json({
-      testId: config.testId,
+      testName: config.testName,
       port: port
     });
   } catch (error) {
@@ -94,9 +94,9 @@ app.get('/api/v1/mockServer', async (req, res) => {
 
 // Router for /api/v1/mockServer POST method
 app.post('/api/v1/mockServer', (req, res) => {
-  const { testId, port } = req.body;
+  const { testName, port } = req.body;
 
-  if (!testId || !port) {
+  if (!testName || !port) {
     return res.status(400).json({ error: 'Test ID and port are required' });
   }
 
@@ -107,7 +107,7 @@ app.post('/api/v1/mockServer', (req, res) => {
     const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
     
     // Find the test with the given id
-    const test = testsData.find(test => test.id === testId);
+    const test = testsData.find(test => test.name === testName);
     // Save the test ID to mockServer.config.json
     const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
     let config = {};
@@ -119,12 +119,12 @@ app.post('/api/v1/mockServer', (req, res) => {
       }
       
       // Update the config with the new test ID
-      config.testId = testId;
+      config.testName = testName;
       
       // Write the updated config back to the file
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
       
-      console.log(`Test ID ${testId} saved to mockServer.config.json`);
+      console.log(`Test ID ${testName} saved to mockServer.config.json`);
     } catch (configError) {
       console.error('Error updating mockServer.config.json:', configError);
       // Continue execution even if config update fails
@@ -141,14 +141,14 @@ app.post('/api/v1/mockServer', (req, res) => {
 
     // Here you would typically start a new mock server instance
     // This is a placeholder for that logic
-    console.log(`Starting mock server for test ${testId} on port ${port}`);
+    console.log(`Starting mock server for test ${testName} on port ${port}`);
 
     // In a real implementation, you'd start the server here
     // and return information about the started server
 
     res.status(200).json({
       message: "Mock server started successfully",
-      testId: testId,
+      testName: testName,
       port: port
     });
   } catch (error) {

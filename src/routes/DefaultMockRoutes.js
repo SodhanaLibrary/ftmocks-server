@@ -7,6 +7,11 @@ const getDefaultMocks = async (req, res) => {
     const defaultPath = process.env.MOCK_DIR+'/'+process.env.MOCK_DEFAULT_FILE;
   
     try {
+      if(!fs.existsSync(defaultPath)) {
+        await fs.appendFile(defaultPath, '[]', () => {
+          console.log('default file created successfully')
+        })
+      }
       const defaultData = fs.readFileSync(defaultPath, 'utf8');
       let parsedData = JSON.parse(defaultData);
       
