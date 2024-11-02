@@ -8,6 +8,9 @@
 - Default mock data for all test cases
 - Mock server for the test case
 
+## Documentation
+- Please visit FtMocks(www.ftmocks.com)
+
 ## Getting Started
 
 ### Prerequisites
