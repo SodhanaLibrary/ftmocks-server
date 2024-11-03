@@ -103,11 +103,14 @@ const updateTest = async (req, res) => {
       return res.status(404).json({ error: 'Test not found' });
     }
 
-    fs.renameSync(path.join(process.env.MOCK_DIR, `test_${nameToFolder(testsData[testIndex].name)}`), path.join(process.env.MOCK_DIR, `test_${nameToFolder(updatedTest.name)}`), (err) => {
-      if (err) {
-        throw err;
-      }
-    });
+    const testFolder = path.join(process.env.MOCK_DIR, `test_${nameToFolder(testsData[testIndex].name)}`);
+    if(fs.existsSync(testFolder)) {
+      fs.renameSync(testFolder, path.join(process.env.MOCK_DIR, `test_${nameToFolder(updatedTest.name)}`), (err) => {
+        if (err) {
+          throw err;
+        }
+      });
+    }
 
     testsData[testIndex].name = updatedTest.name;
     testsData[testIndex].mockFile = `test_${nameToFolder(updatedTest.name)}/_mock_list.json`;
@@ -129,7 +132,10 @@ const getMockDataForTest = async (req, res) => {
 
   try {
     // Read the mock data from the test-specific file
-    const mockData = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));
+    let mockData = [];
+    if(fs.existsSync(testDataPath)) {
+      mockData = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));
+    }
     // Read data from path attribute file names and assign as mockData
     const updatedMockData = mockData.map(item => {
       try {
