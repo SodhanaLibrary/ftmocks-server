@@ -29,6 +29,11 @@ To run this project, ensure you have the following installed on your machine:
    cd ftmocks-server
    ```
 
+3. Install dependencies:
+   ```bash
+   npm i
+   ```
+
 ### Configuration
 1. Create my-project.env file for your project
 
