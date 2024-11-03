@@ -1,5 +1,5 @@
 {
-  "name": "nile-fe-mock-server",
+  "name": "ftmocks-server",
   "version": "0.0.1",
   "description": "Mock server for nile frontend applications ",
   "main": "index.js",
