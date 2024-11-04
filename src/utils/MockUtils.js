@@ -134,13 +134,18 @@ const isSameRequest = (req1, req2) => {
     matched = false;
   } else if(req1.method !== req2.method) {
     matched = false;
-  } else if(req1.postData && req2.postData && !areJsonEqual(req1.postData ,  req2.postData)) {
-    // console.log('--------start-----------');
-    // console.log(req1.postData);
-    // console.log('-------------------');
-    // console.log(req2.postData);
-    // console.log('--------end-----------');
+  } else if((!req1.postData && req2.postData) || (req1.postData && !req2.postData)) {
     matched = false;
+  } else if(req1.postData && req2.postData && !areJsonEqual(req1.postData ,  req2.postData)) {
+    console.log('--------start-----------');
+    console.log(req1.postData);
+    console.log('-------------------');
+    console.log(req2.postData);
+    console.log('--------end-----------');
+    matched = false;
+  }
+  if(matched) {
+    console.log(req1, req2);
   }
   return matched;
 }
