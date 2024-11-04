@@ -248,6 +248,8 @@ const createHarMockDataForTest = async (req, res) => {
 
     const harFilePath = req.file.path;
     const testName = nameToFolder(req.body.testName);
+
+    console.log('avoidDuplicates = ', req.body.avoidDuplicates);
     
     // Process the HAR file and create mock data
     await processHAR(harFilePath, path.join(process.env.MOCK_DIR, `test_${testName}`), `_mock_list.json`, testName, req.body.avoidDuplicates);

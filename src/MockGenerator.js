@@ -9,7 +9,7 @@ function isJsonResponse(entry) {
   const contentTypeHeader = entry.response.headers.find(
     header => header.name.toLowerCase() === 'content-type'
   );
-
+  
   return (
     contentTypeHeader &&
     (
@@ -30,7 +30,7 @@ function extractFileName(filePath) {
 
 function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAULT_FILE, testName, avoidDuplicates) {
   let defaultMockData = [];
-  if(avoidDuplicates) {
+  if(avoidDuplicates === 'true') {
     defaultMockData = getDefaultMockData();
   }
   // Read the HAR file
@@ -53,7 +53,8 @@ function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAU
   // Extract information and create individual JSON files for each response
   const responses = harObject.log.entries
     .map((entry, index) => {
-      if (isJsonResponse(entry)) {
+      console.log(entry.request.url+' is json response = '+isJsonResponse(entry));
+      // if (isJsonResponse(entry)) {
         const url = processURL(entry.request.url);
         const { method, postData } = entry.request;
 
@@ -85,14 +86,17 @@ function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAU
           },
         };
 
-        if(avoidDuplicates && defaultMockData.find(mock => compareMockToHarEntry(mock, entry))) {
+        if(defaultMockData.find(mock => compareMockToHarEntry(mock, entry))) {
+          console.log('not uploaidng due to avoidDuplicates '+avoidDuplicates);
           return null;
         }
 
 
         const eresp = existResps.find(resp => compareMockToHarEntry(resp, entry));
+        let duplicate = false;
         if(eresp) {
           existResps = existResps.filter(resp => !compareMockToHarEntry(resp, entry));
+          duplicate = true;
         }
 
         const mockId = eresp?.id || uuid.v4();
@@ -119,12 +123,20 @@ function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAU
           id: mockId,
         };
         existResps.push(Object.assign({}, responseSummaryRecord, {fileContent: responseInfo}));
-        return responseSummaryRecord;
-      }
+        if(!duplicate) {
+          return responseSummaryRecord;
+        }
+      // }
       return null;
     })
     .filter(Boolean); // Filter out non-JSON responses
 
+  existResps.forEach(element => {
+    delete element.fileContent;
+  });
+  responses.forEach(element => {
+    delete element.fileContent;
+  });
   const finalResponses = removeDuplicates(existResps.concat(responses));
   // Create an index file with references to individual response files
   const indexFilePath = `${outputFolder}/${fileName}`;
