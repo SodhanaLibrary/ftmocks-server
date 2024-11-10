@@ -15,7 +15,7 @@ const Subjects = () => {
 
     const fetchSubjects = async () => {
         try {
-            const { data } = await getSubjects();
+            const data = await getSubjects();
             setSubjects(data);
         } catch (error) {
             console.error('Error fetching subjects:', error);

@@ -72,7 +72,7 @@ function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAU
             postData: entry.request.postData,
           },
           response: {
-            status: entry.response.status,
+            status: entry.response.status === 304 ? 200 : entry.response.status,
             headers: entry.response.headers.reduce(
               (headers, header) => {
               if(header.name.toLowerCase() !== 'set-cookie') {

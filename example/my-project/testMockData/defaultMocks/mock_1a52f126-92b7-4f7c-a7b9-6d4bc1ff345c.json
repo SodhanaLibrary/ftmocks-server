@@ -1,0 +1,37 @@
+{
+  "url": "/api/students?",
+  "method": "GET",
+  "request": {
+    "headers": {
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "If-None-Match": "W/\"1b6-kdYCMboqD/d0qaUCKbwOZ5w3Xoc\"",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Not)A;Brand\";v=\"99\", \"Google Chrome\";v=\"127\", \"Chromium\";v=\"127\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 304,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "connection": "close",
+      "date": "Mon, 04 Nov 2024 14:53:03 GMT",
+      "etag": "W/\"1b6-kdYCMboqD/d0qaUCKbwOZ5w3Xoc\"",
+      "x-powered-by": "Express"
+    },
+    "content": "[{\"id\":1,\"name\":\"Alice Johnson\",\"age\":16,\"grade\":\"10th\",\"email\":\"alice.johnson@example.com\"},{\"id\":2,\"name\":\"Bob Smith\",\"age\":17,\"grade\":\"11th\",\"email\":\"bob.smith@example.com\"},{\"id\":3,\"name\":\"Cathy Brown\",\"age\":15,\"grade\":\"9th\",\"email\":\"cathy.brown@example.com\"},{\"id\":4,\"name\":\"David Wilson\",\"age\":18,\"grade\":\"12th\",\"email\":\"david.wilson@example.com\"},{\"id\":5,\"name\":\"Eva Davis\",\"age\":16,\"grade\":\"10th\",\"email\":\"eva.davis@example.com\"}]"
+  },
+  "id": "1a52f126-92b7-4f7c-a7b9-6d4bc1ff345c"
+}

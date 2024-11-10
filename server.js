@@ -6,6 +6,7 @@ const mockServer = require('./mockServer');
 const multer = require('multer');
 const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, createHarMockDataForTest, updateMockDataForTest } = require('./src/routes/TestRoutes');
 const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
+const { getEnvProject } = require('./src/routes/EnvRoutes.js');
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -58,6 +59,9 @@ app.delete('/api/v1/tests/:id/mockdata/:mockId', deleteMockDataForTest);
 
 // Router for /api/v1/tests/:id/mockdata/:mockId PUT method
 app.put('/api/v1/tests/:id/mockdata/:mockId', updateMockDataForTest);
+
+// Router for /api/v1/tests/:id/mockdata/:mockId PUT method
+app.get('/api/v1/env/project', getEnvProject);
 
 
 // Router for /api/v1/mockServer GET method
