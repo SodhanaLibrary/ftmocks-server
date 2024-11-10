@@ -135,7 +135,7 @@ const isSameRequest = (req1, req2) => {
   } else if(req1.method !== req2.method) {
     matched = false;
   } else if((!req1.postData && req2.postData) || (req1.postData && !req2.postData)) {
-    matched = false;
+    matched = areJsonEqual(req1.postData || {} ,  req2.postData || {});
   } else if(req1.postData && req2.postData && !areJsonEqual(req1.postData ,  req2.postData)) {
     console.log('--------start-----------');
     console.log(req1.postData);
