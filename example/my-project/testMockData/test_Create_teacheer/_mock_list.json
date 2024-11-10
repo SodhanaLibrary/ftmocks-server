@@ -1,0 +1,20 @@
+[
+  {
+    "fileName": "mock_257622c3-995d-48d7-a017-ff5896376833.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_257622c3-995d-48d7-a017-ff5896376833.json",
+    "url": "/api/teachers?",
+    "id": "257622c3-995d-48d7-a017-ff5896376833"
+  },
+  {
+    "fileName": "mock_735005b1-7de2-4cfd-8c22-5072c91a1162.json",
+    "method": "POST",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_735005b1-7de2-4cfd-8c22-5072c91a1162.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"srinivas\",\"subject\":\"CSE\",\"yearsOfExperience\":\"23\"}"
+    },
+    "url": "/api/teachers?",
+    "id": "735005b1-7de2-4cfd-8c22-5072c91a1162"
+  }
+]
