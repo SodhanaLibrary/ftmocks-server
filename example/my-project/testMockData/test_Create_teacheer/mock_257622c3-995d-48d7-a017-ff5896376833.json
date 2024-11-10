@@ -1,0 +1,39 @@
+{
+  "url": "/api/teachers?",
+  "method": "GET",
+  "request": {
+    "headers": {
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Not)A;Brand\";v=\"99\", \"Google Chrome\";v=\"127\", \"Chromium\";v=\"127\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "Vary": "Accept-Encoding",
+      "connection": "close",
+      "content-length": "586",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Mon, 04 Nov 2024 15:46:52 GMT",
+      "etag": "W/\"24a-wCo5noi4qhSRwdioRmKMDGxoLi0\"",
+      "x-powered-by": "Express"
+    },
+    "content": "[{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"age\":45,\"subject\":\"Mathematics\",\"email\":\"thomas.anderson@example.com\"},{\"id\":2,\"name\":\"Ms. Maria Rodriguez\",\"age\":39,\"subject\":\"English\",\"email\":\"maria.rodriguez@example.com\"},{\"id\":3,\"name\":\"Mr. James Miller\",\"age\":50,\"subject\":\"Science\",\"email\":\"james.miller@example.com\"},{\"id\":4,\"name\":\"Mrs. Susan Lee\",\"age\":42,\"subject\":\"History\",\"email\":\"susan.lee@example.com\"},{\"id\":5,\"name\":\"Dr. Rachel Scott\",\"age\":35,\"subject\":\"Physical Education\",\"email\":\"rachel.scott@example.com\"},{\"id\":6,\"name\":\"srinivas\",\"subject\":\"CSE\",\"yearsOfExperience\":\"23\"}]"
+  },
+  "id": "257622c3-995d-48d7-a017-ff5896376833"
+}
