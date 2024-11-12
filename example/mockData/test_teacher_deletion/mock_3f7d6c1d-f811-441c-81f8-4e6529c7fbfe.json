@@ -1,0 +1,40 @@
+{
+  "url": "/api/teachers/6?",
+  "method": "DELETE",
+  "request": {
+    "headers": {
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "Origin": "http://localhost:4050",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"130\", \"Google Chrome\";v=\"130\", \"Not?A_Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"Windows\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "Vary": "Accept-Encoding",
+      "connection": "close",
+      "content-length": "42",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 06 Nov 2024 12:51:42 GMT",
+      "etag": "W/\"2a-hC4t+kJS9jbMdEzc98RsWUIXaXI\"",
+      "x-powered-by": "Express"
+    },
+    "content": "{\"message\":\"Teacher deleted successfully\"}"
+  },
+  "id": "3f7d6c1d-f811-441c-81f8-4e6529c7fbfe"
+}

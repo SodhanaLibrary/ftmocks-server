@@ -1,0 +1,23 @@
+[
+  {
+    "fileName": "mock_67b034f0-3c28-4da2-9cff-81e95bfb5337.json",
+    "method": "GET",
+    "path": "C:\\Users\\kolag\\OneDrive\\Desktop\\react.js\\ftmocks-server\\example\\mockData\\defaultMocks\\mock_67b034f0-3c28-4da2-9cff-81e95bfb5337.json",
+    "url": "/api/students?",
+    "id": "67b034f0-3c28-4da2-9cff-81e95bfb5337"
+  },
+  {
+    "fileName": "mock_bb025f3c-3911-4f3f-84f9-c04e761c4114.json",
+    "method": "GET",
+    "path": "C:\\Users\\kolag\\OneDrive\\Desktop\\react.js\\ftmocks-server\\example\\mockData\\defaultMocks\\mock_bb025f3c-3911-4f3f-84f9-c04e761c4114.json",
+    "url": "/api/teachers?",
+    "id": "bb025f3c-3911-4f3f-84f9-c04e761c4114"
+  },
+  {
+    "fileName": "mock_e6d3eb69-dbbd-4165-b40b-a2fa2c301f57.json",
+    "method": "GET",
+    "path": "C:\\Users\\kolag\\OneDrive\\Desktop\\react.js\\ftmocks-server\\example\\mockData\\defaultMocks\\mock_e6d3eb69-dbbd-4165-b40b-a2fa2c301f57.json",
+    "url": "/api/subjects?",
+    "id": "e6d3eb69-dbbd-4165-b40b-a2fa2c301f57"
+  }
+]

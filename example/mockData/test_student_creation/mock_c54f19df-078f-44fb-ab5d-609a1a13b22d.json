@@ -1,0 +1,46 @@
+{
+  "url": "/api/students?",
+  "method": "POST",
+  "request": {
+    "headers": {
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Connection": "keep-alive",
+      "Content-Length": "40",
+      "Content-Type": "application/json",
+      "Host": "localhost:4050",
+      "Origin": "http://localhost:4050",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"130\", \"Google Chrome\";v=\"130\", \"Not?A_Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"Windows\""
+    },
+    "queryString": [],
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"koothi\",\"age\":\"22\",\"grade\":\"A\"}"
+    }
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "Vary": "Accept-Encoding",
+      "connection": "close",
+      "content-length": "47",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 06 Nov 2024 08:33:14 GMT",
+      "etag": "W/\"2f-xO1zcF6dVw48u7Wd4ReYS9ecgto\"",
+      "x-powered-by": "Express"
+    },
+    "content": "{\"id\":6,\"name\":\"koothi\",\"age\":\"22\",\"grade\":\"A\"}"
+  },
+  "id": "c54f19df-078f-44fb-ab5d-609a1a13b22d"
+}

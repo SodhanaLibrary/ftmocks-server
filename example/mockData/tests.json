@@ -1,0 +1,47 @@
+[
+  {
+    "id": "08b18257-d858-485d-bac0-424f755a7e65",
+    "name": "student creation",
+    "mockFile": "test_student_creation/_mock_list.json"
+  },
+  {
+    "id": "f6a4b6ed-8a41-4cd8-ab50-d9ccff95957e",
+    "name": "teacher creation",
+    "mockFile": "test_teacher_creation/_mock_list.json"
+  },
+  {
+    "id": "a2ca5cc6-0a2e-4192-a49e-db918706f64d",
+    "name": "subject creation",
+    "mockFile": "test_subject_creation/_mock_list.json"
+  },
+  {
+    "id": "005203a5-5973-47dd-8c79-c5da982d1c5e",
+    "name": "subject deletion",
+    "mockFile": "test_subject_deletion/_mock_list.json"
+  },
+  {
+    "id": "8068d61a-f0d1-4368-af42-990a7ba49d1c",
+    "name": "subject edit",
+    "mockFile": "test_subject_edit/_mock_list.json"
+  },
+  {
+    "id": "f3f1c2dc-3318-4e80-b6b2-00976e12fe38",
+    "name": "teacher deletion",
+    "mockFile": "test_teacher_deletion/_mock_list.json"
+  },
+  {
+    "id": "97bdfe1c-7195-48e3-950d-39d29455fbd0",
+    "name": "teacher edit",
+    "mockFile": "test_teacher_edit/_mock_list.json"
+  },
+  {
+    "id": "a2074828-0564-493e-9214-196b582b29c8",
+    "name": "student deletion",
+    "mockFile": "test_student_deletion/_mock_list.json"
+  },
+  {
+    "id": "7edd4c06-917a-4f0c-8c92-0cc88b8d4bbb",
+    "name": "student edit",
+    "mockFile": "test_student_edit/_mock_list.json"
+  }
+]
