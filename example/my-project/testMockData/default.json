@@ -1,0 +1,23 @@
+[
+  {
+    "fileName": "mock_1a52f126-92b7-4f7c-a7b9-6d4bc1ff345c.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_1a52f126-92b7-4f7c-a7b9-6d4bc1ff345c.json",
+    "url": "/api/students?",
+    "id": "1a52f126-92b7-4f7c-a7b9-6d4bc1ff345c"
+  },
+  {
+    "fileName": "mock_d966b72e-7a57-42fa-80d8-08ff98f9fbf0.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_d966b72e-7a57-42fa-80d8-08ff98f9fbf0.json",
+    "url": "/api/subjects?",
+    "id": "d966b72e-7a57-42fa-80d8-08ff98f9fbf0"
+  },
+  {
+    "fileName": "mock_a0039d80-629a-4a67-a268-518edac49929.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_a0039d80-629a-4a67-a268-518edac49929.json",
+    "url": "/api/teachers?",
+    "id": "a0039d80-629a-4a67-a268-518edac49929"
+  }
+]
