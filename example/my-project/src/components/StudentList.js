@@ -20,10 +20,10 @@ const StudentList = ({ students, onEdit, onDelete }) => (
                         <TableCell>{student.age}</TableCell>
                         <TableCell>{student.grade}</TableCell>
                         <TableCell>
-                            <Button variant="contained" color="primary" onClick={() => onEdit(student)}>
+                            <Button id={`student-${student.id}-edit-btn`} variant="contained" color="primary" onClick={() => onEdit(student)}>
                                 Edit
                             </Button>
-                            <Button variant="contained" color="secondary" onClick={() => onDelete(student.id)} style={{ marginLeft: 8 }}>
+                            <Button id={`student-${student.id}-delete-btn`} variant="contained" color="secondary" onClick={() => onDelete(student.id)} style={{ marginLeft: 8 }}>
                                 Delete
                             </Button>
                         </TableCell>

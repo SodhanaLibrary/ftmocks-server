@@ -1,13 +1,16 @@
 {
-  "url": "/api/teachers?",
-  "method": "GET",
+  "url": "/api/teachers/1?",
+  "method": "PUT",
   "request": {
     "headers": {
-      "Accept": "application/json, text/plain, */*",
+      "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br, zstd",
       "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
       "Connection": "keep-alive",
+      "Content-Length": "132",
+      "Content-Type": "application/json",
       "Host": "localhost:4050",
+      "Origin": "http://localhost:4050",
       "Referer": "http://localhost:4050/",
       "Sec-Fetch-Dest": "empty",
       "Sec-Fetch-Mode": "cors",
@@ -17,7 +20,11 @@
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
-    "queryString": []
+    "queryString": [],
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"age\":45,\"subject\":\"Mathematics\",\"email\":\"thomas.anderson@example.com\",\"yearsOfExperience\":\"3\"}"
+    }
   },
   "response": {
     "status": 200,
@@ -27,13 +34,13 @@
       "Access-Control-Allow-Origin": "*",
       "Vary": "Accept-Encoding",
       "connection": "close",
-      "content-length": "586",
+      "content-length": "85",
       "content-type": "application/json; charset=utf-8",
-      "date": "Mon, 04 Nov 2024 15:46:52 GMT",
-      "etag": "W/\"24a-wCo5noi4qhSRwdioRmKMDGxoLi0\"",
+      "date": "Sun, 17 Nov 2024 11:36:28 GMT",
+      "etag": "W/\"55-bGssS6ZOlPag6h7DI/uNqu0ergo\"",
       "x-powered-by": "Express"
     },
-    "content": "[{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"age\":45,\"subject\":\"Mathematics\",\"email\":\"thomas.anderson@example.com\"},{\"id\":2,\"name\":\"Ms. Maria Rodriguez\",\"age\":39,\"subject\":\"English\",\"email\":\"maria.rodriguez@example.com\"},{\"id\":3,\"name\":\"Mr. James Miller\",\"age\":50,\"subject\":\"Science\",\"email\":\"james.miller@example.com\"},{\"id\":4,\"name\":\"Mrs. Susan Lee\",\"age\":42,\"subject\":\"History\",\"email\":\"susan.lee@example.com\"},{\"id\":5,\"name\":\"Dr. Rachel Scott\",\"age\":35,\"subject\":\"Physical Education\",\"email\":\"rachel.scott@example.com\"},{\"id\":6,\"name\":\"srinivas\",\"subject\":\"CSE\",\"yearsOfExperience\":\"23\"}]"
+    "content": "{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"subject\":\"Mathematics\",\"yearsOfExperience\":\"3\"}"
   },
-  "id": "257622c3-995d-48d7-a017-ff5896376833"
+  "id": "aff0e673-69ba-4042-b157-6cafca4680d3"
 }

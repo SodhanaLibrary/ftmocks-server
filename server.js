@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const mockServer = require('./mockServer');
 const multer = require('multer');
-const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, createHarMockDataForTest, updateMockDataForTest } = require('./src/routes/TestRoutes');
+const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks } = require('./src/routes/TestRoutes');
 const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
 
@@ -27,29 +27,23 @@ app.use(bodyParser.json());
 // Router for /api/v1/tests GET method
 app.get('/api/v1/tests', getTests);
 
+// Router for /api/v1/tests POST method
+app.post('/api/v1/tests', createTest);
+
 // Router for /api/v1/tests DELETE method
 app.delete('/api/v1/tests/:id', deleteTest);
 
 // Router for /api/v1/tests PUT method
 app.put('/api/v1/tests/:id', updateTest);
 
-// Router for /api/v1/tests POST method
-app.post('/api/v1/tests', createTest);
-
-// Router for /api/v1/defaultmocks GET method
-app.get('/api/v1/defaultmocks', getDefaultMocks);
-
-// Router for /api/v1/defaultmocks/:id DELETE method
-app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);
-
-// Router for /api/v1/defaultmocks/:id PUT method
-app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
-
 // Router for /api/v1/tests/:id/mockdata GET method
 app.get('/api/v1/tests/:id/mockdata', getMockDataForTest);
 
 // Router for /api/v1/tests/:id/mockdata POST method
 app.post('/api/v1/tests/:id/mockdata', createMockDataForTest);
+
+// Router for /api/v1/tests/:id/mockdata PUT method
+app.put('/api/v1/tests/:id/mockdata', updateTestMocks);
 
 // Router for /api/v1/tests/:id/harMockdata POST method
 app.post('/api/v1/tests/:id/harMockdata', upload.single('harFile'), createHarMockDataForTest);
@@ -59,6 +53,18 @@ app.delete('/api/v1/tests/:id/mockdata/:mockId', deleteMockDataForTest);
 
 // Router for /api/v1/tests/:id/mockdata/:mockId PUT method
 app.put('/api/v1/tests/:id/mockdata/:mockId', updateMockDataForTest);
+
+// Router for /api/v1/defaultmocks GET method
+app.get('/api/v1/defaultmocks', getDefaultMocks);
+
+// Router for /api/v1/defaultmocks POST method
+app.post('/api/v1/defaultmocks', createMockDataForTest);
+
+// Router for /api/v1/defaultmocks/:id DELETE method
+app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);
+
+// Router for /api/v1/defaultmocks/:id PUT method
+app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
 
 // Router for /api/v1/tests/:id/mockdata/:mockId PUT method
 app.get('/api/v1/env/project', getEnvProject);

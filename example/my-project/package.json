@@ -20,7 +20,7 @@
   "scripts": {
     "start": "PORT=4050  react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!@codemirror)/\"",
+    "test": "react-scripts test --coverage --transformIgnorePatterns \"node_modules/(?!@codemirror)/\"",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

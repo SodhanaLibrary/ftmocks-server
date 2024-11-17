@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
-const { processHAR } = require('../MockGenerator');
+const { processHAR, createMockFromUserInputForTest } = require('../utils/MockGenerator');
 const { nameToFolder } = require('../utils/MockUtils');
 
 const getTests = async (req, res) => {
@@ -155,42 +155,16 @@ const getMockDataForTest = async (req, res) => {
 };
 
 const createMockDataForTest = async (req, res) => {
-    const testId = req.params.id;
+    const testName = req.query.name;
     const mockData = req.body;
-    const testsPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
-  
     try {
-      // Read and parse the process.env.MOCK_TEST_FILE file
-      const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
-      
-      // Find the test with the given id
-      const testIndex = testsData.findIndex(test => test.id === testId);
-      
-      if (testIndex === -1) {
-        return res.status(404).json({ error: 'Test not found' });
-      }
-  
-      // Generate a unique filename for the new mock data
-      const fileName = `response_${Date.now()}.json`;
-      const filePath = path.join(process.env.MOCK_DIR, fileName);
-  
-      // Write the mock data to the new file
-      fs.writeFileSync(filePath, JSON.stringify(mockData, null, 2));
-  
-      testsData[testIndex].mockFile = fileName;
-  
-      // Save the updated tests data back to process.env.MOCK_TEST_FILE
-      fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
-  
-      res.status(201).json({
-        message: "Mock data added successfully",
-        fileName: fileName
-      });
+      createMockFromUserInputForTest(mockData, testName);
+      res.status(200).json({ message: 'Uploaded successfully' });
     } catch (error) {
       console.error('Error adding mock data:', error);
       res.status(500).json({ error: 'Failed to add mock data' });
     }
-  };
+};
 
 const deleteMockDataForTest = async (req, res) => {
   const testId = req.params.id;
@@ -225,7 +199,7 @@ const deleteMockDataForTest = async (req, res) => {
     console.error('Error deleting mock data:', error);
     res.status(500).json({ error: 'Failed to delete mock data' });
   }
-  };
+};
 
 const createHarMockDataForTest = async (req, res) => {
   const testId = req.params.id;
@@ -290,11 +264,35 @@ const updateMockDataForTest = async (req, res) => {
   }
 }
 
+const updateTestMocks = async (req, res) => {
+  const testName = req.query.name;
+  const updatedMocks = req.body;
+
+  try {
+    const testDir = path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`);
+    const testsPath = path.join(testDir, `_mock_list.json`);
+    const newMockSummary = updatedMocks.map(mock => ({fileName: `mock_${mock.id}.json`,
+      method: mock.method,
+      path: path.join(testDir, `mock_${mock.id}.json`),
+      postData: mock.request.postData,
+      url: mock.url,
+      id: mock.id
+    }))
+    fs.writeFileSync(testsPath, JSON.stringify(newMockSummary, null, 2));
+
+    res.status(200).json({ message: 'Test updated successfully' });
+  } catch (error) {
+    console.error('Error updating test:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 module.exports = {
     getTests,
     deleteTest,
     updateTest,
     createTest,
+    updateTestMocks,
     getMockDataForTest,
     createMockDataForTest,
     deleteMockDataForTest,
