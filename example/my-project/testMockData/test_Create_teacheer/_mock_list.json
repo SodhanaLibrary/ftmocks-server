@@ -1,20 +1,20 @@
 [
   {
-    "fileName": "mock_257622c3-995d-48d7-a017-ff5896376833.json",
+    "fileName": "mock_772ba304-4d8b-4c02-b062-a00c29e9acec.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_257622c3-995d-48d7-a017-ff5896376833.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_772ba304-4d8b-4c02-b062-a00c29e9acec.json",
     "url": "/api/teachers?",
-    "id": "257622c3-995d-48d7-a017-ff5896376833"
+    "id": "772ba304-4d8b-4c02-b062-a00c29e9acec"
   },
   {
-    "fileName": "mock_735005b1-7de2-4cfd-8c22-5072c91a1162.json",
-    "method": "POST",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_735005b1-7de2-4cfd-8c22-5072c91a1162.json",
+    "fileName": "mock_aff0e673-69ba-4042-b157-6cafca4680d3.json",
+    "method": "PUT",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_aff0e673-69ba-4042-b157-6cafca4680d3.json",
     "postData": {
       "mimeType": "application/json",
-      "text": "{\"name\":\"srinivas\",\"subject\":\"CSE\",\"yearsOfExperience\":\"23\"}"
+      "text": "{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"age\":45,\"subject\":\"Mathematics\",\"email\":\"thomas.anderson@example.com\",\"yearsOfExperience\":\"3\"}"
     },
-    "url": "/api/teachers?",
-    "id": "735005b1-7de2-4cfd-8c22-5072c91a1162"
+    "url": "/api/teachers/1?",
+    "id": "aff0e673-69ba-4042-b157-6cafca4680d3"
   }
 ]
