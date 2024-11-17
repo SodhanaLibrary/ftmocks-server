@@ -104,7 +104,7 @@ const loadMockData = () => {
       mock.fileContent = fileContent;
     });
 
-    return mocks;
+    return {mocks, testName};
   } catch (error) {
     console.error('Error loading test data:', error.message);
     return [];
@@ -178,6 +178,16 @@ const compareMockToHarEntry = (mock, harEntry) => {
   }
 };
 
+const compareMockToMock = (mock1, mock2) => {
+  try {
+    return isSameRequest(mock1, mock2);
+  } catch(error) {
+    console.error(error);
+    console.log(mock, harEntry);
+    return false;
+  }
+};
+
 const removeDuplicates = (jsonArray) => {
   const uniqueObjects = new Set();
 
@@ -209,5 +219,6 @@ module.exports = {
     removeDuplicates,
     nameToFolder,
     compareMockToRequest,
-    compareMockToHarEntry
+    compareMockToHarEntry,
+    compareMockToMock
 }

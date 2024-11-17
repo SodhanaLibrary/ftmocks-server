@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { processHAR } = require('../MockGenerator');
+const { processHAR } = require('../utils/MockGenerator');
 
 
 const getDefaultMocks = async (req, res) => {

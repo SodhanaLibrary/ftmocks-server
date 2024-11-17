@@ -1,0 +1,37 @@
+{
+  "url": "/api/teachers?",
+  "method": "GET",
+  "request": {
+    "headers": {
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "If-None-Match": "W/\"206-pr7PtGbyqBqDOyb+x1cVkH9Ig1E\"",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Not)A;Brand\";v=\"99\", \"Google Chrome\";v=\"127\", \"Chromium\";v=\"127\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 304,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "connection": "close",
+      "date": "Mon, 04 Nov 2024 14:53:04 GMT",
+      "etag": "W/\"206-pr7PtGbyqBqDOyb+x1cVkH9Ig1E\"",
+      "x-powered-by": "Express"
+    },
+    "content": "[\n  {\n    \"id\": 1,\n    \"name\": \"Mr. Thomas Anderson\",\n    \"age\": 45,\n    \"subject\": \"Mathematics\",\n    \"email\": \"thomas.anderson@example.com\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Ms. Maria Rodriguez\",\n    \"age\": 39,\n    \"subject\": \"English\",\n    \"email\": \"maria.rodriguez@example.com\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Mr. James Miller\",\n    \"age\": 50,\n    \"subject\": \"Science\",\n    \"email\": \"james.miller@example.com\"\n  },\n  {\n    \"id\": 4,\n    \"name\": \"Mrs. Susan Lee\",\n    \"age\": 42,\n    \"subject\": \"History\",\n    \"email\": \"susan.lee@example.com\"\n  },\n  {\n    \"id\": 5,\n    \"name\": \"Dr. Rachel Scott\",\n    \"age\": 35,\n    \"subject\": \"Physical Education\",\n    \"email\": \"rachel.scott@example.com\"\n  }\n]"
+  },
+  "id": "84b7a45c-1f74-4c25-9828-e6d799bc844a"
+}

@@ -23,6 +23,7 @@ const SubjectForm = ({ onSubmit, selectedSubject }) => {
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: 2, mb: 2,  mt: 3  }}>
             <TextField
+                id="subject-form-name"
                 label="Name"
                 name="name"
                 value={subject.name}
@@ -30,6 +31,7 @@ const SubjectForm = ({ onSubmit, selectedSubject }) => {
                 required
             />
             <TextField
+                id="subject-form-credits"
                 label="Credits"
                 name="credits"
                 type="number"
@@ -37,7 +39,7 @@ const SubjectForm = ({ onSubmit, selectedSubject }) => {
                 onChange={handleChange}
                 required
             />
-            <Button type="submit" variant="contained" color="primary">
+            <Button id="subject-form-submit" type="submit" variant="contained" color="primary">
                 {selectedSubject ? "Update" : "Create"}
             </Button>
         </Box>

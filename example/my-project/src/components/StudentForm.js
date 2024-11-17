@@ -23,6 +23,7 @@ const StudentForm = ({ onSubmit, selectedStudent }) => {
     return (
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: 2, mb: 2, mt: 3 }}>
             <TextField
+                id="student-form-name"
                 label="Name"
                 name="name"
                 value={student.name}
@@ -30,6 +31,7 @@ const StudentForm = ({ onSubmit, selectedStudent }) => {
                 required
             />
             <TextField
+                id="student-form-age"
                 label="Age"
                 name="age"
                 type="number"
@@ -38,13 +40,14 @@ const StudentForm = ({ onSubmit, selectedStudent }) => {
                 required
             />
             <TextField
+                id="student-form-grade"
                 label="Grade"
                 name="grade"
                 value={student.grade}
                 onChange={handleChange}
                 required
             />
-            <Button type="submit" variant="contained" color="primary">
+            <Button id="student-form-submit" type="submit" variant="contained" color="primary">
                 {selectedStudent ? "Update" : "Create"}
             </Button>
         </Box>

@@ -18,10 +18,10 @@ const SubjectList = ({ subjects, onEdit, onDelete }) => (
                         <TableCell>{subject.name}</TableCell>
                         <TableCell>{subject.credits}</TableCell>
                         <TableCell>
-                            <Button variant="contained" color="primary" onClick={() => onEdit(subject)}>
+                            <Button id={`subject-${subject.id}-edit-btn`} variant="contained" color="primary" onClick={() => onEdit(subject)}>
                                 Edit
                             </Button>
-                            <Button variant="contained" color="secondary" onClick={() => onDelete(subject.id)} style={{ marginLeft: 8 }}>
+                            <Button id={`subject-${subject.id}-delete-btn`} variant="contained" color="secondary" onClick={() => onDelete(subject.id)} style={{ marginLeft: 8 }}>
                                 Delete
                             </Button>
                         </TableCell>

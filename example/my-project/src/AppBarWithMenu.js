@@ -7,17 +7,17 @@ const AppBarWithMenu = ({ onMenuClick }) => {
         <Container sx={{mb: 5}}>
         <AppBar position="static">
             <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography id="header-title" variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     School Portal
                 </Typography>
                 <Box>
-                    <Button color="inherit" onClick={() => onMenuClick('teachers')}>
+                    <Button id="header-menu-teachers" color="inherit" onClick={() => onMenuClick('teachers')}>
                         Teachers
                     </Button>
-                    <Button color="inherit" onClick={() => onMenuClick('students')}>
+                    <Button id="header-menu-students" color="inherit" onClick={() => onMenuClick('students')}>
                         Students
                     </Button>
-                    <Button color="inherit" onClick={() => onMenuClick('subjects')}>
+                    <Button id="header-menu-subjects" color="inherit" onClick={() => onMenuClick('subjects')}>
                         Subjects
                     </Button>
                 </Box>

@@ -14,10 +14,10 @@
     "id": "d966b72e-7a57-42fa-80d8-08ff98f9fbf0"
   },
   {
-    "fileName": "mock_a0039d80-629a-4a67-a268-518edac49929.json",
+    "fileName": "mock_84b7a45c-1f74-4c25-9828-e6d799bc844a.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_a0039d80-629a-4a67-a268-518edac49929.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_84b7a45c-1f74-4c25-9828-e6d799bc844a.json",
     "url": "/api/teachers?",
-    "id": "a0039d80-629a-4a67-a268-518edac49929"
+    "id": "84b7a45c-1f74-4c25-9828-e6d799bc844a"
   }
 ]
