@@ -8,19 +8,19 @@ app.use(express.json());
 
 // Static array to act as our "database"
 let students = [
-    { id: 1, name: "Alice Johnson", age: 16, grade: "10th", email: "alice.johnson@example.com" },
-    { id: 2, name: "Bob Smith", age: 17, grade: "11th", email: "bob.smith@example.com" },
-    { id: 3, name: "Cathy Brown", age: 15, grade: "9th", email: "cathy.brown@example.com" },
-    { id: 4, name: "David Wilson", age: 18, grade: "12th", email: "david.wilson@example.com" },
-    { id: 5, name: "Eva Davis", age: 16, grade: "10th", email: "eva.davis@example.com" },
+    { id: 1, name: "Alice Johnson", age: 16, grade: "10th" },
+    { id: 2, name: "Bob Smith", age: 17, grade: "11th" },
+    { id: 3, name: "Cathy Brown", age: 15, grade: "9th" },
+    { id: 4, name: "David Wilson", age: 18, grade: "12th" },
+    { id: 5, name: "Eva Davis", age: 16, grade: "10th" },
 ];;
 // Static array to act as our "database" for teachers
 let teachers = [
-    { id: 1, name: "Mr. Thomas Anderson", age: 45, subject: "Mathematics", email: "thomas.anderson@example.com" },
-    { id: 2, name: "Ms. Maria Rodriguez", age: 39, subject: "English", email: "maria.rodriguez@example.com" },
-    { id: 3, name: "Mr. James Miller", age: 50, subject: "Science", email: "james.miller@example.com" },
-    { id: 4, name: "Mrs. Susan Lee", age: 42, subject: "History", email: "susan.lee@example.com" },
-    { id: 5, name: "Dr. Rachel Scott", age: 35, subject: "Physical Education", email: "rachel.scott@example.com" },
+    { id: 1, name: "Mr. Thomas Anderson", subject: "Mathematics" },
+    { id: 2, name: "Ms. Maria Rodriguez", subject: "English" },
+    { id: 3, name: "Mr. James Miller", subject: "Science" },
+    { id: 4, name: "Mrs. Susan Lee", subject: "History" },
+    { id: 5, name: "Dr. Rachel Scott", subject: "Physical Education" },
 ];
 
 // Static array to act as our "database" for subjects
