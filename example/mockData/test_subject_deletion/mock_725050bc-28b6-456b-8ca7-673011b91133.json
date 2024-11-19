@@ -1,0 +1,40 @@
+{
+  "url": "/api/subjects/1?",
+  "method": "DELETE",
+  "request": {
+    "headers": {
+      "Accept": "application/json, text/plain, */*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "Origin": "http://localhost:4050",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"130\", \"Google Chrome\";v=\"130\", \"Not?A_Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"Windows\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "Vary": "Accept-Encoding",
+      "connection": "close",
+      "content-length": "42",
+      "content-type": "application/json; charset=utf-8",
+      "date": "Wed, 06 Nov 2024 12:40:51 GMT",
+      "etag": "W/\"2a-zyykhdLjjhYOd0otkmCjYi3t8Ok\"",
+      "x-powered-by": "Express"
+    },
+    "content": "{\"message\":\"Subject deleted successfully\"}"
+  },
+  "id": "725050bc-28b6-456b-8ca7-673011b91133"
+}

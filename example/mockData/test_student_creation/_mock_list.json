@@ -1,0 +1,20 @@
+[
+  {
+    "fileName": "mock_c54f19df-078f-44fb-ab5d-609a1a13b22d.json",
+    "method": "POST",
+    "path": "C:\\Users\\kolag\\OneDrive\\Desktop\\react.js\\ftmocks-server\\example\\mockData\\test_student_creation\\mock_c54f19df-078f-44fb-ab5d-609a1a13b22d.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"koothi\",\"age\":\"22\",\"grade\":\"A\"}"
+    },
+    "url": "/api/students?",
+    "id": "c54f19df-078f-44fb-ab5d-609a1a13b22d"
+  },
+  {
+    "fileName": "mock_e38bbb54-899b-4e21-b802-a25c9e8642d7.json",
+    "method": "GET",
+    "path": "C:\\Users\\kolag\\OneDrive\\Desktop\\react.js\\ftmocks-server\\example\\mockData\\test_student_creation\\mock_e38bbb54-899b-4e21-b802-a25c9e8642d7.json",
+    "url": "/api/students?",
+    "id": "e38bbb54-899b-4e21-b802-a25c9e8642d7"
+  }
+]

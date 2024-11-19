@@ -1,0 +1,13 @@
+[
+  {
+    "fileName": "mock_2e16eeff-8da5-4580-af33-2cf0d1beff0c.json",
+    "method": "POST",
+    "path": "C:\\Users\\kolag\\OneDrive\\Desktop\\react.js\\ftmocks-server\\example\\mockData\\test_subject_creation\\mock_2e16eeff-8da5-4580-af33-2cf0d1beff0c.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"computers\",\"credits\":\"4\"}"
+    },
+    "url": "/api/subjects?",
+    "id": "2e16eeff-8da5-4580-af33-2cf0d1beff0c"
+  }
+]

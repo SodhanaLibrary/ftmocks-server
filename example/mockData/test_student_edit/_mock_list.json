@@ -1,0 +1,13 @@
+[
+  {
+    "fileName": "mock_f21f7fd4-3005-49ff-b7d9-614a07f4e521.json",
+    "method": "PUT",
+    "path": "C:\\Users\\kolag\\OneDrive\\Desktop\\react.js\\ftmocks-server\\example\\mockData\\test_student_edit\\mock_f21f7fd4-3005-49ff-b7d9-614a07f4e521.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"id\":1,\"name\":\"Alice Johnson\",\"age\":\"17\",\"grade\":\"10th\",\"email\":\"alice.johnson@example.com\"}"
+    },
+    "url": "/api/students/1?",
+    "id": "f21f7fd4-3005-49ff-b7d9-614a07f4e521"
+  }
+]
