@@ -179,18 +179,22 @@ const isSameRequest = (req1, req2) => {
   let matched = true;
   if (req1.url !== req2.url) {
     matched = false;
+    // console.log('not matched at url', req1.method, req2.method);
   } else if (req1.method !== req2.method) {
     matched = false;
+    // console.log('not matched at method', req1.method, req2.method);
   } else if (
-    (!req1.postData && req2.postData) ||
-    (req1.postData && !req2.postData)
+    (!req1.postData && req2.postData && req1.method.toUpperCase() !== 'GET') ||
+    (req1.postData && !req2.postData && req1.method.toUpperCase() !== 'GET')
   ) {
     matched = areJsonEqual(req1.postData || {}, req2.postData || {});
+    // console.log('not matched at post Data 0', req1.postData, req2.postData);
   } else if (
     req1.postData &&
     req2.postData &&
     !areJsonEqual(req1.postData, req2.postData)
   ) {
+    // console.log('not matched at post Data 1', req1.postData, req2.postData);
     console.log('--------start-----------');
     console.log(req1.postData);
     console.log('-------------------');
@@ -198,9 +202,8 @@ const isSameRequest = (req1, req2) => {
     console.log('--------end-----------');
     matched = false;
   }
-  console.log(req1.url);
   if (matched) {
-    console.log(req1, req2);
+    console.log('matched requests', req1, req2);
   }
   return matched;
 };

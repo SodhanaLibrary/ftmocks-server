@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const { createMockFromUserInputForTest } = require('../utils/MockGenerator');
 
 const getRecordedMocks = async (req, res) => {
   const defaultPath = path.join(
@@ -138,9 +139,48 @@ const recordMockData = async (req, res) => {
   }
 };
 
+const initiateRecordedMocks = async (req, res) => {
+  const defaultPath = path.join(
+    process.env.MOCK_DIR,
+    'recordMocks',
+    '_mock_list.json'
+  );
+
+  try {
+    if (!fs.existsSync(defaultPath)) {
+      await fs.appendFile(defaultPath, '[]', () => {
+        console.log('default file created successfully');
+      });
+    }
+    const defaultData = fs.readFileSync(defaultPath, 'utf8');
+    let parsedData = JSON.parse(defaultData);
+
+    // Read and attach mock data for each entry in parsedData
+    parsedData.forEach((entry) => {
+      const mockFilePath = entry.path;
+      try {
+        const mockData = fs.readFileSync(mockFilePath, 'utf8');
+        createMockFromUserInputForTest(JSON.parse(mockData));
+      } catch (error) {
+        console.error(`Error reading mock data for ${entry.path}:`, error);
+        return entry; // Return the original entry if there's an error
+      }
+    });
+
+    res.status(200).json(parsedData);
+  } catch (error) {
+    console.error(
+      `Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`,
+      error
+    );
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getRecordedMocks,
   deleteRecordedMock,
   updateRecordedMock,
   recordMockData,
+  initiateRecordedMocks,
 };

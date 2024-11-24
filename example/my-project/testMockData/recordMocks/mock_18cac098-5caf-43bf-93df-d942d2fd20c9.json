@@ -1,0 +1,18 @@
+{
+  "url": "/api/students",
+  "time": "Sun Nov 24 2024 22:11:56 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "content": "[{\"id\":1,\"name\":\"Alice Johnson\",\"age\":16,\"grade\":\"10th\"},{\"id\":2,\"name\":\"Bob Smith\",\"age\":17,\"grade\":\"11th\"},{\"id\":3,\"name\":\"Cathy Brown\",\"age\":15,\"grade\":\"9th\"},{\"id\":4,\"name\":\"David Wilson\",\"age\":18,\"grade\":\"12th\"},{\"id\":5,\"name\":\"Eva Davis\",\"age\":16,\"grade\":\"10th\"}]"
+  },
+  "id": "18cac098-5caf-43bf-93df-d942d2fd20c9"
+}

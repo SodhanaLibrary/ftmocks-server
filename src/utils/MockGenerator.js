@@ -188,6 +188,12 @@ function createMockFromUserInputForDefaultMocks(body) {
   if (defaultMockData.find((mock) => compareMockToMock(mock, body))) {
     console.log('its duplicate entry');
     return null;
+  } else {
+    console.log(
+      'its new entry',
+      defaultMockData.find((mock) => compareMockToMock(mock, body)),
+      body
+    );
   }
   const responseSummaryRecord = {
     fileName: `mock_${mockId}.json`,

@@ -1,6 +1,6 @@
 {
   "url": "/api/students",
-  "time": "Sun Nov 24 2024 16:25:30 GMT+0530 (India Standard Time)",
+  "time": "Sun Nov 24 2024 22:11:53 GMT+0530 (India Standard Time)",
   "method": "GET",
   "request": {
     "headers": {},
@@ -14,5 +14,5 @@
     "headers": {},
     "content": "[{\"id\":1,\"name\":\"Alice Johnson\",\"age\":16,\"grade\":\"10th\"},{\"id\":2,\"name\":\"Bob Smith\",\"age\":17,\"grade\":\"11th\"},{\"id\":3,\"name\":\"Cathy Brown\",\"age\":15,\"grade\":\"9th\"},{\"id\":4,\"name\":\"David Wilson\",\"age\":18,\"grade\":\"12th\"},{\"id\":5,\"name\":\"Eva Davis\",\"age\":16,\"grade\":\"10th\"}]"
   },
-  "id": "40dbac88-f0b5-47e9-b317-225fa6e0d907"
+  "id": "cc36b466-2228-4c90-bc38-65b34fc28803"
 }
