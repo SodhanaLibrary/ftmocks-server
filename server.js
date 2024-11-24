@@ -7,7 +7,7 @@ const multer = require('multer');
 const mockServer = require('./mockServer');
 const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks } = require('./src/routes/TestRoutes');
 const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
-const { getRecordedMocks, deleteRecordedMock, updateRecordedMock, recordMockData } = require('./src/routes/RecordedMockRoutes');
+const { getRecordedMocks, deleteRecordedMock, updateRecordedMock, recordMockData, initiateRecordedMocks } = require('./src/routes/RecordedMockRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
 
 
@@ -80,6 +80,9 @@ app.post('/api/v1/recordMockdata', recordMockData);
 
 // Router for /api/v1/defaultmocks GET method
 app.get('/api/v1/recordedMocks', getRecordedMocks);
+
+// Router for /api/v1/defaultmocks GET method
+app.post('/api/v1/initiateRecordedMocks', initiateRecordedMocks);
 
 // Router for /api/v1/defaultmocks/:id DELETE method
 app.delete('/api/v1/recordedMocks/:id', deleteRecordedMock);

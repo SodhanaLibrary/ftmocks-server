@@ -1,0 +1,18 @@
+{
+  "url": "/api/teachers",
+  "time": "Sun Nov 24 2024 22:02:38 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": {},
+    "content": "Proxy error: Could not proxy request /api/teachers from localhost:4050 to http://localhost:4051 (ECONNREFUSED)."
+  },
+  "id": "a772154f-0c23-4d42-9f5b-31a96d4d1825"
+}

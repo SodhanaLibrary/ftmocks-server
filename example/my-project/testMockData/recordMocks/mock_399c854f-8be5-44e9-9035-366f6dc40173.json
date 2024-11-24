@@ -1,0 +1,18 @@
+{
+  "url": "/api/subjects",
+  "time": "Sun Nov 24 2024 22:05:18 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {},
+    "content": "[{\"id\":1,\"name\":\"Mathematics\",\"credits\":4},{\"id\":2,\"name\":\"English\",\"credits\":3},{\"id\":3,\"name\":\"Science\",\"credits\":4},{\"id\":4,\"name\":\"History\",\"credits\":3},{\"id\":5,\"name\":\"Physical Education\",\"credits\":2}]"
+  },
+  "id": "399c854f-8be5-44e9-9035-366f6dc40173"
+}
