@@ -2,35 +2,49 @@ const fs = require('fs');
 const urlmodule = require('url');
 const path = require('path');
 const uuid = require('uuid');
-const { processURL, getDefaultMockData, isSameRequest, removeDuplicates, compareMockToHarEntry, loadMockDataFromMockListFile, nameToFolder, compareMockToMock } = require('./MockUtils');
+const {
+  processURL,
+  getDefaultMockData,
+  isSameRequest,
+  removeDuplicates,
+  compareMockToHarEntry,
+  loadMockDataFromMockListFile,
+  nameToFolder,
+  compareMockToMock,
+} = require('./MockUtils');
 
 function isJsonResponse(entry) {
   // Check if the response has a content type header and it is JSON
   const contentTypeHeader = entry.response.headers.find(
-    header => header.name.toLowerCase() === 'content-type'
+    (header) => header.name.toLowerCase() === 'content-type'
   );
-  
+
   return (
     contentTypeHeader &&
-    (
-      contentTypeHeader.value.includes('application/json') || contentTypeHeader.value.includes('image/png')
-    )
+    (contentTypeHeader.value.includes('application/json') ||
+      contentTypeHeader.value.includes('image/png'))
   );
 }
 
 function extractFileName(filePath) {
   // Use the path module to handle file paths across different operating systems
   const path = require('path');
-  
+
   // Extract the base name (file name with extension) from the full path
   const baseName = path.basename(filePath);
-  
+
   return baseName;
 }
 
-function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAULT_FILE, testName, avoidDuplicates) {
+function processHAR(
+  harFilePath,
+  outputFolder,
+  fileName = process.env.MOCK_DEFAULT_FILE,
+  testName,
+  avoidDuplicates
+) {
   let defaultMockData = [];
-  if(avoidDuplicates === 'true') {
+  if (avoidDuplicates === 'true') {
     defaultMockData = getDefaultMockData();
   }
   // Read the HAR file
@@ -53,88 +67,95 @@ function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAU
   // Extract information and create individual JSON files for each response
   const responses = harObject.log.entries
     .map((entry, index) => {
-      console.log(entry.request.url+' is json response = '+isJsonResponse(entry));
+      console.log(
+        entry.request.url + ' is json response = ' + isJsonResponse(entry)
+      );
       // if (isJsonResponse(entry)) {
-        const url = processURL(entry.request.url);
-        const { method, postData } = entry.request;
+      const url = processURL(entry.request.url);
+      const { method, postData } = entry.request;
 
-        const responseInfo = {
-          url,
-          method,
-          request : {
-            headers: entry.request.headers.reduce((headers, header) => {
-              if(header.name.toLowerCase() !== 'cookie') {
-                headers[header.name] = header.value;
-              }
-              return headers;
-            }, {}),
-            queryString: entry.request.queryString,
-            postData: entry.request.postData,
-          },
-          response: {
-            status: entry.response.status === 304 ? 200 : entry.response.status,
-            headers: entry.response.headers.reduce(
-              (headers, header) => {
-              if(header.name.toLowerCase() !== 'set-cookie') {
-                headers[header.name] = header.value;
-              }
-              return headers;
-            },
-              {}
-            ),
-            content: entry.response.content.text,
-          },
-        };
+      const responseInfo = {
+        url,
+        method,
+        request: {
+          headers: entry.request.headers.reduce((headers, header) => {
+            if (header.name.toLowerCase() !== 'cookie') {
+              headers[header.name] = header.value;
+            }
+            return headers;
+          }, {}),
+          queryString: entry.request.queryString,
+          postData: entry.request.postData,
+        },
+        response: {
+          status: entry.response.status === 304 ? 200 : entry.response.status,
+          headers: entry.response.headers.reduce((headers, header) => {
+            if (header.name.toLowerCase() !== 'set-cookie') {
+              headers[header.name] = header.value;
+            }
+            return headers;
+          }, {}),
+          content: entry.response.content.text,
+        },
+      };
 
-        if(defaultMockData.find(mock => compareMockToHarEntry(mock, entry))) {
-          console.log('not uploaidng due to avoidDuplicates '+avoidDuplicates);
-          return null;
-        }
+      if (defaultMockData.find((mock) => compareMockToHarEntry(mock, entry))) {
+        console.log('not uploaidng due to avoidDuplicates ' + avoidDuplicates);
+        return null;
+      }
 
-
-        const eresp = existResps.find(resp => compareMockToHarEntry(resp, entry));
-        let duplicate = false;
-        if(eresp) {
-          existResps = existResps.filter(resp => !compareMockToHarEntry(resp, entry));
-          duplicate = true;
-        }
-
-        const mockId = eresp?.id || uuid.v4();
-
-        const responseFileName = `mock_${mockId}.json`;
-        
-        if (!fs.existsSync(path.join(outputFolder, !testName ? 'defaultMocks' : ''))) {
-          fs.mkdirSync(path.join(outputFolder, !testName ? 'defaultMocks' : ''));
-        }
-        const responseFilePath = path.join(outputFolder, !testName ? 'defaultMocks' : '', responseFileName);
-        responseInfo.id = mockId;
-        responseInfo.ignoreParams = eresp?.fileContent.ignoreParams;
-
-        fs.writeFileSync(
-          responseFilePath,
-          JSON.stringify(responseInfo, null, 2)
+      const eresp = existResps.find((resp) =>
+        compareMockToHarEntry(resp, entry)
+      );
+      let duplicate = false;
+      if (eresp) {
+        existResps = existResps.filter(
+          (resp) => !compareMockToHarEntry(resp, entry)
         );
-        const responseSummaryRecord = {
-          fileName: responseFileName,
-          method,
-          path: responseFilePath,
-          postData,
-          url,
-          id: mockId,
-        };
-        existResps.push(Object.assign({}, responseSummaryRecord, {fileContent: responseInfo}));
-        if(!duplicate) {
-          return responseSummaryRecord;
-        }
+        duplicate = true;
+      }
+
+      const mockId = eresp?.id || uuid.v4();
+
+      const responseFileName = `mock_${mockId}.json`;
+
+      if (
+        !fs.existsSync(path.join(outputFolder, !testName ? 'defaultMocks' : ''))
+      ) {
+        fs.mkdirSync(path.join(outputFolder, !testName ? 'defaultMocks' : ''));
+      }
+      const responseFilePath = path.join(
+        outputFolder,
+        !testName ? 'defaultMocks' : '',
+        responseFileName
+      );
+      responseInfo.id = mockId;
+      responseInfo.ignoreParams = eresp?.fileContent.ignoreParams;
+
+      fs.writeFileSync(responseFilePath, JSON.stringify(responseInfo, null, 2));
+      const responseSummaryRecord = {
+        fileName: responseFileName,
+        method,
+        path: responseFilePath,
+        postData,
+        url,
+        id: mockId,
+      };
+      existResps.push(
+        Object.assign({}, responseSummaryRecord, { fileContent: responseInfo })
+      );
+      if (!duplicate) {
+        return responseSummaryRecord;
+      }
       // }
       return null;
     })
     .filter(Boolean); // Filter out non-JSON responses
 
-  existResps.forEach(element => {
+  existResps.forEach((element) => {
     delete element.fileContent;
   });
-  responses.forEach(element => {
+  responses.forEach((element) => {
     delete element.fileContent;
   });
   const finalResponses = removeDuplicates(existResps.concat(responses));
@@ -148,59 +169,71 @@ function processHAR(harFilePath, outputFolder, fileName = process.env.MOCK_DEFAU
 }
 
 function createMockFromUserInputForDefaultMocks(body) {
-    const mockId = uuid.v4();
-    body.id = mockId;
-    const defaultMockData = getDefaultMockData(); 
-    let mock_test_dir = path.join(process.env.MOCK_DIR, process.env.MOCK_DEFAULT_DIR);
-    let mock_list_file = path.join(process.env.MOCK_DIR, process.env.MOCK_DEFAULT_FILE);
-    const existResps = getDefaultMockData();
-    let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
-    if (!fs.existsSync(mock_test_dir)) {
-      fs.mkdirSync(mock_test_dir);
-    } 
-    if(defaultMockData.find(mock => compareMockToMock(mock, body))) {
-      console.log('its duplicate entry');
-      return null;
-    } 
-    const responseSummaryRecord = {
-      fileName: `mock_${mockId}.json`,
-      method: body.method,
-      path: mock_file,
-      postData: body.request.postData,
-      url: body.url,
-      id: mockId,
-    };
-    existResps.push(Object.assign({}, responseSummaryRecord, {fileContent: body}));
-    
-    existResps.forEach(element => {
-      delete element.fileContent;
-    });
-    fs.writeFileSync(
-      mock_file,
-      JSON.stringify(body, null, 2)
-    );
-    // Create an index file with references to individual response files
-    fs.writeFileSync(mock_list_file, JSON.stringify(existResps, null, 2));
+  const mockId = uuid.v4();
+  body.id = mockId;
+  const defaultMockData = getDefaultMockData();
+  let mock_test_dir = path.join(
+    process.env.MOCK_DIR,
+    process.env.MOCK_DEFAULT_DIR
+  );
+  let mock_list_file = path.join(
+    process.env.MOCK_DIR,
+    process.env.MOCK_DEFAULT_FILE
+  );
+  const existResps = getDefaultMockData();
+  let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
+  if (!fs.existsSync(mock_test_dir)) {
+    fs.mkdirSync(mock_test_dir);
+  }
+  if (defaultMockData.find((mock) => compareMockToMock(mock, body))) {
+    console.log('its duplicate entry');
+    return null;
+  }
+  const responseSummaryRecord = {
+    fileName: `mock_${mockId}.json`,
+    method: body.method,
+    path: mock_file,
+    postData: body.request.postData,
+    url: body.url,
+    id: mockId,
+  };
+  existResps.push(
+    Object.assign({}, responseSummaryRecord, { fileContent: body })
+  );
 
-    console.log(
-      `Individual response files and index file created in ${mock_list_file}`
-    );
+  existResps.forEach((element) => {
+    delete element.fileContent;
+  });
+  fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
+  // Create an index file with references to individual response files
+  fs.writeFileSync(mock_list_file, JSON.stringify(existResps, null, 2));
+
+  console.log(
+    `Individual response files and index file created in ${mock_list_file}`
+  );
 }
 
 function createMockFromUserInputForTest(body, testName) {
-  if(!testName) {
+  if (!testName) {
     createMockFromUserInputForDefaultMocks(body);
   } else {
     const mockId = uuid.v4();
     body.id = mockId;
-    let mock_test_dir = path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`);
+    let mock_test_dir = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(testName)}`
+    );
     if (!fs.existsSync(mock_test_dir)) {
       fs.mkdirSync(mock_test_dir);
     }
     let mock_list_file = path.join(mock_test_dir, '_mock_list.json');
-    const existResps = loadMockDataFromMockListFile(mock_test_dir, '_mock_list.json', testName);
+    const existResps = loadMockDataFromMockListFile(
+      mock_test_dir,
+      '_mock_list.json',
+      testName
+    );
     let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
-      
+
     const responseSummaryRecord = {
       fileName: `mock_${mockId}.json`,
       method: body.method,
@@ -209,15 +242,14 @@ function createMockFromUserInputForTest(body, testName) {
       url: body.url,
       id: mockId,
     };
-    existResps.push(Object.assign({}, responseSummaryRecord, {fileContent: body}));
-    
-    existResps.forEach(element => {
+    existResps.push(
+      Object.assign({}, responseSummaryRecord, { fileContent: body })
+    );
+
+    existResps.forEach((element) => {
       delete element.fileContent;
     });
-    fs.writeFileSync(
-      mock_file,
-      JSON.stringify(body, null, 2)
-    );
+    fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
     // Create an index file with references to individual response files
     fs.writeFileSync(mock_list_file, JSON.stringify(existResps, null, 2));
 
@@ -230,5 +262,5 @@ function createMockFromUserInputForTest(body, testName) {
 module.exports = {
   processHAR,
   isSameRequest,
-  createMockFromUserInputForTest
+  createMockFromUserInputForTest,
 };

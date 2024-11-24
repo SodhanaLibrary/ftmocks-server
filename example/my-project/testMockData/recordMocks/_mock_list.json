@@ -1,18 +1,72 @@
 [
-  [
-    {
-      "fileName": "mock_0e42f221-a8c2-4023-8889-3cbf81f4ea6a.json",
-      "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_0e42f221-a8c2-4023-8889-3cbf81f4ea6a.json",
-      "url": "/api/teachers",
-      "id": "0e42f221-a8c2-4023-8889-3cbf81f4ea6a"
-    }
-  ],
-  [
-    {
-      "fileName": "mock_04833dbf-3917-4b95-82c9-5016e937fa6f.json",
-      "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_04833dbf-3917-4b95-82c9-5016e937fa6f.json",
-      "url": "/api/teachers",
-      "id": "04833dbf-3917-4b95-82c9-5016e937fa6f"
-    }
-  ]
+  {
+    "fileName": "mock_7d038a3e-af3a-43fd-b2d9-89b4bc77be32.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_7d038a3e-af3a-43fd-b2d9-89b4bc77be32.json",
+    "url": "/api/teachers",
+    "id": "7d038a3e-af3a-43fd-b2d9-89b4bc77be32"
+  },
+  {
+    "fileName": "mock_c78d35fd-1922-47a9-902f-d713a757e37c.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_c78d35fd-1922-47a9-902f-d713a757e37c.json",
+    "url": "/api/teachers",
+    "id": "c78d35fd-1922-47a9-902f-d713a757e37c"
+  },
+  {
+    "fileName": "mock_40dbac88-f0b5-47e9-b317-225fa6e0d907.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_40dbac88-f0b5-47e9-b317-225fa6e0d907.json",
+    "url": "/api/students",
+    "id": "40dbac88-f0b5-47e9-b317-225fa6e0d907"
+  },
+  {
+    "fileName": "mock_bfce26db-28c6-476c-981c-0c54b07123e1.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_bfce26db-28c6-476c-981c-0c54b07123e1.json",
+    "url": "/api/students",
+    "id": "bfce26db-28c6-476c-981c-0c54b07123e1"
+  },
+  {
+    "fileName": "mock_c7c8b19d-857d-4ecf-bff5-8d4620040e69.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_c7c8b19d-857d-4ecf-bff5-8d4620040e69.json",
+    "url": "/api/subjects",
+    "id": "c7c8b19d-857d-4ecf-bff5-8d4620040e69"
+  },
+  {
+    "fileName": "mock_21ee5e0f-9c6e-444b-b057-71d83946951b.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_21ee5e0f-9c6e-444b-b057-71d83946951b.json",
+    "url": "/api/subjects",
+    "id": "21ee5e0f-9c6e-444b-b057-71d83946951b"
+  },
+  {
+    "fileName": "mock_6ed808a7-8be1-43a3-89ff-b0ff1b45e07a.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_6ed808a7-8be1-43a3-89ff-b0ff1b45e07a.json",
+    "url": "/api/teachers",
+    "id": "6ed808a7-8be1-43a3-89ff-b0ff1b45e07a"
+  },
+  {
+    "fileName": "mock_39284636-bfbd-42a1-afb2-fa4285bc5282.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_39284636-bfbd-42a1-afb2-fa4285bc5282.json",
+    "url": "/api/teachers",
+    "id": "39284636-bfbd-42a1-afb2-fa4285bc5282"
+  },
+  {
+    "fileName": "mock_bb201696-031e-4374-b436-d7a7e56146b2.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_bb201696-031e-4374-b436-d7a7e56146b2.json",
+    "url": "/api/teachers",
+    "id": "bb201696-031e-4374-b436-d7a7e56146b2"
+  },
+  {
+    "fileName": "mock_c2c19023-d20c-42f4-8ac9-c08ed029c071.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_c2c19023-d20c-42f4-8ac9-c08ed029c071.json",
+    "url": "/api/teachers",
+    "id": "c2c19023-d20c-42f4-8ac9-c08ed029c071"
+  }
 ]
