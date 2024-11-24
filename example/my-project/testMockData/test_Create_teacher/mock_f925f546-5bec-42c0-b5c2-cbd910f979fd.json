@@ -1,0 +1,39 @@
+{
+  "url": "/api/teachers?",
+  "method": "GET",
+  "request": {
+    "headers": {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "If-None-Match": "W/\"127-+GydkufTlin9UNoomM1akJPS71U\"",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Not)A;Brand\";v=\"99\", \"Google Chrome\";v=\"127\", \"Chromium\";v=\"127\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "connection": "close",
+      "date": "Mon, 18 Nov 2024 16:08:36 GMT",
+      "etag": "W/\"127-+GydkufTlin9UNoomM1akJPS71U\"",
+      "x-powered-by": "Express"
+    },
+    "content": "[\n  {\n    \"id\": 1,\n    \"name\": \"Mr. Thomas Anderson\",\n    \"subject\": \"Mathematics\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Ms. Maria Rodriguez\",\n    \"subject\": \"English\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Mr. James Miller\",\n    \"subject\": \"Science\"\n  },\n  {\n    \"id\": 4,\n    \"name\": \"Mrs. Susan Lee\",\n    \"subject\": \"History\"\n  },\n  {\n    \"id\": 5,\n    \"name\": \"Dr. Rachel Scott\",\n    \"subject\": \"Physical Education\"\n  },\n  {\n    \"id\": 6,\n    \"name\": \"Srinivas\",\n    \"subject\": \"CSE\",\n    \"yearsOfExperience\": \"3\"\n  }\n]"
+  },
+  "id": "f925f546-5bec-42c0-b5c2-cbd910f979fd",
+  "waitForPrevious": true,
+  "served": false
+}

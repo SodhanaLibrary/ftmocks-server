@@ -1,0 +1,18 @@
+[
+  [
+    {
+      "fileName": "mock_0e42f221-a8c2-4023-8889-3cbf81f4ea6a.json",
+      "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_0e42f221-a8c2-4023-8889-3cbf81f4ea6a.json",
+      "url": "/api/teachers",
+      "id": "0e42f221-a8c2-4023-8889-3cbf81f4ea6a"
+    }
+  ],
+  [
+    {
+      "fileName": "mock_04833dbf-3917-4b95-82c9-5016e937fa6f.json",
+      "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/recordMocks/mock_04833dbf-3917-4b95-82c9-5016e937fa6f.json",
+      "url": "/api/teachers",
+      "id": "04833dbf-3917-4b95-82c9-5016e937fa6f"
+    }
+  ]
+]

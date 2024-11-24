@@ -1,0 +1,20 @@
+[
+  {
+    "fileName": "mock_71cf3ea1-8085-4b6e-9d83-9f6f7374ec51.json",
+    "method": "POST",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_71cf3ea1-8085-4b6e-9d83-9f6f7374ec51.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"Srinivas\",\"subject\":\"CSE\",\"yearsOfExperience\":\"3\"}"
+    },
+    "url": "/api/teachers?",
+    "id": "71cf3ea1-8085-4b6e-9d83-9f6f7374ec51"
+  },
+  {
+    "fileName": "mock_f925f546-5bec-42c0-b5c2-cbd910f979fd.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_Create_teacheer/mock_f925f546-5bec-42c0-b5c2-cbd910f979fd.json",
+    "url": "/api/teachers?",
+    "id": "f925f546-5bec-42c0-b5c2-cbd910f979fd"
+  }
+]

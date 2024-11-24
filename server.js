@@ -2,16 +2,18 @@ const express = require("express");
 const fs = require("fs");
 const bodyParser = require("body-parser");
 const path = require('path');
-const mockServer = require('./mockServer');
+const cors = require('cors');
 const multer = require('multer');
-const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks } = require('./src/routes/TestRoutes');
-const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
+const mockServer = require('./mockServer');
+const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks } = require('./src/routes/TestRoutes');
+const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs, recordMockData } = require('./src/routes/DefaultMockRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
 
 
 const upload = multer({ dest: 'uploads/' });
 
 const app = express();
+app.use(cors());
 let mockServerInstance;
 
 // Read command line arguments
@@ -51,6 +53,9 @@ app.post('/api/v1/tests/:id/harMockdata', upload.single('harFile'), createHarMoc
 // Router for /api/v1/tests/:id/mockdata/:mockId DELETE method
 app.delete('/api/v1/tests/:id/mockdata/:mockId', deleteMockDataForTest);
 
+// Router for /api/v1/tests/:id/reset PUT method
+app.put('/api/v1/tests/:id/reset', resetMockDataForTest);
+
 // Router for /api/v1/tests/:id/mockdata/:mockId PUT method
 app.put('/api/v1/tests/:id/mockdata/:mockId', updateMockDataForTest);
 
@@ -68,6 +73,10 @@ app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
 
 // Router for /api/v1/tests/:id/mockdata/:mockId PUT method
 app.get('/api/v1/env/project', getEnvProject);
+
+// Router for /api/v1/tests/:id/mockdata POST method
+app.post('/api/v1/recordMockdata', recordMockData);
+
 
 
 // Router for /api/v1/mockServer GET method
