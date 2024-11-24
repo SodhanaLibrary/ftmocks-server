@@ -19,5 +19,55 @@
     "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_224f7935-c2bb-4acd-a808-bdc881dc2116.json",
     "url": "/api/teachers?",
     "id": "224f7935-c2bb-4acd-a808-bdc881dc2116"
+  },
+  {
+    "fileName": "mock_f6599e69-af2b-4d5e-8c1d-256e9b42a8e1.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_f6599e69-af2b-4d5e-8c1d-256e9b42a8e1.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "f6599e69-af2b-4d5e-8c1d-256e9b42a8e1"
+  },
+  {
+    "fileName": "mock_bd811903-8db8-4cfa-9b92-2f317d8dd8ea.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_bd811903-8db8-4cfa-9b92-2f317d8dd8ea.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "bd811903-8db8-4cfa-9b92-2f317d8dd8ea"
+  },
+  {
+    "fileName": "mock_8d9c743c-c1f6-4d4b-b40b-df7b7ab4e093.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_8d9c743c-c1f6-4d4b-b40b-df7b7ab4e093.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "8d9c743c-c1f6-4d4b-b40b-df7b7ab4e093"
+  },
+  {
+    "fileName": "mock_5f318742-a868-4b77-af85-36d3416448c9.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_5f318742-a868-4b77-af85-36d3416448c9.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "5f318742-a868-4b77-af85-36d3416448c9"
+  },
+  {
+    "fileName": "mock_93100c74-80b5-46ec-b916-1b986dfe4e05.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_93100c74-80b5-46ec-b916-1b986dfe4e05.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "93100c74-80b5-46ec-b916-1b986dfe4e05"
   }
 ]
