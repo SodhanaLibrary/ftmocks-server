@@ -201,6 +201,22 @@ const deleteMockDataForTest = async (req, res) => {
   }
 };
 
+const resetMockDataForTest = async (req, res) => {
+  const currentTest = req.body;
+
+  try {
+    currentTest.mockData.forEach(mockData => {
+      const mockFilePath = path.join(process.env.MOCK_DIR, `test_${nameToFolder(currentTest.name)}`,  `mock_${mockData.id}.json`);
+      mockData.served = false;
+      fs.writeFileSync(mockFilePath, JSON.stringify(mockData, null, 2));
+    });
+    res.json(currentTest);
+  } catch (error) {
+    console.error('Error updating mock data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 const createHarMockDataForTest = async (req, res) => {
   const testId = req.params.id;
   const testsPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
@@ -297,5 +313,6 @@ module.exports = {
     createMockDataForTest,
     deleteMockDataForTest,
     createHarMockDataForTest,
-    updateMockDataForTest
+    updateMockDataForTest,
+    resetMockDataForTest
 };

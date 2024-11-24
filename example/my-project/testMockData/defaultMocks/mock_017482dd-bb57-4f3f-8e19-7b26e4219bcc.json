@@ -1,16 +1,14 @@
 {
-  "url": "/api/teachers/1?",
-  "method": "PUT",
+  "url": "/api/subjects?",
+  "method": "GET",
   "request": {
     "headers": {
       "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br, zstd",
       "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
       "Connection": "keep-alive",
-      "Content-Length": "132",
-      "Content-Type": "application/json",
       "Host": "localhost:4050",
-      "Origin": "http://localhost:4050",
+      "If-None-Match": "W/\"ce-DMt60t60S+RPCRb2JJ5rWrtSA4o\"",
       "Referer": "http://localhost:4050/",
       "Sec-Fetch-Dest": "empty",
       "Sec-Fetch-Mode": "cors",
@@ -20,11 +18,7 @@
       "sec-ch-ua-mobile": "?0",
       "sec-ch-ua-platform": "\"macOS\""
     },
-    "queryString": [],
-    "postData": {
-      "mimeType": "application/json",
-      "text": "{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"age\":45,\"subject\":\"Mathematics\",\"email\":\"thomas.anderson@example.com\",\"yearsOfExperience\":\"3\"}"
-    }
+    "queryString": []
   },
   "response": {
     "status": 200,
@@ -32,15 +26,12 @@
       "Access-Control-Allow-Headers": "*",
       "Access-Control-Allow-Methods": "*",
       "Access-Control-Allow-Origin": "*",
-      "Vary": "Accept-Encoding",
       "connection": "close",
-      "content-length": "85",
-      "content-type": "application/json; charset=utf-8",
-      "date": "Sun, 17 Nov 2024 11:36:28 GMT",
-      "etag": "W/\"55-bGssS6ZOlPag6h7DI/uNqu0ergo\"",
+      "date": "Mon, 18 Nov 2024 16:08:35 GMT",
+      "etag": "W/\"ce-DMt60t60S+RPCRb2JJ5rWrtSA4o\"",
       "x-powered-by": "Express"
     },
-    "content": "{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"subject\":\"Mathematics\",\"yearsOfExperience\":\"3\"}"
+    "content": "[{\"id\":1,\"name\":\"Mathematics\",\"credits\":4},{\"id\":2,\"name\":\"English\",\"credits\":3},{\"id\":3,\"name\":\"Science\",\"credits\":4},{\"id\":4,\"name\":\"History\",\"credits\":3},{\"id\":5,\"name\":\"Physical Education\",\"credits\":2}]"
   },
-  "id": "aff0e673-69ba-4042-b157-6cafca4680d3"
+  "id": "017482dd-bb57-4f3f-8e19-7b26e4219bcc"
 }
