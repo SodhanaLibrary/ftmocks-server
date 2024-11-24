@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
 const { processHAR } = require('../utils/MockGenerator');
 
 
@@ -105,9 +106,48 @@ const getDefaultMocks = async (req, res) => {
     }
   };
 
+  const recordMockData = async (req, res) => {
+    const mockData = req.body;
+    let  mockDataSummary = [];
+    
+    try {
+      mockData.id = uuidv4();
+      const mockDir = path.join(process.env.MOCK_DIR, 'recordMocks');
+      const mockListFilePath = path.join(mockDir, `_mock_list.json`);
+      const mockFilePath = path.join(mockDir, `mock_${mockData.id}.json`);
+      if (!fs.existsSync(mockDir)){
+        fs.mkdirSync(mockDir);
+      }
+      if(!fs.existsSync(mockListFilePath)) {
+        await fs.appendFile(mockListFilePath, '[]', () => {
+          console.log('list file created successfully')
+        });
+        mockDataSummary = [];
+      } else {
+        mockDataSummary = JSON.parse(fs.readFileSync(mockListFilePath, 'utf8'));
+      }
+      mockDataSummary.push([{
+          "fileName": `mock_${mockData.id}.json`,
+          "method": mockData.method,
+          "path": mockFilePath,
+          "url": mockData.url,
+          "id": mockData.id
+      }]);
+      fs.writeFileSync(mockFilePath, JSON.stringify(mockData, null, 2));
+      fs.writeFileSync(mockListFilePath, JSON.stringify(mockDataSummary, null, 2));
+      res.json(mockData);
+    } catch (error) {
+      console.error('Error updating mock data:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+
+
 module.exports = {
     getDefaultMocks,
     deleteDefaultMock,
     updateDefaultMock,
-    uploadDefaultHarMocs
+    uploadDefaultHarMocs,
+    recordMockData
 };

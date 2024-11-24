@@ -144,6 +144,7 @@ const isSameRequest = (req1, req2) => {
     console.log('--------end-----------');
     matched = false;
   }
+  console.log(req1.url);
   if(matched) {
     console.log(req1, req2);
   }

@@ -3,12 +3,12 @@
   "method": "GET",
   "request": {
     "headers": {
-      "Accept": "application/json, text/plain, */*",
+      "Accept": "*/*",
       "Accept-Encoding": "gzip, deflate, br, zstd",
       "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
       "Connection": "keep-alive",
       "Host": "localhost:4050",
-      "If-None-Match": "W/\"1b6-kdYCMboqD/d0qaUCKbwOZ5w3Xoc\"",
+      "If-None-Match": "W/\"10d-9uV4DklT6lc6kwzR8I8rZ9e6b18\"",
       "Referer": "http://localhost:4050/",
       "Sec-Fetch-Dest": "empty",
       "Sec-Fetch-Mode": "cors",
@@ -21,17 +21,17 @@
     "queryString": []
   },
   "response": {
-    "status": 304,
+    "status": 200,
     "headers": {
       "Access-Control-Allow-Headers": "*",
       "Access-Control-Allow-Methods": "*",
       "Access-Control-Allow-Origin": "*",
       "connection": "close",
-      "date": "Mon, 04 Nov 2024 14:53:03 GMT",
-      "etag": "W/\"1b6-kdYCMboqD/d0qaUCKbwOZ5w3Xoc\"",
+      "date": "Mon, 18 Nov 2024 16:08:35 GMT",
+      "etag": "W/\"10d-9uV4DklT6lc6kwzR8I8rZ9e6b18\"",
       "x-powered-by": "Express"
     },
-    "content": "[{\"id\":1,\"name\":\"Alice Johnson\",\"age\":16,\"grade\":\"10th\",\"email\":\"alice.johnson@example.com\"},{\"id\":2,\"name\":\"Bob Smith\",\"age\":17,\"grade\":\"11th\",\"email\":\"bob.smith@example.com\"},{\"id\":3,\"name\":\"Cathy Brown\",\"age\":15,\"grade\":\"9th\",\"email\":\"cathy.brown@example.com\"},{\"id\":4,\"name\":\"David Wilson\",\"age\":18,\"grade\":\"12th\",\"email\":\"david.wilson@example.com\"},{\"id\":5,\"name\":\"Eva Davis\",\"age\":16,\"grade\":\"10th\",\"email\":\"eva.davis@example.com\"}]"
+    "content": "[{\"id\":1,\"name\":\"Alice Johnson\",\"age\":16,\"grade\":\"10th\"},{\"id\":2,\"name\":\"Bob Smith\",\"age\":17,\"grade\":\"11th\"},{\"id\":3,\"name\":\"Cathy Brown\",\"age\":15,\"grade\":\"9th\"},{\"id\":4,\"name\":\"David Wilson\",\"age\":18,\"grade\":\"12th\"},{\"id\":5,\"name\":\"Eva Davis\",\"age\":16,\"grade\":\"10th\"}]"
   },
-  "id": "1a52f126-92b7-4f7c-a7b9-6d4bc1ff345c"
+  "id": "9543bcd6-1295-48bb-b3e5-3886fceea698"
 }

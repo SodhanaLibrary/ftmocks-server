@@ -25,6 +25,54 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+    <script>
+      window.FTMOCKS_CONFIG = {
+        url: 'http://localhost:5000/api/v1/recordMockdata'
+      };
+      (function () {
+          const originalFetch = window.fetch;
+
+          window.fetch = async function (url, options = {}) {
+              const method = options.method || 'GET';
+              const body = options.body;
+              const headers = options.headers || {};
+              const queryString = url.includes('?') ? url.split('?')[1] : null;
+              const response = await originalFetch(url, options);
+              const ftMocksURL = new URL(window.FTMOCKS_CONFIG.url);
+              const currentURL = new URL(url.startsWith('http') ? url : `http://something/${url}`);
+              const clonedResponse = response.clone();
+              clonedResponse.text().then((text) => {
+                  if(ftMocksURL.hostname !== currentURL.hostname) {
+                    const mockResponse = {
+                      "url": url,
+                      "method": options.method,
+                      "request": {
+                        "headers": headers,
+                        "queryString": queryString,
+                        "postData": {
+                            "mimeType": headers['Content-Type'] || null,
+                            "text": body
+                         }
+                      },
+                      "response": {
+                        "status": response.status,
+                        "headers": clonedResponse.headers,
+                        "content": text
+                      },
+                    };
+                    fetch(window.FTMOCKS_CONFIG.url, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify(mockResponse),
+                    }).then(response => response.json());
+                  }
+              });
+              return response;
+          };
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

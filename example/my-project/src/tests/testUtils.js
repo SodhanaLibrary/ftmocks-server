@@ -1,5 +1,11 @@
 import path from 'path';
-import { loadMockDataFromConfig, getDefaultMockDataFromConfig, compareMockToFetchRequest } from 'ftmocks-utils';
+import { 
+  loadMockDataFromConfig, 
+  getDefaultMockDataFromConfig, 
+  compareMockToFetchRequest, 
+  getMatchingMockData,
+  resetAllMockStats
+} from 'ftmocks-utils';
 import { ftmocksConifg } from './test-config';
 
 export const initiateGlobal = (jest) => {
@@ -28,23 +34,12 @@ export const initiateGlobal = (jest) => {
   });
 };
 
-export const initiateFetch = (jest, testName) => {
+export const initiateFetch = async (jest, testName) => {
   const testMockData = testName ? loadMockDataFromConfig(ftmocksConifg, testName) : [];
+  resetAllMockStats({testMockData, testConfig: ftmocksConifg, testName});
   const defaultMockData = getDefaultMockDataFromConfig(ftmocksConifg);
   global.fetch = jest.fn((url, options = {}) => {
-    let mymock = testMockData.find(tm => compareMockToFetchRequest(tm, {
-      url,
-      options
-    }));
-    if(!mymock) {
-      mymock = defaultMockData.find(tm => compareMockToFetchRequest(tm, {
-        url,
-        options
-      }));
-    }
-    console.debug(defaultMockData, mymock);
-    let mockData = mymock ? mymock.fileContent : null;
-  
+    let mockData = getMatchingMockData({testMockData, defaultMockData, url, options, testConfig: ftmocksConifg, testName});
     if (mockData) {
       console.debug('mocked', url);
     } else {
@@ -64,4 +59,5 @@ export const initiateFetch = (jest, testName) => {
       json: () => Promise.resolve(JSON.parse(content)),
     });
   });
+  return;
 };
