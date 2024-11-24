@@ -45,7 +45,8 @@
                   if(ftMocksURL.hostname !== currentURL.hostname) {
                     const mockResponse = {
                       "url": url,
-                      "method": options.method,
+                      "time": new Date().toString(),
+                      "method": options.method || 'GET',
                       "request": {
                         "headers": headers,
                         "queryString": queryString,
