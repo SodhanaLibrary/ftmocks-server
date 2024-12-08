@@ -39,7 +39,7 @@ function extractFileName(filePath) {
 function processHAR(
   harFilePath,
   outputFolder,
-  fileName = process.env.MOCK_DEFAULT_FILE,
+  fileName = 'default.json',
   testName,
   avoidDuplicates
 ) {
@@ -172,14 +172,8 @@ function createMockFromUserInputForDefaultMocks(body) {
   const mockId = uuid.v4();
   body.id = mockId;
   const defaultMockData = getDefaultMockData();
-  let mock_test_dir = path.join(
-    process.env.MOCK_DIR,
-    process.env.MOCK_DEFAULT_DIR
-  );
-  let mock_list_file = path.join(
-    process.env.MOCK_DIR,
-    process.env.MOCK_DEFAULT_FILE
-  );
+  let mock_test_dir = path.join(process.env.MOCK_DIR, 'defaultMocks');
+  let mock_list_file = path.join(process.env.MOCK_DIR, 'default.json');
   const existResps = getDefaultMockData();
   let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
   if (!fs.existsSync(mock_test_dir)) {

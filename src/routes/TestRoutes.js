@@ -8,7 +8,7 @@ const {
 const { nameToFolder } = require('../utils/MockUtils');
 
 const getTests = async (req, res) => {
-  const indexPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
+  const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
   try {
     if (!fs.existsSync(indexPath)) {
       await fs.appendFile(indexPath, '[]', () => {
@@ -38,7 +38,7 @@ const deleteTest = async (req, res) => {
 
   const testId = req.params.id;
   const testName = req.query.name;
-  const testsPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
 
   try {
     let testsData = fs.readFileSync(testsPath, 'utf8');
@@ -72,7 +72,7 @@ const createTest = async (req, res) => {
   const path = require('path');
 
   // Read existing tests
-  const testsPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
   let tests = [];
   try {
     const testsData = fs.readFileSync(testsPath, 'utf8');
@@ -91,7 +91,7 @@ const createTest = async (req, res) => {
     });
     return;
   } catch (error) {
-    console.error(`Error reading ${process.env.MOCK_TEST_FILE}:`, error);
+    console.error(`Error reading tests.json:`, error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -101,10 +101,7 @@ const updateTest = async (req, res) => {
   const updatedTest = req.body;
 
   try {
-    const testsPath = path.join(
-      process.env.MOCK_DIR,
-      process.env.MOCK_TEST_FILE
-    );
+    const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
     let testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
 
     const testIndex = testsData.findIndex((test) => test.id === testId);
@@ -261,14 +258,14 @@ const resetMockDataForTest = async (req, res) => {
 
 const createHarMockDataForTest = async (req, res) => {
   const testId = req.params.id;
-  const testsPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
 
   if (!req.file) {
     return res.status(400).json({ error: 'No HAR file uploaded' });
   }
 
   try {
-    // Read and parse the process.env.MOCK_TEST_FILE file
+    // Read and parse the 'tests.json' file
     const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
 
     // Find the test with the given id
@@ -296,7 +293,7 @@ const createHarMockDataForTest = async (req, res) => {
     const mockFileName = `test_${testName}/_mock_list.json`;
     testsData[testIndex].mockFile = mockFileName;
 
-    // Save the updated tests data back to process.env.MOCK_TEST_FILE
+    // Save the updated tests data back to 'tests.json'
     fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
 
     // Clean up the uploaded HAR file
