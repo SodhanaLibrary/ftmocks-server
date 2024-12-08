@@ -4,8 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const { processHAR } = require('../utils/MockGenerator');
 
 const getDefaultMocks = async (req, res) => {
-  const defaultPath =
-    process.env.MOCK_DIR + '/' + process.env.MOCK_DEFAULT_FILE;
+  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
 
   try {
     if (!fs.existsSync(defaultPath)) {
@@ -32,21 +31,17 @@ const getDefaultMocks = async (req, res) => {
     });
     res.status(200).json(parsedData);
   } catch (error) {
-    console.error(
-      `Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`,
-      error
-    );
+    console.error(`Error reading or parsing default.json:`, error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 const deleteDefaultMock = async (req, res) => {
   const mockId = req.params.id;
-  const defaultPath =
-    process.env.MOCK_DIR + '/' + process.env.MOCK_DEFAULT_FILE;
+  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
 
   try {
-    // Read and parse the process.env.MOCK_DEFAULT_FILE file
+    // Read and parse the default.json file
     let defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
 
     // Find the index of the mock to be deleted
@@ -62,7 +57,7 @@ const deleteDefaultMock = async (req, res) => {
     // Remove the mock from the array
     defaultData.splice(mockIndex, 1);
 
-    // Write the updated data back to process.env.MOCK_DEFAULT_FILE
+    // Write the updated data back to default.json
     fs.writeFileSync(defaultPath, JSON.stringify(defaultData, null, 2));
 
     // Delete the associated mock file
@@ -102,11 +97,7 @@ const uploadDefaultHarMocs = async (req, res) => {
   try {
     const harFilePath = req.file.path;
 
-    await processHAR(
-      harFilePath,
-      process.env.MOCK_DIR,
-      process.env.MOCK_DEFAULT_FILE
-    );
+    await processHAR(harFilePath, process.env.MOCK_DIR, 'default.json');
 
     // Clean up the uploaded file
     fs.unlinkSync(harFilePath);

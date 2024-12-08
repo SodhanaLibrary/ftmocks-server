@@ -10,8 +10,8 @@ const areJsonEqual = (jsonObj1, jsonObj2) => {
     jsonObj2 !== null
   ) {
     // Get the keys of both objects
-    const keys1 = Object.keys(jsonObj1);
-    const keys2 = Object.keys(jsonObj2);
+    const keys1 = Object.keys(jsonObj1).filter((key) => jsonObj1[key] !== null);
+    const keys2 = Object.keys(jsonObj2).filter((key) => jsonObj1[key] !== null);
 
     // Check if the number of keys is different
     if (keys1.length !== keys2.length) {
@@ -52,10 +52,7 @@ const processURL = (url, ignoreParams = []) => {
 };
 
 const getDefaultMockData = () => {
-  const defaultPath = path.join(
-    process.env.MOCK_DIR,
-    process.env.MOCK_DEFAULT_FILE
-  );
+  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
 
   try {
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
@@ -65,7 +62,7 @@ const getDefaultMockData = () => {
     parsedData.forEach((entry) => {
       const mockFilePath = path.join(
         process.env.MOCK_DIR,
-        process.env.MOCK_DEFAULT_DIR,
+        'defaultMocks',
         `mock_${entry.id}.json`
       );
       try {
@@ -78,29 +75,20 @@ const getDefaultMockData = () => {
     });
     return parsedData;
   } catch (error) {
-    console.error(
-      `Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`,
-      error
-    );
+    console.error(`Error reading or parsing default.json:`, error);
     return [];
   }
 };
 
 const getDefaultMockDataSummaryList = () => {
-  const defaultPath = path.join(
-    process.env.MOCK_DIR,
-    process.env.MOCK_DEFAULT_FILE
-  );
+  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
 
   try {
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
     let parsedData = JSON.parse(defaultData);
     return parsedData;
   } catch (error) {
-    console.error(
-      `Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`,
-      error
-    );
+    console.error(`Error reading or parsing default.json:`, error);
     return [];
   }
 };
@@ -116,7 +104,7 @@ const loadMockData = () => {
     const config = JSON.parse(configData);
     const testName = config.testName;
 
-    // Read the tests from process.env.MOCK_TEST_FILE
+    // Read the tests from '_mock_list.json'
     const mocksPath = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(testName)}`,
