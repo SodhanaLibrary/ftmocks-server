@@ -70,26 +70,30 @@ const deleteTest = async (req, res) => {
 const createTest = async (req, res) => {
   const fs = require('fs');
   const path = require('path');
-
-  // Read existing tests
   const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
   let tests = [];
   try {
+    // Read existing tests
     const testsData = fs.readFileSync(testsPath, 'utf8');
     tests = JSON.parse(testsData);
-    const newTest = {
-      id: uuidv4(),
-      name: req.body.name,
-      mockFile: [],
-    };
-    tests.push(newTest);
-    fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
-
-    res.status(201).json({
-      message: 'New test created successfully',
-      test: newTest,
-    });
-    return;
+    const etest = tests.find(tst => tst.name === req.body.name);
+    if (!etest) {
+      const newTest = {
+        id: uuidv4(),
+        name: req.body.name,
+        mockFile: [],
+      };
+      tests.push(newTest);
+      fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
+  
+      res.status(201).json({
+        message: 'New test created successfully',
+        test: newTest,
+      });
+      return;
+    } else {
+      throw 'Test already exists';
+    }
   } catch (error) {
     console.error(`Error reading tests.json:`, error);
     return res.status(500).json({ error: 'Internal server error' });
