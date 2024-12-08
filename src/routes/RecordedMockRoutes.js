@@ -35,10 +35,19 @@ const getRecordedMocks = async (req, res) => {
     });
     res.status(200).json(parsedData);
   } catch (error) {
-    console.error(
-      `Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`,
-      error
-    );
+    console.error(`Error reading or parsing default.json:`, error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const deleteAllRecordedMocks = async (req, res) => {
+  const defaultPath = path.join(process.env.MOCK_DIR, 'recordMocks');
+
+  try {
+    fs.rmSync(defaultPath, { recursive: true, force: true });
+    res.status(200).json([]);
+  } catch (error) {
+    console.error(`Error reading or parsing default.json:`, error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -52,7 +61,7 @@ const deleteRecordedMock = async (req, res) => {
   );
 
   try {
-    // Read and parse the process.env.MOCK_DEFAULT_FILE file
+    // Read and parse the default.json file
     let defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
 
     // Find the index of the mock to be deleted
@@ -68,7 +77,7 @@ const deleteRecordedMock = async (req, res) => {
     // Remove the mock from the array
     defaultData.splice(mockIndex, 1);
 
-    // Write the updated data back to process.env.MOCK_DEFAULT_FILE
+    // Write the updated data back to default.json
     fs.writeFileSync(defaultPath, JSON.stringify(defaultData, null, 2));
 
     // Delete the associated mock file
@@ -169,10 +178,7 @@ const initiateRecordedMocks = async (req, res) => {
 
     res.status(200).json(parsedData);
   } catch (error) {
-    console.error(
-      `Error reading or parsing ${process.env.MOCK_DEFAULT_FILE}:`,
-      error
-    );
+    console.error(`Error reading or parsing default.json:`, error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -183,4 +189,5 @@ module.exports = {
   updateRecordedMock,
   recordMockData,
   initiateRecordedMocks,
+  deleteAllRecordedMocks,
 };
