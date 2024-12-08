@@ -33,8 +33,10 @@ const areJsonEqual = (jsonObj1, jsonObj2) => {
 };
 
 const nameToFolder = (name) => {
-  console.log(name);
-  return name.replaceAll(' ', '_');
+  const replaceAll = (str, find, replace) => {
+    return str.split(find).join(replace);
+  };
+  return replaceAll(name, ' ', '_');
 };
 
 const processURL = (url, ignoreParams = []) => {

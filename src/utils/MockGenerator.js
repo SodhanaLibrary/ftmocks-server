@@ -213,49 +213,60 @@ function createMockFromUserInputForDefaultMocks(body) {
   );
 }
 
-function createMockFromUserInputForTest(body, testName) {
-  if (!testName) {
-    createMockFromUserInputForDefaultMocks(body);
-  } else {
-    const mockId = uuid.v4();
-    body.id = mockId;
-    let mock_test_dir = path.join(
-      process.env.MOCK_DIR,
-      `test_${nameToFolder(testName)}`
-    );
-    if (!fs.existsSync(mock_test_dir)) {
-      fs.mkdirSync(mock_test_dir);
+async function createMockFromUserInputForTest(body, testName) {
+  try {
+    if (!testName) {
+      createMockFromUserInputForDefaultMocks(body);
+    } else {
+      const mockId = uuid.v4();
+      body.id = mockId;
+      let mock_test_dir = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(testName)}`
+      );
+      if (!fs.existsSync(mock_test_dir)) {
+        fs.mkdirSync(mock_test_dir);
+      }
+      let mock_list_file = path.join(mock_test_dir, '_mock_list.json');
+      if (!fs.existsSync(mock_list_file)) {
+        await fs.appendFile(mock_list_file, '[]', () => {
+          console.log('_mock_list.json file created successfully');
+        });
+      }
+      const existResps = loadMockDataFromMockListFile(
+        mock_test_dir,
+        '_mock_list.json',
+        testName
+      );
+      let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
+  
+      const responseSummaryRecord = {
+        fileName: `mock_${mockId}.json`,
+        method: body.method,
+        path: mock_file,
+        postData: body.request.postData,
+        url: body.url,
+        id: mockId,
+      };
+      existResps.push(
+        Object.assign({}, responseSummaryRecord, { fileContent: body })
+      );
+  
+      existResps.forEach((element) => {
+        delete element.fileContent;
+      });
+      fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
+      // Create an index file with references to individual response files
+      fs.writeFileSync(mock_list_file, JSON.stringify(existResps, null, 2));
+  
+      console.log(
+        `Individual response files and index file created in ${mock_list_file}`
+      );
     }
-    let mock_list_file = path.join(mock_test_dir, '_mock_list.json');
-    const existResps = loadMockDataFromMockListFile(
-      mock_test_dir,
-      '_mock_list.json',
-      testName
-    );
-    let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
-
-    const responseSummaryRecord = {
-      fileName: `mock_${mockId}.json`,
-      method: body.method,
-      path: mock_file,
-      postData: body.request.postData,
-      url: body.url,
-      id: mockId,
-    };
-    existResps.push(
-      Object.assign({}, responseSummaryRecord, { fileContent: body })
-    );
-
-    existResps.forEach((element) => {
-      delete element.fileContent;
-    });
-    fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
-    // Create an index file with references to individual response files
-    fs.writeFileSync(mock_list_file, JSON.stringify(existResps, null, 2));
-
-    console.log(
-      `Individual response files and index file created in ${mock_list_file}`
-    );
+  } catch(e) {
+    console.error(e);
+    console.log(`*******${testName}********`);
+    console.log(body);
   }
 }
 

@@ -2,6 +2,24 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { createMockFromUserInputForTest } = require('../utils/MockGenerator');
+const { createTest } = require('../utils/TestUtils');
+
+function getLastWordFromApiUrl(apiUrl) {
+  // Split the URL into parts by '/'
+  const parts = apiUrl.split('/');
+  // Filter out any empty parts
+  const nonEmptyParts = parts.filter(Boolean);
+
+  // Iterate from the end of the array to find the last alphabetic-only part
+  for (let i = nonEmptyParts.length - 1; i >= 0; i--) {
+      if (/^[a-zA-Z]+$/.test(nonEmptyParts[i])) {
+          return nonEmptyParts[i];
+      }
+  }
+
+  // Return null or a default value if no alphabetic-only part is found
+  return null;
+}
 
 const getRecordedMocks = async (req, res) => {
   const defaultPath = path.join(
@@ -129,19 +147,23 @@ const recordMockData = async (req, res) => {
     } else {
       mockDataSummary = JSON.parse(fs.readFileSync(mockListFilePath, 'utf8'));
     }
-    mockDataSummary.push({
-      fileName: `mock_${mockData.id}.json`,
-      method: mockData.method,
-      path: mockFilePath,
-      url: mockData.url,
-      id: mockData.id,
-    });
-    fs.writeFileSync(mockFilePath, JSON.stringify(mockData, null, 2));
-    fs.writeFileSync(
-      mockListFilePath,
-      JSON.stringify(mockDataSummary, null, 2)
-    );
-    res.json(mockData);
+    if(mockDataSummary.length >= process.env.MOCK_RECORDER_LIMIT) {
+      throw 'MOCK_RECORDER_LIMIT reached'
+    } else {
+      mockDataSummary.push({
+        fileName: `mock_${mockData.id}.json`,
+        method: mockData.method,
+        path: mockFilePath,
+        url: mockData.url,
+        id: mockData.id,
+      });
+      fs.writeFileSync(mockFilePath, JSON.stringify(mockData, null, 2));
+      fs.writeFileSync(
+        mockListFilePath,
+        JSON.stringify(mockDataSummary, null, 2)
+      );
+      res.json(mockData);
+    }
   } catch (error) {
     console.error('Error updating mock data:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -157,7 +179,7 @@ const initiateRecordedMocks = async (req, res) => {
 
   try {
     if (!fs.existsSync(defaultPath)) {
-      await fs.appendFile(defaultPath, '[]', () => {
+      await fs.appendFile(defaultPath, '', () => {
         console.log('default file created successfully');
       });
     }
@@ -169,7 +191,22 @@ const initiateRecordedMocks = async (req, res) => {
       const mockFilePath = entry.path;
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
-        createMockFromUserInputForTest(JSON.parse(mockData));
+        const parsedMockData = JSON.parse(mockData);
+        const lastWord = getLastWordFromApiUrl(parsedMockData.url);
+        if(parsedMockData.method === 'GET') {
+          createMockFromUserInputForTest(parsedMockData);
+        } else {
+          let testType = 'create';
+          if (parsedMockData.method === 'PUT') {
+            testType = 'update';
+          } else if (parsedMockData.method === 'DELETE') {
+            testType = 'delete';
+          } else if (parsedMockData.method === 'PATCH') {
+            testType = 'patch';
+          }
+          createTest(`${testType} ${lastWord}`);
+          createMockFromUserInputForTest(JSON.parse(mockData), `${testType} ${lastWord}`);
+        }
       } catch (error) {
         console.error(`Error reading mock data for ${entry.path}:`, error);
         return entry; // Return the original entry if there's an error
