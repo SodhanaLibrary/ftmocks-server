@@ -239,7 +239,7 @@ async function createMockFromUserInputForTest(body, testName) {
         testName
       );
       let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
-  
+
       const responseSummaryRecord = {
         fileName: `mock_${mockId}.json`,
         method: body.method,
@@ -251,19 +251,19 @@ async function createMockFromUserInputForTest(body, testName) {
       existResps.push(
         Object.assign({}, responseSummaryRecord, { fileContent: body })
       );
-  
+
       existResps.forEach((element) => {
         delete element.fileContent;
       });
       fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
       // Create an index file with references to individual response files
       fs.writeFileSync(mock_list_file, JSON.stringify(existResps, null, 2));
-  
+
       console.log(
         `Individual response files and index file created in ${mock_list_file}`
       );
     }
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     console.log(`*******${testName}********`);
     console.log(body);
