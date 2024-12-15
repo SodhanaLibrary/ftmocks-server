@@ -76,7 +76,7 @@ const createTest = async (req, res) => {
     // Read existing tests
     const testsData = fs.readFileSync(testsPath, 'utf8');
     tests = JSON.parse(testsData);
-    const etest = tests.find(tst => tst.name === req.body.name);
+    const etest = tests.find((tst) => tst.name === req.body.name);
     if (!etest) {
       const newTest = {
         id: uuidv4(),
@@ -85,7 +85,7 @@ const createTest = async (req, res) => {
       };
       tests.push(newTest);
       fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
-  
+
       res.status(201).json({
         message: 'New test created successfully',
         test: newTest,

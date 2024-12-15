@@ -12,9 +12,9 @@ function getLastWordFromApiUrl(apiUrl) {
 
   // Iterate from the end of the array to find the last alphabetic-only part
   for (let i = nonEmptyParts.length - 1; i >= 0; i--) {
-      if (/^[a-zA-Z]+$/.test(nonEmptyParts[i])) {
-          return nonEmptyParts[i];
-      }
+    if (/^[a-zA-Z]+$/.test(nonEmptyParts[i])) {
+      return nonEmptyParts[i];
+    }
   }
 
   // Return null or a default value if no alphabetic-only part is found
@@ -147,8 +147,8 @@ const recordMockData = async (req, res) => {
     } else {
       mockDataSummary = JSON.parse(fs.readFileSync(mockListFilePath, 'utf8'));
     }
-    if(mockDataSummary.length >= process.env.MOCK_RECORDER_LIMIT) {
-      throw 'MOCK_RECORDER_LIMIT reached'
+    if (mockDataSummary.length >= process.env.MOCK_RECORDER_LIMIT) {
+      throw 'MOCK_RECORDER_LIMIT reached';
     } else {
       mockDataSummary.push({
         fileName: `mock_${mockData.id}.json`,
@@ -193,7 +193,7 @@ const initiateRecordedMocks = async (req, res) => {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         const parsedMockData = JSON.parse(mockData);
         const lastWord = getLastWordFromApiUrl(parsedMockData.url);
-        if(parsedMockData.method === 'GET') {
+        if (parsedMockData.method === 'GET') {
           createMockFromUserInputForTest(parsedMockData);
         } else {
           let testType = 'create';
@@ -205,7 +205,10 @@ const initiateRecordedMocks = async (req, res) => {
             testType = 'patch';
           }
           createTest(`${testType} ${lastWord}`);
-          createMockFromUserInputForTest(JSON.parse(mockData), `${testType} ${lastWord}`);
+          createMockFromUserInputForTest(
+            JSON.parse(mockData),
+            `${testType} ${lastWord}`
+          );
         }
       } catch (error) {
         console.error(`Error reading mock data for ${entry.path}:`, error);
