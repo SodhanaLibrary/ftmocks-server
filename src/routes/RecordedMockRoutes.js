@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { createMockFromUserInputForTest } = require('../utils/MockGenerator');
-const { createTest } = require('../utils/TestUtils');
+const { createTest, getPreviousGetMocks, getAfterGetMocks } = require('../utils/TestUtils');
 
 function getLastWordFromApiUrl(apiUrl) {
   // Split the URL into parts by '/'
@@ -187,14 +187,24 @@ const initiateRecordedMocks = async (req, res) => {
     let parsedData = JSON.parse(defaultData);
 
     // Read and attach mock data for each entry in parsedData
-    parsedData.forEach((entry) => {
+    const mockDataList = [];
+    for(let index=0; index < parsedData.length; index++) {
+      const entry = parsedData[index];
       const mockFilePath = entry.path;
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         const parsedMockData = JSON.parse(mockData);
+        mockDataList.push(parsedMockData);
+      } catch(e) {
+        console.error(e);
+      }
+    }
+    for(let index=0; index< parsedData.length; index++) {
+      try {
+        const parsedMockData = mockDataList[index];
         const lastWord = getLastWordFromApiUrl(parsedMockData.url);
         if (parsedMockData.method === 'GET') {
-          createMockFromUserInputForTest(parsedMockData);
+          await createMockFromUserInputForTest(parsedMockData);
         } else {
           let testType = 'create';
           if (parsedMockData.method === 'PUT') {
@@ -205,17 +215,33 @@ const initiateRecordedMocks = async (req, res) => {
             testType = 'patch';
           }
           createTest(`${testType} ${lastWord}`);
-          createMockFromUserInputForTest(
-            JSON.parse(mockData),
+          const prevGetMocks = getPreviousGetMocks(mockDataList, index);
+          for(let pind = 0; pind < prevGetMocks.length; pind++) {
+            await createMockFromUserInputForTest(
+              prevGetMocks[pind],
+              `${testType} ${lastWord}`,
+              true
+            );
+          }
+          await createMockFromUserInputForTest(
+            parsedMockData,
             `${testType} ${lastWord}`
           );
+          const afterGetMocks = getAfterGetMocks(mockDataList, index);
+          for(let pind = 0; pind < afterGetMocks.length; pind++) {
+            afterGetMocks[pind].waitForPrevious = true;
+            await createMockFromUserInputForTest(
+              afterGetMocks[pind],
+              `${testType} ${lastWord}`,
+              true
+            );
+          }
         }
       } catch (error) {
         console.error(`Error reading mock data for ${entry.path}:`, error);
         return entry; // Return the original entry if there's an error
       }
-    });
-
+    }
     res.status(200).json(parsedData);
   } catch (error) {
     console.error(`Error reading or parsing default.json:`, error);

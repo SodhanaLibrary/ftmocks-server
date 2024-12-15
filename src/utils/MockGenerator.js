@@ -213,7 +213,7 @@ function createMockFromUserInputForDefaultMocks(body) {
   );
 }
 
-async function createMockFromUserInputForTest(body, testName) {
+async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
   try {
     if (!testName) {
       createMockFromUserInputForDefaultMocks(body);
@@ -229,7 +229,7 @@ async function createMockFromUserInputForTest(body, testName) {
       }
       let mock_list_file = path.join(mock_test_dir, '_mock_list.json');
       if (!fs.existsSync(mock_list_file)) {
-        await fs.appendFile(mock_list_file, '[]', () => {
+        await fs.appendFile(mock_list_file, '', () => {
           console.log('_mock_list.json file created successfully');
         });
       }
@@ -238,6 +238,14 @@ async function createMockFromUserInputForTest(body, testName) {
         '_mock_list.json',
         testName
       );
+      if (avoidDuplicates) {
+        if (existResps.find((mock) => compareMockToMock(mock.fileContent, body))) {
+          console.log('its duplicate entry');
+          return null;
+        } else {
+          console.log('its new entry');
+        }
+      }
       let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
 
       const responseSummaryRecord = {
@@ -255,6 +263,7 @@ async function createMockFromUserInputForTest(body, testName) {
       existResps.forEach((element) => {
         delete element.fileContent;
       });
+
       fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
       // Create an index file with references to individual response files
       fs.writeFileSync(mock_list_file, JSON.stringify(existResps, null, 2));
