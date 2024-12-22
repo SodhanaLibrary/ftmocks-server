@@ -198,7 +198,6 @@ const isSameRequest = (req1, req2) => {
   return matched;
 };
 
-
 const isSameResponse = (req1, req2) => {
   let matched = true;
   if (req1.response.status !== req2.response.status) {
@@ -208,12 +207,18 @@ const isSameResponse = (req1, req2) => {
     (!req1.response.content && req2.response.content) ||
     (req1.response.content && !req2.response.content)
   ) {
-    matched = areJsonEqual(JSON.parse(req1.response.content) || {}, JSON.parse(req2.response.content) || {});
+    matched = areJsonEqual(
+      JSON.parse(req1.response.content) || {},
+      JSON.parse(req2.response.content) || {}
+    );
     // console.log('not matched at post Data 0', req1.postData, req2.postData);
   } else if (
     req1.response.content &&
     req2.response.content &&
-    !areJsonEqual(JSON.parse(req1.response.content) || {}, JSON.parse(req2.response.content) || {})
+    !areJsonEqual(
+      JSON.parse(req1.response.content) || {},
+      JSON.parse(req2.response.content) || {}
+    )
   ) {
     matched = false;
   }
@@ -222,7 +227,6 @@ const isSameResponse = (req1, req2) => {
   }
   return matched;
 };
-
 
 const compareMockToRequest = (mock, req) => {
   const mockURL = processURL(
@@ -271,7 +275,7 @@ const compareMockToHarEntry = (mock, harEntry) => {
 
 const compareMockToMock = (mock1, mock2, matchResponse) => {
   try {
-    if(matchResponse) {
+    if (matchResponse) {
       return isSameRequest(mock1, mock2) && isSameResponse(mock1, mock2);
     } else {
       return isSameRequest(mock1, mock2);
