@@ -239,7 +239,11 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
         testName
       );
       if (avoidDuplicates) {
-        if (existResps.find((mock) => compareMockToMock(mock.fileContent, body, true))) {
+        if (
+          existResps.find((mock) =>
+            compareMockToMock(mock.fileContent, body, true)
+          )
+        ) {
           console.log(`its duplicate entry for the test ${testName}`);
           return null;
         } else {

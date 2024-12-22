@@ -8,6 +8,7 @@ const mockServer = require('./mockServer');
 const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks } = require('./src/routes/TestRoutes');
 const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
 const { getRecordedMocks, deleteRecordedMock, deleteAllRecordedMocks, updateRecordedMock, recordMockData, initiateRecordedMocks } = require('./src/routes/RecordedMockRoutes');
+const { getRecordedEvents, deleteRecordedEvent, recordEventData, deleteAllEvents } = require('./src/routes/RecordedEventRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
 
 
@@ -95,6 +96,17 @@ app.delete('/api/v1/recordedMocks/:id', deleteRecordedMock);
 // Router for /api/v1/defaultmocks/:id PUT method
 app.put('/api/v1/recordedMocks/:id', updateRecordedMock);
 
+// Router for /api/v1/recordedEvents GET method
+app.get('/api/v1/recordedEvents', getRecordedEvents);
+
+// Router for /api/v1/recordedEvents GET method
+app.post('/api/v1/recordedEvents', recordEventData);
+
+// Router for /api/v1/recordedEvents DELETE method
+app.delete('/api/v1/recordedEvents', deleteRecordedEvent);
+
+// Router for /api/v1/deleteAllEvents DELETE method
+app.delete('/api/v1/deleteAllEvents', deleteAllEvents);
 
 
 // Router for /api/v1/mockServer GET method

@@ -31,10 +31,12 @@ const createTest = (name) => {
 const getPreviousGetMocks = (mockDataList, index) => {
   try {
     const rmocks = [];
-    for(let i = index - 1; i >= 0; i--) {
-      if(mockDataList[i].method === 'GET') {
+    for (let i = index - 1; i >= 0; i--) {
+      if (mockDataList[i].method === 'GET') {
         rmocks.push(mockDataList[i]);
-      } else if(['POST', 'PUT', 'DELETE', 'PATCH'].includes(mockDataList[i].method)) {
+      } else if (
+        ['POST', 'PUT', 'DELETE', 'PATCH'].includes(mockDataList[i].method)
+      ) {
         break;
       }
     }
@@ -48,10 +50,12 @@ const getPreviousGetMocks = (mockDataList, index) => {
 const getAfterGetMocks = (mockDataList, index) => {
   try {
     const rmocks = [];
-    for(let i = index + 1; i < mockDataList.length; i++) {
-      if(mockDataList[i].method === 'GET') {
+    for (let i = index + 1; i < mockDataList.length; i++) {
+      if (mockDataList[i].method === 'GET') {
         rmocks.push(mockDataList[i]);
-      } else if(['POST', 'PUT', 'DELETE', 'PATCH'].includes(mockDataList[i].method)) {
+      } else if (
+        ['POST', 'PUT', 'DELETE', 'PATCH'].includes(mockDataList[i].method)
+      ) {
         break;
       }
     }
@@ -90,5 +94,5 @@ const getMocksDiffFromDefaultMocks = (name) => {
 module.exports = {
   createTest,
   getPreviousGetMocks,
-  getAfterGetMocks
+  getAfterGetMocks,
 };
