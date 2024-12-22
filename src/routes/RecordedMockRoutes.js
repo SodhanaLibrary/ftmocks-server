@@ -2,7 +2,11 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { createMockFromUserInputForTest } = require('../utils/MockGenerator');
-const { createTest, getPreviousGetMocks, getAfterGetMocks } = require('../utils/TestUtils');
+const {
+  createTest,
+  getPreviousGetMocks,
+  getAfterGetMocks,
+} = require('../utils/TestUtils');
 
 function getLastWordFromApiUrl(apiUrl) {
   // Split the URL into parts by '/'
@@ -188,28 +192,28 @@ const initiateRecordedMocks = async (req, res) => {
 
     // Read and attach mock data for each entry in parsedData
     const mockDataList = [];
-    for(let index=0; index < parsedData.length; index++) {
+    for (let index = 0; index < parsedData.length; index++) {
       const entry = parsedData[index];
       const mockFilePath = entry.path;
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         const parsedMockData = JSON.parse(mockData);
         mockDataList.push(parsedMockData);
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       }
     }
-    for(let index=0; index< parsedData.length; index++) {
+    for (let index = 0; index < parsedData.length; index++) {
       try {
         const parsedMockData = mockDataList[index];
         if (parsedMockData.method === 'GET') {
           await createMockFromUserInputForTest(parsedMockData);
         }
-      } catch(e) {
+      } catch (e) {
         console.error(e);
       }
     }
-    for(let index=0; index< parsedData.length; index++) {
+    for (let index = 0; index < parsedData.length; index++) {
       try {
         const parsedMockData = mockDataList[index];
         const lastWord = getLastWordFromApiUrl(parsedMockData.url);
@@ -228,7 +232,7 @@ const initiateRecordedMocks = async (req, res) => {
           }
           createTest(`${testType} ${lastWord}`);
           const prevGetMocks = getPreviousGetMocks(mockDataList, index);
-          for(let pind = 0; pind < prevGetMocks.length; pind++) {
+          for (let pind = 0; pind < prevGetMocks.length; pind++) {
             await createMockFromUserInputForTest(
               prevGetMocks[pind],
               `${testType} ${lastWord}`,
@@ -240,8 +244,10 @@ const initiateRecordedMocks = async (req, res) => {
             `${testType} ${lastWord}`
           );
           const afterGetMocks = getAfterGetMocks(mockDataList, index);
-          for(let pind = 0; pind < afterGetMocks.length; pind++) {
-            const tempMock = Object.assign({}, afterGetMocks[pind], {waitForPrevious:true});
+          for (let pind = 0; pind < afterGetMocks.length; pind++) {
+            const tempMock = Object.assign({}, afterGetMocks[pind], {
+              waitForPrevious: true,
+            });
             await createMockFromUserInputForTest(
               tempMock,
               `${testType} ${lastWord}`,
