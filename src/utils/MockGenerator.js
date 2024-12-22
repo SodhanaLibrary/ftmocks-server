@@ -180,7 +180,7 @@ function createMockFromUserInputForDefaultMocks(body) {
     fs.mkdirSync(mock_test_dir);
   }
   if (defaultMockData.find((mock) => compareMockToMock(mock, body))) {
-    console.log('its duplicate entry');
+    console.log('its duplicate entry for default mocks');
     return null;
   } else {
     console.log(
@@ -239,8 +239,8 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
         testName
       );
       if (avoidDuplicates) {
-        if (existResps.find((mock) => compareMockToMock(mock.fileContent, body))) {
-          console.log('its duplicate entry');
+        if (existResps.find((mock) => compareMockToMock(mock.fileContent, body, true))) {
+          console.log(`its duplicate entry for the test ${testName}`);
           return null;
         } else {
           console.log('its new entry');
