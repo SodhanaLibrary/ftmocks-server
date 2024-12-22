@@ -24,7 +24,7 @@ app.all("*", (req, res) => {
       served = mock.fileContent.served;
       return compareMockToRequest(mock, req);
     }) || [];
-    let foundMock = matchedMocks.find(mock => !mock.fileContent.served) ? matchedMocks.find(mock => !mock.fileContent.served) : matchedMocks[0];
+    let foundMock = matchedMocks.find(mock => !mock.fileContent.served) ? matchedMocks.find(mock => !mock.fileContent.served) : matchedMocks[matchedMocks.length - 1];
     
     if(!foundMock) {
       foundMock = defaultMockData?.find(mock => {

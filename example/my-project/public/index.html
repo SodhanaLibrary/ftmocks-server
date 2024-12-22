@@ -27,12 +27,14 @@
     <title>React App</title>
     <script>
       window.FTMOCKS_CONFIG = {
-    url: 'http://localhost:5000/api/v1/recordMockdata'
-};
+        record_mocks_url: 'http://localhost:5000/api/v1/recordMockdata',
+        record_events_url: 'http://localhost:5000/api/v1/recordEvents'
+      };
 
 (function () {
     // Intercept Fetch API
     const originalFetch = window.fetch;
+    const recordedTracks = [];
 
     window.fetch = async function (url, options = {}) {
         const method = options.method || 'GET';
@@ -40,7 +42,7 @@
         const headers = options.headers || {};
         const queryString = url.includes('?') ? url.split('?')[1] : null;
         const response = await originalFetch(url, options);
-        const ftMocksURL = new URL(window.FTMOCKS_CONFIG.url);
+        const ftMocksURL = new URL(window.FTMOCKS_CONFIG.record_mocks_url);
         const currentURL = new URL(url.startsWith('http') ? url : `http://something/${url}`);
         const clonedResponse = response.clone();
         clonedResponse.text().then((text) => {
@@ -63,7 +65,7 @@
                         content: text
                     },
                 };
-                fetch(window.FTMOCKS_CONFIG.url, {
+                fetch(window.FTMOCKS_CONFIG.record_mocks_url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -110,7 +112,7 @@
             const originalOnReadyStateChange = xhr.onreadystatechange;
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) { // Complete
-                    const ftMocksURL = new URL(window.FTMOCKS_CONFIG.url);
+                    const ftMocksURL = new URL(window.FTMOCKS_CONFIG.record_mocks_url);
                     const currentURL = new URL(requestDetails.url.startsWith('http') ? requestDetails.url : `http://something/${requestDetails.url}`);
                     if (ftMocksURL.hostname !== currentURL.hostname) {
                         const mockResponse = {
@@ -131,7 +133,7 @@
                                 content: xhr.responseText
                             },
                         };
-                        fetch(window.FTMOCKS_CONFIG.url, {
+                        fetch(window.FTMOCKS_CONFIG.record_mocks_url, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -149,6 +151,160 @@
     }
 
     window.XMLHttpRequest = MockXHR;
+
+
+
+    const addTrack = track => {
+        track.id = recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1;
+        track.time = new Date();
+        fetch(window.FTMOCKS_CONFIG.record_events_url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(track),
+                }).then(response => response.json());
+    };
+
+    const generateXPathWithNearestParentId = (element) => {
+        let path = '';
+        let nearestParentId = null;
+
+        // Check if the current element's has an ID
+        if (element.id) {
+            nearestParentId = element.id;
+        }
+
+        while (!nearestParentId && element !== document.body && element) {
+            const tagName = element.tagName.toLowerCase();
+            let index = 1;
+            let sibling = element.previousElementSibling;
+
+            while (sibling) {
+                if (sibling.tagName.toLowerCase() === tagName) {
+                    index += 1;
+                }
+                sibling = sibling.previousElementSibling;
+            }
+
+            if (index === 1) {
+                path = `/${tagName}${path}`;
+            } else {
+                path = `/${tagName}[${index}]${path}`;
+            }
+
+            // Check if the current element's parent has an ID
+            if (element.parentElement && element.parentElement.id) {
+                nearestParentId = element.parentElement.id;
+                break; // Stop searching when we find the nearest parent with an ID
+            }
+
+            element = element.parentElement;
+        }
+
+        if (nearestParentId) {
+            path = `//*[@id='${nearestParentId}']${path}`;
+            return path;
+        }
+        return null; // No parent with an ID found
+    };
+
+    const handleMouseEvent = (type, limit) => event => {
+        const target = generateXPathWithNearestParentId(event.target);
+        const track = {
+            id: recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1,
+            type,
+            target,
+            time: new Date(),
+        };
+        if(recordedTracks.length > limit + 1) {
+            recordedTracks.shift();
+        }
+        recordedTracks.push(track);
+        addTrack(track);
+    };
+
+    const handleChange = limit => event => {
+        const prevCommand =
+            recordedTracks && recordedTracks.length ? recordedTracks[recordedTracks.length - 1] : null;
+        const target = generateXPathWithNearestParentId(event.target);
+        const track = {
+            id: recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1,
+            type: 'change',
+            target,
+            value: event.target.value,
+            time: new Date(),
+        };
+        if(recordedTracks.length > limit + 1) {
+            recordedTracks.shift();
+        }
+        if (
+            prevCommand &&
+            prevCommand.type === 'change' &&
+            prevCommand.target === target
+        ) {
+            recordedTracks.pop();
+        }
+        recordedTracks.push(track);
+        addTrack(track);
+    };
+
+    const handleDocumentLoad = limit => () => {
+        let oldHref = document.location.href;
+        const body = document.querySelector('body');
+        const observer = new MutationObserver(mutations => {
+            if (oldHref !== document.location.href) {
+                oldHref = document.location.href;
+                const track = {
+                    id: recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1,
+                    type: 'url',
+                    value: oldHref,
+                    time: new Date(),
+                };
+                if(recordedTracks.length > limit + 1) {
+                    recordedTracks.shift();
+                }
+                recordedTracks.push(track);
+                addTrack(track);
+            }
+        });
+        observer.observe(body, { childList: true, subtree: true });
+    };
+
+    const clearTracks = () => {
+        recordedTracks = [];
+    };
+
+    const getAllTracks = () => {
+        return recordedTracks;
+    };
+
+    const initTracks = (initInfo = {events: ['click', 'change', 'url', 'dblclick', 'contextmenu'], limit: 100}) => {
+        const {events, limit} = initInfo;
+        const mouseEvents = {
+            click: handleMouseEvent('click', limit),
+            contextmenu: handleMouseEvent('contextmenu', limit),
+            dblclick: handleMouseEvent('dblclick', limit),
+            mousedown: handleMouseEvent('mousedown', limit),
+            mouseenter: handleMouseEvent('mouseenter', limit),
+            mouseleave: handleMouseEvent('mouseleave', limit),
+            mousemove: handleMouseEvent('mousemove', limit),
+            mouseout: handleMouseEvent('mouseout', limit),
+            mouseover: handleMouseEvent('mouseover', limit),
+            mouseup: handleMouseEvent('mouseup', limit),
+        };
+        events.forEach(e => {
+            if(e === 'url') {
+                window.onload = handleDocumentLoad(limit);
+            } else if (e === 'change') {
+                document.addEventListener('input', handleChange(limit));
+            } else {
+                document.addEventListener(e, mouseEvents[e]);
+            }
+        });
+    };
+    initTracks();
+
 })();
 
     </script>

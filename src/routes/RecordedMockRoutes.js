@@ -202,17 +202,29 @@ const initiateRecordedMocks = async (req, res) => {
     for(let index=0; index< parsedData.length; index++) {
       try {
         const parsedMockData = mockDataList[index];
-        const lastWord = getLastWordFromApiUrl(parsedMockData.url);
         if (parsedMockData.method === 'GET') {
           await createMockFromUserInputForTest(parsedMockData);
-        } else {
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
+    for(let index=0; index< parsedData.length; index++) {
+      try {
+        const parsedMockData = mockDataList[index];
+        const lastWord = getLastWordFromApiUrl(parsedMockData.url);
+        if (parsedMockData.method !== 'GET') {
           let testType = 'create';
-          if (parsedMockData.method === 'PUT') {
+          if (parsedMockData.method === 'POST') {
+            testType = 'create';
+          } else if (parsedMockData.method === 'PUT') {
             testType = 'update';
           } else if (parsedMockData.method === 'DELETE') {
             testType = 'delete';
           } else if (parsedMockData.method === 'PATCH') {
             testType = 'patch';
+          } else {
+            continue;
           }
           createTest(`${testType} ${lastWord}`);
           const prevGetMocks = getPreviousGetMocks(mockDataList, index);
@@ -229,9 +241,9 @@ const initiateRecordedMocks = async (req, res) => {
           );
           const afterGetMocks = getAfterGetMocks(mockDataList, index);
           for(let pind = 0; pind < afterGetMocks.length; pind++) {
-            afterGetMocks[pind].waitForPrevious = true;
+            const tempMock = Object.assign({}, afterGetMocks[pind], {waitForPrevious:true});
             await createMockFromUserInputForTest(
-              afterGetMocks[pind],
+              tempMock,
               `${testType} ${lastWord}`,
               true
             );

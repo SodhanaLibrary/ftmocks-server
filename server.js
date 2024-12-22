@@ -19,10 +19,12 @@ let mockServerInstance;
 
 // Read command line arguments
 const args = process.argv.slice(2);
-const envfile = args[0] || 'my-project';
-require("dotenv").config({path: `${envfile}.env`});
+const envfile = args[0] || 'my-project.env';
+console.log(`loading env variables from ${envfile}`)
+const result = require("dotenv").config({path: envfile});
+console.log(result);
+console.log(`loaded variables`, process.env.PORT);
 const port = process.env.PORT;
-const mockFolder = process.env.MOCK_DIR;
 
 // Middleware to parse JSON in the request body
 app.use(bodyParser.json());
@@ -135,10 +137,10 @@ app.post('/api/v1/mockServer', (req, res) => {
     return res.status(400).json({ error: 'Test ID and port are required' });
   }
 
-  const testsPath = path.join(process.env.MOCK_DIR, process.env.MOCK_TEST_FILE);
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
 
   try {
-    // Read and parse the process.env.MOCK_TEST_FILE file
+    // Read and parse the 'tests.json' file
     const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
     
     // Find the test with the given id
