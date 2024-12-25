@@ -1,0 +1,33 @@
+[
+  {
+    "fileName": "mock_12f7ab07-514d-403b-a2eb-ed7b798aca7c.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_12f7ab07-514d-403b-a2eb-ed7b798aca7c.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "12f7ab07-514d-403b-a2eb-ed7b798aca7c"
+  },
+  {
+    "fileName": "mock_de504e17-970c-4576-a472-9fcb6296932d.json",
+    "method": "POST",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_de504e17-970c-4576-a472-9fcb6296932d.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"abc\",\"subject\":\"maths\",\"yearsOfExperience\":\"6\"}"
+    },
+    "url": "/api/teachers",
+    "id": "de504e17-970c-4576-a472-9fcb6296932d"
+  },
+  {
+    "fileName": "mock_5507da78-c4b0-41c6-9794-9a2b6be8c458.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_5507da78-c4b0-41c6-9794-9a2b6be8c458.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "5507da78-c4b0-41c6-9794-9a2b6be8c458"
+  }
+]

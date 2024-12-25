@@ -1,0 +1,54 @@
+{
+  "url": "/api/teachers",
+  "time": "Mon Dec 23 2024 10:13:19 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {}
+  },
+  "response": {
+    "status": 200,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "content-length",
+        "295"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Mon, 23 Dec 2024 04:43:19 GMT"
+      ],
+      [
+        "etag",
+        "W/\"127-+GydkufTlin9UNoomM1akJPS71U\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "[{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"subject\":\"Mathematics\"},{\"id\":2,\"name\":\"Ms. Maria Rodriguez\",\"subject\":\"English\"},{\"id\":3,\"name\":\"Mr. James Miller\",\"subject\":\"Science\"},{\"id\":4,\"name\":\"Mrs. Susan Lee\",\"subject\":\"History\"},{\"id\":5,\"name\":\"Dr. Rachel Scott\",\"subject\":\"Physical Education\"}]"
+  },
+  "id": "12f7ab07-514d-403b-a2eb-ed7b798aca7c",
+  "served": true
+}
