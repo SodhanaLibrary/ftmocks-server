@@ -6,44 +6,18 @@ import {
   getMatchingMockData,
   resetAllMockStats
 } from 'ftmocks-utils';
-import { ftmocksConifg } from './test-config';
 
-export const initiateGlobal = (jest) => {
-  global.console = {
-    ...console,
-    // uncomment to ignore a specific log level
-    log: jest.fn(),
-    // debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-  };
 
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: jest.fn().mockImplementation(query => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: jest.fn(), // Deprecated
-      removeListener: jest.fn(), // Deprecated
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
-    })),
-  });
-};
-
-export const initiateFetch = async (jest, testName) => {
+export const initiateFetch = async (jest, ftmocksConifg, testName) => {
   const testMockData = testName ? loadMockDataFromConfig(ftmocksConifg, testName) : [];
   resetAllMockStats({testMockData, testConfig: ftmocksConifg, testName});
   const defaultMockData = getDefaultMockDataFromConfig(ftmocksConifg);
   global.fetch = jest.fn((url, options = {}) => {
     let mockData = getMatchingMockData({testMockData, defaultMockData, url, options, testConfig: ftmocksConifg, testName});
     if (mockData) {
-      console.debug('mocked', url);
+      console.debug('mocked', url, options);
     } else {
-      console.debug('missing mock data', url);
+      console.debug('missing mock data', url, options);
       return Promise.resolve({
         status: 404,
         headers: new Map([['content-type', 'application/json']]),
@@ -59,5 +33,75 @@ export const initiateFetch = async (jest, testName) => {
       json: () => Promise.resolve(JSON.parse(content)),
     });
   });
+
+  global.XMLHttpRequest = jest.fn(function () {
+    const xhrMock = {
+      open: jest.fn(),
+      send: jest.fn(),
+      setRequestHeader: jest.fn(),
+      getAllResponseHeaders: jest.fn(() => {
+        return '';
+      }),
+      getResponseHeader: jest.fn((header) => {
+        return null;
+      }),
+      readyState: 4,
+      status: 0,
+      response: null,
+      responseText: '',
+      onreadystatechange: null,
+      onload: null,
+      onerror: null,
+    };
+  
+    xhrMock.send.mockImplementation(function () {
+      const mockData = getMatchingMockData({
+        testMockData,
+        defaultMockData,
+        url: xhrMock._url,
+        options: xhrMock._options,
+        testConfig: ftmocksConifg,
+        testName,
+      });
+  
+      if (mockData) {
+        console.debug('mocked', xhrMock._url, xhrMock._options);
+        const { content, headers, status } = mockData.response;
+  
+        xhrMock.status = status;
+        xhrMock.responseText = content;
+        xhrMock.response = content;
+        xhrMock.headers = headers;
+  
+        if (xhrMock.onreadystatechange) {
+          xhrMock.onreadystatechange();
+        }
+        if (xhrMock.onload) {
+          xhrMock.onload();
+        }
+      } else {
+        console.debug('missing mock data', xhrMock._url, xhrMock._options);
+  
+        xhrMock.status = 404;
+        xhrMock.responseText = JSON.stringify({ error: 'Mock data not found' });
+        xhrMock.response = xhrMock.responseText;
+  
+        if (xhrMock.onreadystatechange) {
+          xhrMock.onreadystatechange();
+        }
+        if (xhrMock.onerror) {
+          xhrMock.onerror();
+        }
+      }
+    });
+  
+    xhrMock.open.mockImplementation(function (method, url) {
+      xhrMock._options = { method };
+      xhrMock._url = url;
+    });
+  
+    return xhrMock;
+  });
+  
   return;
 };

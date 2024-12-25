@@ -1,0 +1,43 @@
+[
+  {
+    "fileName": "mock_b476ad1a-2bb1-47a3-b1b8-46abdef65b04.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_b476ad1a-2bb1-47a3-b1b8-46abdef65b04.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects",
+    "id": "b476ad1a-2bb1-47a3-b1b8-46abdef65b04"
+  },
+  {
+    "fileName": "mock_21ba257d-d0c6-4165-b61c-bdf026b6ae89.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_21ba257d-d0c6-4165-b61c-bdf026b6ae89.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/students",
+    "id": "21ba257d-d0c6-4165-b61c-bdf026b6ae89"
+  },
+  {
+    "fileName": "mock_2f22490d-8063-4a13-91a4-dff844173bbe.json",
+    "method": "POST",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_2f22490d-8063-4a13-91a4-dff844173bbe.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"telugu\",\"credits\":\"4\"}"
+    },
+    "url": "/api/subjects",
+    "id": "2f22490d-8063-4a13-91a4-dff844173bbe"
+  },
+  {
+    "fileName": "mock_0b39193f-dc3f-46e1-b760-d6f81cd5ef97.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_0b39193f-dc3f-46e1-b760-d6f81cd5ef97.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects",
+    "id": "0b39193f-dc3f-46e1-b760-d6f81cd5ef97"
+  }
+]

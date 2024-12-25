@@ -1,0 +1,52 @@
+[
+  {
+    "fileName": "mock_4e173989-6ac1-46e6-818a-bd8d615c4fba.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_subjects/mock_4e173989-6ac1-46e6-818a-bd8d615c4fba.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects",
+    "id": "4e173989-6ac1-46e6-818a-bd8d615c4fba"
+  },
+  {
+    "fileName": "mock_e118f6aa-c219-453c-b968-4f2902c61c8a.json",
+    "method": "DELETE",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_subjects/mock_e118f6aa-c219-453c-b968-4f2902c61c8a.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects/6",
+    "id": "e118f6aa-c219-453c-b968-4f2902c61c8a"
+  },
+  {
+    "fileName": "mock_43ad8162-a969-4e75-b354-6a7b2cd514f3.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_subjects/mock_43ad8162-a969-4e75-b354-6a7b2cd514f3.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects",
+    "id": "43ad8162-a969-4e75-b354-6a7b2cd514f3"
+  },
+  {
+    "fileName": "mock_816418f5-b236-4674-8cf9-561ec795d60f.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_subjects/mock_816418f5-b236-4674-8cf9-561ec795d60f.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/teachers",
+    "id": "816418f5-b236-4674-8cf9-561ec795d60f"
+  },
+  {
+    "fileName": "mock_17155b2a-4abd-4d23-9766-137034293f0b.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_subjects/mock_17155b2a-4abd-4d23-9766-137034293f0b.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/students",
+    "id": "17155b2a-4abd-4d23-9766-137034293f0b"
+  }
+]
