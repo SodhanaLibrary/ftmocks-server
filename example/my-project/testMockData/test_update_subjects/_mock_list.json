@@ -1,0 +1,33 @@
+[
+  {
+    "fileName": "mock_d92502d7-b2e6-49b4-ab42-b1b26147ab18.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_d92502d7-b2e6-49b4-ab42-b1b26147ab18.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects",
+    "id": "d92502d7-b2e6-49b4-ab42-b1b26147ab18"
+  },
+  {
+    "fileName": "mock_d0269b0f-3b92-40b5-a298-ae1311f92b17.json",
+    "method": "PUT",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_d0269b0f-3b92-40b5-a298-ae1311f92b17.json",
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"id\":6,\"name\":\"telugu\",\"credits\":\"5\"}"
+    },
+    "url": "/api/subjects/6",
+    "id": "d0269b0f-3b92-40b5-a298-ae1311f92b17"
+  },
+  {
+    "fileName": "mock_54274c48-aebd-4cea-a722-78e2cd7b14f3.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_54274c48-aebd-4cea-a722-78e2cd7b14f3.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects",
+    "id": "54274c48-aebd-4cea-a722-78e2cd7b14f3"
+  }
+]

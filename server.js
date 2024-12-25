@@ -5,7 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
 const mockServer = require('./mockServer');
-const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks } = require('./src/routes/TestRoutes');
+const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks, getTestsSummary } = require('./src/routes/TestRoutes');
 const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
 const { getRecordedMocks, deleteRecordedMock, deleteAllRecordedMocks, updateRecordedMock, recordMockData, initiateRecordedMocks } = require('./src/routes/RecordedMockRoutes');
 const { getRecordedEvents, deleteRecordedEvent, recordEventData, deleteAllEvents } = require('./src/routes/RecordedEventRoutes');
@@ -32,6 +32,9 @@ app.use(bodyParser.json());
 
 // Router for /api/v1/tests GET method
 app.get('/api/v1/tests', getTests);
+
+// Router for /api/v1/tests GET method
+app.get('/api/v1/testsSummary', getTestsSummary);
 
 // Router for /api/v1/tests POST method
 app.post('/api/v1/tests', createTest);

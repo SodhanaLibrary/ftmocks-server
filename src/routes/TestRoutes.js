@@ -145,39 +145,41 @@ const updateTest = async (req, res) => {
   }
 };
 
-const getMockDataForTest = async (req, res) => {
-  const testId = req.params.id;
-  const testName = req.query.name;
+const util_getMockDataForTest = (testName) => {
   const testDataPath = path.join(
     process.env.MOCK_DIR,
     `test_${nameToFolder(testName)}`,
     '_mock_list.json'
   );
-
-  try {
-    // Read the mock data from the test-specific file
-    let mockData = [];
-    if (fs.existsSync(testDataPath)) {
-      mockData = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));
+  // Read the mock data from the test-specific file
+  let mockData = [];
+  if (fs.existsSync(testDataPath)) {
+    mockData = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));
+  }
+  // Read data from path attribute file names and assign as mockData
+  const updatedMockData = mockData.map((item) => {
+    try {
+      const fileContent = fs.readFileSync(
+        path.join(
+          process.env.MOCK_DIR,
+          `test_${nameToFolder(testName)}`,
+          `mock_${item.id}.json`
+        ),
+        'utf8'
+      );
+      return JSON.parse(fileContent);
+    } catch (error) {
+      console.error(`Error reading file ${item.path}:`, error);
+      return item; // Return the original item if there's an error
     }
-    // Read data from path attribute file names and assign as mockData
-    const updatedMockData = mockData.map((item) => {
-      try {
-        const fileContent = fs.readFileSync(
-          path.join(
-            process.env.MOCK_DIR,
-            `test_${nameToFolder(testName)}`,
-            `mock_${item.id}.json`
-          ),
-          'utf8'
-        );
-        return JSON.parse(fileContent);
-      } catch (error) {
-        console.error(`Error reading file ${item.path}:`, error);
-        return item; // Return the original item if there's an error
-      }
-    });
+  });
+  return updatedMockData;
+};
 
+const getMockDataForTest = async (req, res) => {
+  const testName = req.query.name;
+  try {
+    const updatedMockData = util_getMockDataForTest(testName);
     res.status(200).json(updatedMockData);
   } catch (error) {
     console.error('Error reading mock data:', error);
@@ -362,6 +364,31 @@ const updateTestMocks = async (req, res) => {
   }
 };
 
+const getTestsSummary =  async (req, res) => {
+  const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
+  try {
+    if (!fs.existsSync(indexPath)) {
+      await fs.appendFile(indexPath, '[]', () => {
+        console.log('file created successfully', indexPath);
+      });
+    }
+    const indexData = fs.readFileSync(indexPath, 'utf8');
+    const parsedData = JSON.parse(indexData || '[]');
+
+    // Map the data to a more suitable format for the response
+    const formattedData = parsedData.map((item) => ({
+      id: item.id,
+      name: item.name,
+      mocks: util_getMockDataForTest(item.name),
+    }));
+
+    res.status(200).json(formattedData);
+  } catch (error) {
+    console.error('Error reading or parsing index.json:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getTests,
   deleteTest,
@@ -374,4 +401,5 @@ module.exports = {
   createHarMockDataForTest,
   updateMockDataForTest,
   resetMockDataForTest,
+  getTestsSummary,
 };

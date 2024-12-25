@@ -28,13 +28,26 @@
     <script>
       window.FTMOCKS_CONFIG = {
         record_mocks_url: 'http://localhost:5000/api/v1/recordMockdata',
-        record_events_url: 'http://localhost:5000/api/v1/recordEvents'
+        record_events_url: 'http://localhost:5000/api/v1/recordedEvents'
       };
 
 (function () {
     // Intercept Fetch API
     const originalFetch = window.fetch;
     const recordedTracks = [];
+
+    const addTrack = track => {
+        track.id = recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1;
+        track.time = new Date();
+        fetch(window.FTMOCKS_CONFIG.record_events_url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(track),
+                }).then(response => response.json());
+    };
+
 
     window.fetch = async function (url, options = {}) {
         const method = options.method || 'GET';
@@ -72,6 +85,10 @@
                     },
                     body: JSON.stringify(mockResponse),
                 }).then(response => response.json());
+                addTrack({
+                    type: mockResponse.method,
+                    target: mockResponse.url, 
+                });
             }
         });
         return response;
@@ -140,6 +157,7 @@
                             },
                             body: JSON.stringify(mockResponse),
                         }).then(response => response.json());
+
                     }
                 }
                 if (originalOnReadyStateChange) originalOnReadyStateChange.apply(xhr, arguments);
@@ -152,19 +170,6 @@
 
     window.XMLHttpRequest = MockXHR;
 
-
-
-    const addTrack = track => {
-        track.id = recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1;
-        track.time = new Date();
-        fetch(window.FTMOCKS_CONFIG.record_events_url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(track),
-                }).then(response => response.json());
-    };
 
     const generateXPathWithNearestParentId = (element) => {
         let path = '';

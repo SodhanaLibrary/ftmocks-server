@@ -1,0 +1,42 @@
+[
+  {
+    "fileName": "mock_3c6f35fd-ce8c-423b-8ff8-1776e66991d3.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_students/mock_3c6f35fd-ce8c-423b-8ff8-1776e66991d3.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/students",
+    "id": "3c6f35fd-ce8c-423b-8ff8-1776e66991d3"
+  },
+  {
+    "fileName": "mock_cd57ebed-0dd3-46a5-a932-905067e61b54.json",
+    "method": "DELETE",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_students/mock_cd57ebed-0dd3-46a5-a932-905067e61b54.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/students/6",
+    "id": "cd57ebed-0dd3-46a5-a932-905067e61b54"
+  },
+  {
+    "fileName": "mock_ea3b8ea6-f300-4256-816a-49805e64a900.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_students/mock_ea3b8ea6-f300-4256-816a-49805e64a900.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/students",
+    "id": "ea3b8ea6-f300-4256-816a-49805e64a900"
+  },
+  {
+    "fileName": "mock_a1801302-b6b6-4083-9e58-610c4ca3fbe6.json",
+    "method": "GET",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_students/mock_a1801302-b6b6-4083-9e58-610c4ca3fbe6.json",
+    "postData": {
+      "mimeType": null
+    },
+    "url": "/api/subjects",
+    "id": "a1801302-b6b6-4083-9e58-610c4ca3fbe6"
+  }
+]

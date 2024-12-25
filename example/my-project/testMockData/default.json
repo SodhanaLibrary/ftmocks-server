@@ -1,32 +1,32 @@
 [
   {
-    "fileName": "mock_60b96e33-1ed6-4195-91e6-61fdd7a1f83e.json",
+    "fileName": "mock_44768d88-e658-4409-83cd-6dac597c55c7.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_60b96e33-1ed6-4195-91e6-61fdd7a1f83e.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_44768d88-e658-4409-83cd-6dac597c55c7.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/teachers",
-    "id": "60b96e33-1ed6-4195-91e6-61fdd7a1f83e"
+    "id": "44768d88-e658-4409-83cd-6dac597c55c7"
   },
   {
-    "fileName": "mock_4b3b76fa-c330-4a2d-a9c6-17916a5cdfb2.json",
+    "fileName": "mock_1a9650f1-23c6-494e-8ad0-c708ff7160d3.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_4b3b76fa-c330-4a2d-a9c6-17916a5cdfb2.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_1a9650f1-23c6-494e-8ad0-c708ff7160d3.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/students",
-    "id": "4b3b76fa-c330-4a2d-a9c6-17916a5cdfb2"
+    "id": "1a9650f1-23c6-494e-8ad0-c708ff7160d3"
   },
   {
-    "fileName": "mock_0c6238d5-4478-4452-a611-a1ce2bcf1c6c.json",
+    "fileName": "mock_31d76c50-e82b-426f-970c-b8de18020c52.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_0c6238d5-4478-4452-a611-a1ce2bcf1c6c.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_31d76c50-e82b-426f-970c-b8de18020c52.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/subjects",
-    "id": "0c6238d5-4478-4452-a611-a1ce2bcf1c6c"
+    "id": "31d76c50-e82b-426f-970c-b8de18020c52"
   }
 ]
