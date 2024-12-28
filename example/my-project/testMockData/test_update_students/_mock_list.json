@@ -1,33 +1,33 @@
 [
   {
-    "fileName": "mock_b37f1da2-951f-42b8-b181-97e662755872.json",
+    "fileName": "mock_d9faf35a-ef1f-439f-b042-c8f184438cb3.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_students/mock_b37f1da2-951f-42b8-b181-97e662755872.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_students/mock_d9faf35a-ef1f-439f-b042-c8f184438cb3.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/students",
-    "id": "b37f1da2-951f-42b8-b181-97e662755872"
+    "id": "d9faf35a-ef1f-439f-b042-c8f184438cb3"
   },
   {
-    "fileName": "mock_430f15cf-1304-4554-8345-d83a3c5337a4.json",
+    "fileName": "mock_4a6b42a2-2a38-4ab2-a5d2-c0cc191194af.json",
     "method": "PUT",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_students/mock_430f15cf-1304-4554-8345-d83a3c5337a4.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_students/mock_4a6b42a2-2a38-4ab2-a5d2-c0cc191194af.json",
     "postData": {
       "mimeType": "application/json",
       "text": "{\"id\":6,\"name\":\"sri\",\"age\":\"19\",\"grade\":\"B\"}"
     },
     "url": "/api/students/6",
-    "id": "430f15cf-1304-4554-8345-d83a3c5337a4"
+    "id": "4a6b42a2-2a38-4ab2-a5d2-c0cc191194af"
   },
   {
-    "fileName": "mock_7b0c81b2-75c8-4dcf-bdb6-42f378c733fc.json",
+    "fileName": "mock_fa42c6b2-5509-4a57-bc75-fc2bd1b0cd09.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_students/mock_7b0c81b2-75c8-4dcf-bdb6-42f378c733fc.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_students/mock_fa42c6b2-5509-4a57-bc75-fc2bd1b0cd09.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/students",
-    "id": "7b0c81b2-75c8-4dcf-bdb6-42f378c733fc"
+    "id": "fa42c6b2-5509-4a57-bc75-fc2bd1b0cd09"
   }
 ]

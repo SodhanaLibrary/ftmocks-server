@@ -1,46 +1,46 @@
 [
   {
-    "id": "b872a3c3-df3c-4f4a-adc8-b4a856277ce0",
+    "id": "b133e7f7-d89a-4fba-bd3f-336d1a68a79f",
     "name": "create teachers",
     "mockFile": []
   },
   {
-    "id": "8ae9a937-5eb5-478f-8696-7ff4ede3c4f3",
+    "id": "5b6c1284-650d-4d0c-8b7a-0158b735e03b",
     "name": "update teachers",
     "mockFile": []
   },
   {
-    "id": "27156f8a-87ee-41b7-8957-847bc069038a",
+    "id": "06638a97-da62-433f-9a41-8bbd95da503f",
     "name": "delete teachers",
     "mockFile": []
   },
   {
-    "id": "5df4ace4-536c-4429-890a-1a440c9fa6a9",
+    "id": "46765d35-c7db-4495-b5c9-83245e000953",
     "name": "create students",
     "mockFile": []
   },
   {
-    "id": "73502a89-97a2-47bd-91c6-4c4b64fc4ff9",
+    "id": "3fb39932-55e6-4304-b8b7-a4ac304aaf15",
     "name": "update students",
     "mockFile": []
   },
   {
-    "id": "1069fa08-e774-4853-b603-6a7daf47ca68",
+    "id": "d8f07083-c7c9-4a39-aa6a-736c640a2d77",
     "name": "delete students",
     "mockFile": []
   },
   {
-    "id": "a4a00ff4-aba0-48a3-b8db-abcfb00976c5",
+    "id": "5edb0aa0-ad07-4f83-88bc-3dae257b2c68",
     "name": "create subjects",
     "mockFile": []
   },
   {
-    "id": "ae4f6d61-3180-4324-89a1-58f34b336cb3",
+    "id": "e91c9f09-1173-4229-a5a7-604f3ca1d428",
     "name": "update subjects",
     "mockFile": []
   },
   {
-    "id": "9360d8d5-d144-44c8-ad98-b7548a6ba0f0",
+    "id": "bbf8decf-a151-4754-86bb-2ad266fd093e",
     "name": "delete subjects",
     "mockFile": []
   }

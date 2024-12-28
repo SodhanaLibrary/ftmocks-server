@@ -1,33 +1,33 @@
 [
   {
-    "fileName": "mock_12f7ab07-514d-403b-a2eb-ed7b798aca7c.json",
+    "fileName": "mock_b2015cd4-8abf-458f-a3ed-95f6c5607c27.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_12f7ab07-514d-403b-a2eb-ed7b798aca7c.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_b2015cd4-8abf-458f-a3ed-95f6c5607c27.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/teachers",
-    "id": "12f7ab07-514d-403b-a2eb-ed7b798aca7c"
+    "id": "b2015cd4-8abf-458f-a3ed-95f6c5607c27"
   },
   {
-    "fileName": "mock_de504e17-970c-4576-a472-9fcb6296932d.json",
+    "fileName": "mock_b46c7cff-bb0d-4e4c-a3d8-871ec80806e1.json",
     "method": "POST",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_de504e17-970c-4576-a472-9fcb6296932d.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_b46c7cff-bb0d-4e4c-a3d8-871ec80806e1.json",
     "postData": {
       "mimeType": "application/json",
       "text": "{\"name\":\"abc\",\"subject\":\"maths\",\"yearsOfExperience\":\"6\"}"
     },
     "url": "/api/teachers",
-    "id": "de504e17-970c-4576-a472-9fcb6296932d"
+    "id": "b46c7cff-bb0d-4e4c-a3d8-871ec80806e1"
   },
   {
-    "fileName": "mock_5507da78-c4b0-41c6-9794-9a2b6be8c458.json",
+    "fileName": "mock_0c62de4b-5f24-499d-a275-605d4c6852c4.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_5507da78-c4b0-41c6-9794-9a2b6be8c458.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_teachers/mock_0c62de4b-5f24-499d-a275-605d4c6852c4.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/teachers",
-    "id": "5507da78-c4b0-41c6-9794-9a2b6be8c458"
+    "id": "0c62de4b-5f24-499d-a275-605d4c6852c4"
   }
 ]
