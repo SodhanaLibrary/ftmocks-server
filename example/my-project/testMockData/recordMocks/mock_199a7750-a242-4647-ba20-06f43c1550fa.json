@@ -1,0 +1,62 @@
+{
+  "url": "/api/students",
+  "time": "Sat Dec 28 2024 16:21:21 GMT+0530 (India Standard Time)",
+  "method": "POST",
+  "request": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "queryString": null,
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"sri\",\"age\":\"19\",\"grade\":\"A\"}"
+    }
+  },
+  "response": {
+    "status": 201,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "44"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Sat, 28 Dec 2024 10:51:21 GMT"
+      ],
+      [
+        "etag",
+        "W/\"2c-BgbHarOmcqzbV65D/a76bJCoICM\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "{\"id\":6,\"name\":\"sri\",\"age\":\"19\",\"grade\":\"A\"}"
+  },
+  "id": "199a7750-a242-4647-ba20-06f43c1550fa"
+}
