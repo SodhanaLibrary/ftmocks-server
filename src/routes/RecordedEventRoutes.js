@@ -81,8 +81,12 @@ const recordEventData = async (req, res) => {
     mockData.id = uuidv4();
     const mockDir = path.join(process.env.MOCK_DIR, 'recordMocks');
     const mockListFilePath = path.join(mockDir, `_events.json`);
+    const mockSnapsPath = path.join(mockDir, `_snaps`);
     if (!fs.existsSync(mockDir)) {
       fs.mkdirSync(mockDir);
+    }
+    if (!fs.existsSync(mockSnapsPath)) {
+      fs.mkdirSync(mockSnapsPath);
     }
     if (!fs.existsSync(mockListFilePath)) {
       await fs.appendFile(mockListFilePath, '', () => {
@@ -95,7 +99,12 @@ const recordEventData = async (req, res) => {
     if (mockDataSummary.length >= process.env.MOCK_RECORDER_LIMIT) {
       throw 'MOCK_RECORDER_LIMIT reached';
     } else {
-      mockDataSummary.push(mockData);
+      mockDataSummary.push({
+        id: mockData.id, 
+        type: mockData.type,
+        target: mockData.target, 
+        time: mockData.time
+      });
       fs.writeFileSync(
         mockListFilePath,
         JSON.stringify(mockDataSummary, null, 2)
