@@ -1,0 +1,59 @@
+{
+  "url": "/api/students",
+  "time": "Thu Dec 26 2024 12:55:03 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "314"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Thu, 26 Dec 2024 07:25:03 GMT"
+      ],
+      [
+        "etag",
+        "W/\"13a-TEGxO6AQEXdDB3EHx2/MhMnAs+A\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "[{\"id\":1,\"name\":\"Alice Johnson\",\"age\":16,\"grade\":\"10th\"},{\"id\":2,\"name\":\"Bob Smith\",\"age\":17,\"grade\":\"11th\"},{\"id\":3,\"name\":\"Cathy Brown\",\"age\":15,\"grade\":\"9th\"},{\"id\":4,\"name\":\"David Wilson\",\"age\":18,\"grade\":\"12th\"},{\"id\":5,\"name\":\"Eva Davis\",\"age\":16,\"grade\":\"10th\"},{\"id\":6,\"name\":\"sri\",\"age\":\"19\",\"grade\":\"B\"}]"
+  },
+  "id": "1e0fe648-4058-4f28-bce2-5d9d93b48076"
+}
