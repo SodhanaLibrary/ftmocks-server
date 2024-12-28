@@ -1,33 +1,33 @@
 [
   {
-    "fileName": "mock_d92502d7-b2e6-49b4-ab42-b1b26147ab18.json",
+    "fileName": "mock_a226b584-a094-4fd9-a8ad-ee15cebabcb2.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_d92502d7-b2e6-49b4-ab42-b1b26147ab18.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_a226b584-a094-4fd9-a8ad-ee15cebabcb2.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/subjects",
-    "id": "d92502d7-b2e6-49b4-ab42-b1b26147ab18"
+    "id": "a226b584-a094-4fd9-a8ad-ee15cebabcb2"
   },
   {
-    "fileName": "mock_d0269b0f-3b92-40b5-a298-ae1311f92b17.json",
+    "fileName": "mock_e0e31dc2-b1a0-487a-a2fb-142890a43f00.json",
     "method": "PUT",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_d0269b0f-3b92-40b5-a298-ae1311f92b17.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_e0e31dc2-b1a0-487a-a2fb-142890a43f00.json",
     "postData": {
       "mimeType": "application/json",
       "text": "{\"id\":6,\"name\":\"telugu\",\"credits\":\"5\"}"
     },
     "url": "/api/subjects/6",
-    "id": "d0269b0f-3b92-40b5-a298-ae1311f92b17"
+    "id": "e0e31dc2-b1a0-487a-a2fb-142890a43f00"
   },
   {
-    "fileName": "mock_54274c48-aebd-4cea-a722-78e2cd7b14f3.json",
+    "fileName": "mock_0018972a-2633-4d0f-b57f-4c710d4d3b39.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_54274c48-aebd-4cea-a722-78e2cd7b14f3.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_0018972a-2633-4d0f-b57f-4c710d4d3b39.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/subjects",
-    "id": "54274c48-aebd-4cea-a722-78e2cd7b14f3"
+    "id": "0018972a-2633-4d0f-b57f-4c710d4d3b39"
   }
 ]

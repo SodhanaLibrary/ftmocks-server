@@ -1,32 +1,32 @@
 [
   {
-    "fileName": "mock_44768d88-e658-4409-83cd-6dac597c55c7.json",
+    "fileName": "mock_35bada34-5849-4227-a583-93bbf9c08c58.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_44768d88-e658-4409-83cd-6dac597c55c7.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_35bada34-5849-4227-a583-93bbf9c08c58.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/teachers",
-    "id": "44768d88-e658-4409-83cd-6dac597c55c7"
+    "id": "35bada34-5849-4227-a583-93bbf9c08c58"
   },
   {
-    "fileName": "mock_1a9650f1-23c6-494e-8ad0-c708ff7160d3.json",
+    "fileName": "mock_ba3caf20-9c4f-4f6a-bf29-79b93e187d7d.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_1a9650f1-23c6-494e-8ad0-c708ff7160d3.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_ba3caf20-9c4f-4f6a-bf29-79b93e187d7d.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/students",
-    "id": "1a9650f1-23c6-494e-8ad0-c708ff7160d3"
+    "id": "ba3caf20-9c4f-4f6a-bf29-79b93e187d7d"
   },
   {
-    "fileName": "mock_31d76c50-e82b-426f-970c-b8de18020c52.json",
+    "fileName": "mock_274a6ec8-9bc3-4b9e-a8dc-b7e5b17cd44d.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_31d76c50-e82b-426f-970c-b8de18020c52.json",
+    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/defaultMocks/mock_274a6ec8-9bc3-4b9e-a8dc-b7e5b17cd44d.json",
     "postData": {
       "mimeType": null
     },
     "url": "/api/subjects",
-    "id": "31d76c50-e82b-426f-970c-b8de18020c52"
+    "id": "274a6ec8-9bc3-4b9e-a8dc-b7e5b17cd44d"
   }
 ]
