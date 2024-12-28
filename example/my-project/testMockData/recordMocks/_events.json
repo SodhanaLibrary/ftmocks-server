@@ -1,489 +1,410 @@
 [
   {
+    "id": "9fac67af-03c8-434b-b790-67a1affbb09b",
     "type": "GET",
     "target": "/api/teachers",
-    "id": "49f64970-8829-4561-8938-bbc6f2d4750c",
-    "time": "2024-12-23T04:43:19.019Z"
+    "time": "2024-12-26T07:34:03.006Z"
   },
   {
+    "id": "16a67826-1956-46dc-a46b-e2cb1ba8f53d",
     "type": "GET",
     "target": "/api/teachers",
-    "id": "c2caf449-a0c0-4a74-aa95-e5d3d0ad270c",
-    "time": "2024-12-23T04:43:19.018Z"
+    "time": "2024-12-26T07:34:03.006Z"
   },
   {
-    "id": "46c4e24a-d15d-4322-96ab-4b488dea116f",
+    "id": "69feb715-337f-4766-a010-280251ea23ca",
     "type": "click",
     "target": "//*[@id='teacher-form-name']",
-    "time": "2024-12-23T04:43:19.075Z"
+    "time": "2024-12-26T07:34:03.046Z"
   },
   {
-    "id": "43e33608-8b99-40f1-8d6d-a395f94bf410",
+    "id": "afd31622-2efc-4995-b4b8-a9fb0e0465c7",
     "type": "change",
     "target": "//*[@id='teacher-form-name']",
-    "value": "a",
-    "time": "2024-12-23T04:43:19.208Z"
+    "time": "2024-12-26T07:34:03.184Z"
   },
   {
-    "id": "79923a42-179e-404b-ac65-ba78d9262745",
+    "id": "a2d08130-8c43-47af-baaf-69d6bba29d43",
     "type": "change",
     "target": "//*[@id='teacher-form-name']",
-    "value": "ab",
-    "time": "2024-12-23T04:43:19.212Z"
+    "time": "2024-12-26T07:34:03.188Z"
   },
   {
-    "id": "df5dd79d-faad-4c4b-bf4b-8dcd3bf9aaf6",
+    "id": "e69349db-d3b3-49f9-8d7b-968e7c77a525",
     "type": "change",
     "target": "//*[@id='teacher-form-name']",
-    "value": "abc",
-    "time": "2024-12-23T04:43:19.215Z"
+    "time": "2024-12-26T07:34:03.192Z"
   },
   {
-    "id": "cc038e2a-d1a1-4134-97e4-f1f79c02fad1",
+    "id": "ab6a12b2-1232-45d5-a31c-54ef1021b7b9",
     "type": "click",
     "target": "//*[@id='teacher-form-subject']",
-    "time": "2024-12-23T04:43:19.355Z"
+    "time": "2024-12-26T07:34:03.335Z"
   },
   {
-    "id": "f7a16c65-d729-425d-b130-3d0560b4fffe",
+    "id": "b45f5d24-752a-4428-add2-bf108c819e69",
     "type": "change",
     "target": "//*[@id='teacher-form-subject']",
-    "value": "m",
-    "time": "2024-12-23T04:43:19.494Z"
+    "time": "2024-12-26T07:34:03.478Z"
   },
   {
-    "id": "f8e550a7-64a2-4db1-a07c-ee63cfacaf77",
+    "id": "f00aba25-a26d-4b75-b0cd-2cd1e375f9d2",
     "type": "change",
     "target": "//*[@id='teacher-form-subject']",
-    "value": "ma",
-    "time": "2024-12-23T04:43:19.498Z"
+    "time": "2024-12-26T07:34:03.482Z"
   },
   {
-    "id": "e364c655-8214-444e-ad4b-00da4934a5e9",
+    "id": "4febdbd7-7c19-425c-af3e-4ace533eb24e",
     "type": "change",
     "target": "//*[@id='teacher-form-subject']",
-    "value": "mat",
-    "time": "2024-12-23T04:43:19.501Z"
+    "time": "2024-12-26T07:34:03.486Z"
   },
   {
-    "id": "f084eecf-1f05-4240-8c82-7d294476cc55",
+    "id": "2badd0f3-86af-4519-a260-2e67530294ab",
     "type": "change",
     "target": "//*[@id='teacher-form-subject']",
-    "value": "math",
-    "time": "2024-12-23T04:43:19.503Z"
+    "time": "2024-12-26T07:34:03.489Z"
   },
   {
-    "id": "b34b25bf-b9a9-4fe3-bbb6-692a1796e67b",
+    "id": "4604e225-1daa-4652-95b7-af31a767220a",
     "type": "change",
     "target": "//*[@id='teacher-form-subject']",
-    "value": "maths",
-    "time": "2024-12-23T04:43:19.505Z"
+    "time": "2024-12-26T07:34:03.492Z"
   },
   {
-    "id": "9b131c1c-3bbd-4e0c-9136-dc1786021d30",
+    "id": "ecf2e8bc-2460-472c-b51e-8ad704e4ce22",
     "type": "click",
     "target": "//*[@id='teacher-form-experience']",
-    "time": "2024-12-23T04:43:19.642Z"
+    "time": "2024-12-26T07:34:03.628Z"
   },
   {
-    "id": "d573ca24-86b0-428e-99af-c7d52d968729",
+    "id": "4a828899-1a75-4956-86d5-f2d780eca96f",
     "type": "click",
     "target": "//*[@id='teacher-form-submit']",
-    "time": "2024-12-23T04:43:19.926Z"
+    "time": "2024-12-26T07:34:03.906Z"
   },
   {
+    "id": "9cf90286-bf92-445b-aa85-973689928760",
     "type": "POST",
     "target": "/api/teachers",
-    "id": "6e7160e6-fe0f-4b61-bc62-d6bc2e43a391",
-    "time": "2024-12-23T04:43:19.940Z"
+    "time": "2024-12-26T07:34:03.918Z"
   },
   {
+    "id": "fae3eeab-a913-445d-b753-4ed42e8ddb35",
     "type": "GET",
     "target": "/api/teachers",
-    "id": "4948e88f-7302-43e9-bdf5-65e4877d83dd",
-    "time": "2024-12-23T04:43:19.945Z"
+    "time": "2024-12-26T07:34:03.930Z"
   },
   {
-    "id": "607365af-46c9-4e59-80e4-16db5c7f66f4",
+    "id": "1c45d203-0fcd-44b7-b683-97a64041bbcb",
     "type": "click",
     "target": "//*[@id='teacher-6-edit-btn']",
-    "time": "2024-12-23T04:43:20.072Z"
+    "time": "2024-12-26T07:34:07.108Z"
   },
   {
-    "id": "4263cd6b-4e34-45b7-ad79-b2117cd727fc",
+    "id": "04ed1264-ba7f-4df4-b06c-f67db427a03f",
     "type": "click",
     "target": "//*[@id='teacher-form-experience']",
-    "time": "2024-12-23T04:43:20.224Z"
+    "time": "2024-12-26T07:34:07.261Z"
   },
   {
-    "id": "010a9b12-9ea2-48f3-989f-ea50cf988f40",
+    "id": "d16efa32-0609-4b4f-b278-21a9b3c28975",
     "type": "click",
     "target": "//*[@id='teacher-form-submit']",
-    "time": "2024-12-23T04:43:20.519Z"
+    "time": "2024-12-26T07:34:07.567Z"
   },
   {
+    "id": "3ba585d4-07e5-47d5-af66-c1d1cc748557",
     "type": "PUT",
     "target": "/api/teachers/6",
-    "id": "10f81dc3-75ff-4131-98a8-da0790153a02",
-    "time": "2024-12-23T04:43:20.530Z"
+    "time": "2024-12-26T07:34:07.578Z"
   },
   {
+    "id": "707b1aae-d587-40d8-a06c-afe4d90dd098",
     "type": "GET",
     "target": "/api/teachers",
-    "id": "ab2a5778-f3f5-4645-92b5-97f74634155d",
-    "time": "2024-12-23T04:43:20.542Z"
+    "time": "2024-12-26T07:34:07.590Z"
   },
   {
-    "id": "818b1abd-3ae2-411e-a234-4beb5927618c",
+    "id": "c6ace1ce-dbb5-433b-88c8-712065fe2e8e",
     "type": "click",
     "target": "//*[@id='teacher-6-delete-btn']",
-    "time": "2024-12-23T04:43:20.666Z"
+    "time": "2024-12-26T07:34:10.777Z"
   },
   {
+    "id": "3fdce8fa-bcf9-4134-a35a-97e4284ce9c0",
     "type": "DELETE",
     "target": "/api/teachers/6",
-    "id": "f121248a-377a-4de0-aafc-01c73c77368c",
-    "time": "2024-12-23T04:43:20.673Z"
+    "time": "2024-12-26T07:34:10.783Z"
   },
   {
+    "id": "2b6203c0-9b69-477a-9e39-1acbfd8ca61a",
     "type": "GET",
     "target": "/api/teachers",
-    "id": "8f093b70-adad-4089-b723-dcf5d76f4f74",
-    "time": "2024-12-23T04:43:20.678Z"
+    "time": "2024-12-26T07:34:10.789Z"
   },
   {
-    "id": "c78d291f-1006-479f-b52a-36d6771b4dd5",
+    "id": "67fde2a7-dd8d-4384-b067-d0402df9e30d",
     "type": "click",
     "target": "//*[@id='header-menu-students']",
-    "time": "2024-12-23T04:43:20.807Z"
+    "time": "2024-12-26T07:34:13.993Z"
   },
   {
+    "id": "b0a2d91e-5acb-4ee9-99df-f3cf3c30e31b",
     "type": "GET",
     "target": "/api/students",
-    "id": "c5797a8e-6387-44da-ae51-9535194aa823",
-    "time": "2024-12-23T04:43:20.825Z"
+    "time": "2024-12-26T07:34:14.008Z"
   },
   {
+    "id": "5a777fa7-1c57-40c8-8851-dc4fce51cb9b",
     "type": "GET",
     "target": "/api/students",
-    "id": "9ae115f2-47ba-414e-a33e-787cb2cb1549",
-    "time": "2024-12-23T04:43:20.838Z"
+    "time": "2024-12-26T07:34:14.024Z"
   },
   {
-    "id": "efb33a5e-6114-4809-83f7-6987368b5837",
+    "id": "a5754174-7f64-49a6-a6d2-970a1159182b",
     "type": "click",
     "target": "//*[@id='student-form-name']",
-    "time": "2024-12-23T04:43:20.956Z"
+    "time": "2024-12-26T07:34:14.142Z"
   },
   {
-    "id": "3c85d1ac-bd52-4fa7-9322-92d26dc7240f",
+    "id": "cf8620d5-6e25-44e5-9c2d-36c94db059cb",
     "type": "change",
     "target": "//*[@id='student-form-name']",
-    "value": "s",
-    "time": "2024-12-23T04:43:21.105Z"
+    "time": "2024-12-26T07:34:14.290Z"
   },
   {
-    "id": "41a8d452-3046-405b-ac88-2912f8cbecf9",
+    "id": "cfd108c8-c695-4283-a309-5594cbd792ca",
     "type": "change",
     "target": "//*[@id='student-form-name']",
-    "value": "sr",
-    "time": "2024-12-23T04:43:21.109Z"
+    "time": "2024-12-26T07:34:14.294Z"
   },
   {
-    "id": "28639a93-d0a5-4330-a852-cb7c58b599c8",
+    "id": "6e9febea-b530-485a-8025-28119212043e",
     "type": "change",
     "target": "//*[@id='student-form-name']",
-    "value": "sri",
-    "time": "2024-12-23T04:43:21.112Z"
+    "time": "2024-12-26T07:34:14.297Z"
   },
   {
-    "id": "d3d769fa-1b9e-497d-b09d-dab6a734b641",
+    "id": "8ad8b2fa-1023-476d-ad61-93fab09ec96d",
     "type": "click",
     "target": "//*[@id='student-form-age']",
-    "time": "2024-12-23T04:43:21.252Z"
+    "time": "2024-12-26T07:34:14.442Z"
   },
   {
-    "id": "e9a1a981-c2dd-4fb3-b627-49329fc96b87",
+    "id": "2238f2d5-fb8d-4f22-b03f-c4a6501f7dea",
     "type": "click",
     "target": "//*[@id='student-form-grade']",
-    "time": "2024-12-23T04:43:21.531Z"
+    "time": "2024-12-26T07:34:14.730Z"
   },
   {
-    "id": "6f7fff55-6e1a-4871-aeaa-a56fe255e755",
+    "id": "0090bbe3-c3dd-4bd7-9bc2-d1f29d192f8e",
     "type": "change",
     "target": "//*[@id='student-form-grade']",
-    "value": "A",
-    "time": "2024-12-23T04:43:21.675Z"
+    "time": "2024-12-26T07:34:14.878Z"
   },
   {
-    "id": "eb10d5ad-e718-4603-b6bf-03075e9d5653",
+    "id": "8357b6e0-c6ac-4113-b451-e10ba2b535ea",
     "type": "click",
     "target": "//*[@id='student-form-submit']",
-    "time": "2024-12-23T04:43:21.810Z"
+    "time": "2024-12-26T07:34:15.018Z"
   },
   {
+    "id": "a7a43855-522a-4be4-b63d-b73bbb5a104a",
     "type": "POST",
     "target": "/api/students",
-    "id": "4b1a830f-3fdb-4135-9812-e7012a18f21e",
-    "time": "2024-12-23T04:43:21.820Z"
+    "time": "2024-12-26T07:34:15.028Z"
   },
   {
+    "id": "8cb20fb6-c9f6-4c16-aa71-d984e97ec95d",
     "type": "GET",
     "target": "/api/students",
-    "id": "0ff89f33-aaab-4eb9-ab5b-39950f4a8a9b",
-    "time": "2024-12-23T04:43:21.824Z"
+    "time": "2024-12-26T07:34:15.033Z"
   },
   {
-    "id": "bd34b229-24a7-49ec-9dd2-ff526d540bb7",
+    "id": "66aa22e6-af2a-4c4b-9f8b-49bbc2bac5da",
     "type": "click",
     "target": "//*[@id='student-6-edit-btn']",
-    "time": "2024-12-23T04:43:21.955Z"
+    "time": "2024-12-26T07:34:18.224Z"
   },
   {
-    "id": "8fa5b638-f889-4da3-9e8d-427f1b279110",
+    "id": "fdcab065-5048-46d6-a120-1705f024c533",
     "type": "click",
     "target": "//*[@id='student-form-grade']",
-    "time": "2024-12-23T04:43:22.101Z"
+    "time": "2024-12-26T07:34:18.373Z"
   },
   {
-    "id": "1ecdde8a-b302-4954-92b5-c59bb43c6abd",
+    "id": "5cc17951-4966-4bb4-9940-12f433ea009f",
     "type": "change",
     "target": "//*[@id='student-form-grade']",
-    "value": "B",
-    "time": "2024-12-23T04:43:22.251Z"
+    "time": "2024-12-26T07:34:18.527Z"
   },
   {
-    "id": "c91068d4-15b5-45f1-99c9-e36bd37866f2",
+    "id": "977c2d5f-5ae2-4280-baa6-d95753b5e9e8",
     "type": "click",
     "target": "//*[@id='student-form-submit']",
-    "time": "2024-12-23T04:43:22.395Z"
+    "time": "2024-12-26T07:34:18.674Z"
   },
   {
+    "id": "afbda75f-cd49-4672-a4fe-55aff53ee044",
     "type": "PUT",
     "target": "/api/students/6",
-    "id": "b74e70d4-ba34-4929-9118-e8167a8459fa",
-    "time": "2024-12-23T04:43:22.404Z"
+    "time": "2024-12-26T07:34:18.685Z"
   },
   {
+    "id": "8cfdfa42-2b5c-439e-a8a5-4e1976f7a19f",
     "type": "GET",
     "target": "/api/students",
-    "id": "fb48f1e5-b534-4171-9dd9-c1058789e6dd",
-    "time": "2024-12-23T04:43:22.414Z"
+    "time": "2024-12-26T07:34:18.696Z"
   },
   {
-    "id": "16435b8d-98ff-4bc7-9468-fbc3a350ed39",
+    "id": "12263909-a6be-40f5-9d7b-988e3c6b007a",
     "type": "click",
     "target": "//*[@id='student-6-delete-btn']",
-    "time": "2024-12-23T04:43:22.539Z"
+    "time": "2024-12-26T07:34:21.885Z"
   },
   {
+    "id": "5129217b-ad7a-4b71-87ad-913fd9977bda",
     "type": "DELETE",
     "target": "/api/students/6",
-    "id": "0a137929-de63-41e0-9492-68296642d3eb",
-    "time": "2024-12-23T04:43:22.544Z"
+    "time": "2024-12-26T07:34:21.893Z"
   },
   {
+    "id": "85b17182-ec4b-47b5-a3f1-4199a9873076",
     "type": "GET",
     "target": "/api/students",
-    "id": "1fa0f897-1d4d-4bf2-98bb-bc4defeebb9a",
-    "time": "2024-12-23T04:43:22.550Z"
+    "time": "2024-12-26T07:34:21.900Z"
   },
   {
-    "id": "467b7522-961f-4e04-b966-a1f4a1c00862",
+    "id": "4846dc52-8bfc-422f-be4c-76255f9c5867",
     "type": "click",
     "target": "//*[@id='header-menu-subjects']",
-    "time": "2024-12-23T04:43:22.680Z"
+    "time": "2024-12-26T07:34:23.087Z"
   },
   {
+    "id": "f1bd336c-c2f3-494a-967c-92d8e7f87525",
     "type": "GET",
     "target": "/api/subjects",
-    "id": "86e960ee-dbf4-4c31-b895-97ac3f2f9948",
-    "time": "2024-12-23T04:43:22.693Z"
+    "time": "2024-12-26T07:34:23.103Z"
   },
   {
+    "id": "53f99782-7285-476a-865e-39f83d93ff1a",
     "type": "GET",
     "target": "/api/subjects",
-    "id": "a4b05456-396d-4b29-a533-c1e5e18bd14c",
-    "time": "2024-12-23T04:43:22.703Z"
+    "time": "2024-12-26T07:34:23.115Z"
   },
   {
-    "id": "72c209ae-b3d1-4e1d-bc6e-dbe8ae43c7f1",
+    "id": "466936f4-8eb4-4264-92d2-14affd72ac37",
     "type": "click",
     "target": "//*[@id='subject-form-name']",
-    "time": "2024-12-23T04:43:22.824Z"
+    "time": "2024-12-26T07:34:23.241Z"
   },
   {
-    "id": "24a9802e-3d94-4cf1-b6f8-ddbfb50f98ca",
+    "id": "142e36eb-e2be-4980-91a5-e937c0c693fd",
     "type": "change",
     "target": "//*[@id='subject-form-name']",
-    "value": "t",
-    "time": "2024-12-23T04:43:22.969Z"
+    "time": "2024-12-26T07:34:23.391Z"
   },
   {
-    "id": "00817c13-a2eb-49cd-a200-2c57849101d5",
+    "id": "e96e8146-4580-413b-87fa-0a30548d1618",
     "type": "change",
     "target": "//*[@id='subject-form-name']",
-    "value": "te",
-    "time": "2024-12-23T04:43:22.972Z"
+    "time": "2024-12-26T07:34:23.396Z"
   },
   {
-    "id": "e36dec5c-0b79-4df2-9bed-37603b51b750",
+    "id": "d094ccbb-d139-4a18-90d8-87d5f16ed6ee",
     "type": "change",
     "target": "//*[@id='subject-form-name']",
-    "value": "tel",
-    "time": "2024-12-23T04:43:22.975Z"
+    "time": "2024-12-26T07:34:23.400Z"
   },
   {
-    "id": "7ee764ab-2319-4af5-bbd3-a4d69f77cdff",
+    "id": "9c551677-2848-4d09-9b1f-54b2cb1811ae",
     "type": "change",
     "target": "//*[@id='subject-form-name']",
-    "value": "telu",
-    "time": "2024-12-23T04:43:22.978Z"
+    "time": "2024-12-26T07:34:23.403Z"
   },
   {
-    "id": "d586e60a-e7a7-4d7c-95df-dea490dacf06",
+    "id": "4ca164de-af3d-4e3f-ba55-f2aa8f1aa697",
     "type": "change",
     "target": "//*[@id='subject-form-name']",
-    "value": "telug",
-    "time": "2024-12-23T04:43:22.981Z"
+    "time": "2024-12-26T07:34:23.406Z"
   },
   {
-    "id": "a157a04c-01a1-4829-8c95-ff6aea1d3648",
+    "id": "9d340245-f5bd-459d-af5a-25e20b628dc5",
     "type": "change",
     "target": "//*[@id='subject-form-name']",
-    "value": "telugu",
-    "time": "2024-12-23T04:43:22.984Z"
+    "time": "2024-12-26T07:34:23.409Z"
   },
   {
-    "id": "8b857a3f-77fc-4632-8b98-1b708c072181",
+    "id": "4fed34f4-1660-4f2d-9e22-fd627f4bbc84",
     "type": "click",
     "target": "//*[@id='subject-form-credits']",
-    "time": "2024-12-23T04:43:23.125Z"
+    "time": "2024-12-26T07:34:23.558Z"
   },
   {
-    "id": "50aaafea-670e-4c1c-873d-0569f67d7dac",
+    "id": "567222db-2ab1-4828-b949-9ef3ab03406d",
     "type": "click",
     "target": "//*[@id='subject-form-submit']",
-    "time": "2024-12-23T04:43:23.402Z"
+    "time": "2024-12-26T07:34:23.843Z"
   },
   {
+    "id": "d87238f2-adc2-42a9-a709-603e8ff91769",
     "type": "POST",
     "target": "/api/subjects",
-    "id": "01a0faf6-2627-4e59-84be-413f39ac39a9",
-    "time": "2024-12-23T04:43:23.410Z"
+    "time": "2024-12-26T07:34:23.851Z"
   },
   {
+    "id": "88c166a5-7d9a-4b65-990f-eabbcf886f3b",
     "type": "GET",
     "target": "/api/subjects",
-    "id": "4330e4cb-97ed-4187-9297-b56d74b105eb",
-    "time": "2024-12-23T04:43:23.414Z"
+    "time": "2024-12-26T07:34:23.858Z"
   },
   {
-    "id": "7cdb8f6d-0a6b-4bf8-9bd7-3de02a94d37e",
+    "id": "fe2d4309-8511-4569-bd2f-00650c6ba6e1",
     "type": "click",
     "target": "//*[@id='subject-6-edit-btn']",
-    "time": "2024-12-23T04:43:23.548Z"
+    "time": "2024-12-26T07:34:27.044Z"
   },
   {
-    "id": "4a2032a6-baeb-432f-ba1a-2c57da2ecd09",
+    "id": "61581e6b-9470-4457-88a6-7fa04e0e2c15",
     "type": "click",
     "target": "//*[@id='subject-form-credits']",
-    "time": "2024-12-23T04:43:23.695Z"
+    "time": "2024-12-26T07:34:27.182Z"
   },
   {
-    "id": "e5c34b41-af2e-4b75-a7a4-cec3f18f817f",
+    "id": "6cc0cd3f-be98-48a0-8720-e44c46e73ac7",
     "type": "click",
     "target": "//*[@id='subject-form-submit']",
-    "time": "2024-12-23T04:43:23.985Z"
+    "time": "2024-12-26T07:34:27.482Z"
   },
   {
+    "id": "72b49c1c-694b-4ff1-9f0f-451881f1a56b",
     "type": "PUT",
     "target": "/api/subjects/6",
-    "id": "3210bc07-a271-452d-b9f0-f43af3634e94",
-    "time": "2024-12-23T04:43:23.992Z"
+    "time": "2024-12-26T07:34:27.490Z"
   },
   {
+    "id": "cde4e4f3-baf5-40c9-a166-a4d997c51a9b",
     "type": "GET",
     "target": "/api/subjects",
-    "id": "797b1b7d-0271-4969-a3f1-bca6d3840edd",
-    "time": "2024-12-23T04:43:24.002Z"
+    "time": "2024-12-26T07:34:27.500Z"
   },
   {
-    "id": "bc001c02-72f8-449b-a28a-ec5cc88a1c8d",
+    "id": "a7db84e7-4e56-44ce-a7c6-7fe61b0ef504",
     "type": "click",
     "target": "//*[@id='subject-6-delete-btn']",
-    "time": "2024-12-23T04:43:24.125Z"
+    "time": "2024-12-26T07:34:30.682Z"
   },
   {
+    "id": "eb401cc2-dcc8-46d3-9301-50927669eb7e",
     "type": "DELETE",
     "target": "/api/subjects/6",
-    "id": "55313a1c-90c1-4e66-9e94-123771489138",
-    "time": "2024-12-23T04:43:24.131Z"
+    "time": "2024-12-26T07:34:30.688Z"
   },
   {
+    "id": "79bc45f1-1672-4f12-844d-0e6d5c2fbe5c",
     "type": "GET",
     "target": "/api/subjects",
-    "id": "39617a63-10a2-4353-a1f1-560532f3b0da",
-    "time": "2024-12-23T04:43:24.137Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/teachers",
-    "id": "0cd47d89-6d9e-4549-aba2-d62955e59e9c",
-    "time": "2024-12-23T13:20:14.340Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/teachers",
-    "id": "54f3c188-6d9b-4b76-970f-cd2ffffa0974",
-    "time": "2024-12-23T13:20:14.340Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/teachers",
-    "id": "d7b32b7c-df08-45bc-95d0-1a04d0caee18",
-    "time": "2024-12-23T13:20:42.472Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/teachers",
-    "id": "4003e3e7-5db6-497a-9337-0c77bcfde335",
-    "time": "2024-12-23T13:20:42.472Z"
-  },
-  {
-    "id": "2d720662-e0fd-4fbb-9ae8-9cf8aaeb2776",
-    "type": "click",
-    "target": "//*[@id='header-menu-students']",
-    "time": "2024-12-23T13:20:45.081Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/students",
-    "id": "2923c577-cd7c-4593-867c-b996a9a51f12",
-    "time": "2024-12-23T13:20:45.089Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/students",
-    "id": "85e6b6db-822c-4594-8449-83f8222e83f4",
-    "time": "2024-12-23T13:20:45.104Z"
-  },
-  {
-    "id": "2aa56f16-eea5-4f7e-9fb9-1f1fb65e9967",
-    "type": "contextmenu",
-    "target": "//*[@id='header-menu-students']",
-    "time": "2024-12-23T13:20:45.518Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/teachers",
-    "id": "2b818147-6770-4a41-a5fd-2679e4e569f8",
-    "time": "2024-12-24T05:29:19.650Z"
-  },
-  {
-    "type": "GET",
-    "target": "/api/teachers",
-    "id": "ebc39eee-dc13-4712-a46d-30812a487cfe",
-    "time": "2024-12-24T05:29:19.650Z"
+    "time": "2024-12-26T07:34:30.695Z"
   }
 ]
