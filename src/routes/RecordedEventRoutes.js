@@ -17,7 +17,7 @@ const getRecordedEvents = async (req, res) => {
     }
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
     let parsedData = JSON.parse(defaultData);
-
+    
     res.status(200).json(parsedData);
   } catch (error) {
     console.error(`Error reading or parsing default.json:`, error);
@@ -31,8 +31,14 @@ const deleteAllEvents = async (req, res) => {
     'recordMocks',
     '_events.json'
   );
+  const snapsPath = path.join(
+    process.env.MOCK_DIR,
+    'recordMocks',
+    '_snaps'
+  );
 
   try {
+    fs.rmSync(snapsPath, { recursive: true, force: true });
     fs.rmSync(defaultPath, { recursive: true, force: true });
     res.status(200).json([]);
   } catch (error) {
@@ -80,7 +86,7 @@ const recordEventData = async (req, res) => {
     console.log(mockData);
     mockData.id = uuidv4();
     const mockDir = path.join(process.env.MOCK_DIR, 'recordMocks');
-    const mockListFilePath = path.join(mockDir, `_events.json`);
+    const mockEventsFilePath = path.join(mockDir, `_events.json`);
     const mockSnapsPath = path.join(mockDir, `_snaps`);
     if (!fs.existsSync(mockDir)) {
       fs.mkdirSync(mockDir);
@@ -88,13 +94,13 @@ const recordEventData = async (req, res) => {
     if (!fs.existsSync(mockSnapsPath)) {
       fs.mkdirSync(mockSnapsPath);
     }
-    if (!fs.existsSync(mockListFilePath)) {
-      await fs.appendFile(mockListFilePath, '', () => {
+    if (!fs.existsSync(mockEventsFilePath)) {
+      await fs.appendFile(mockEventsFilePath, '', () => {
         console.log('list file created successfully');
       });
       mockDataSummary = [];
     } else {
-      mockDataSummary = JSON.parse(fs.readFileSync(mockListFilePath, 'utf8'));
+      mockDataSummary = JSON.parse(fs.readFileSync(mockEventsFilePath, 'utf8'));
     }
     if (mockDataSummary.length >= process.env.MOCK_RECORDER_LIMIT) {
       throw 'MOCK_RECORDER_LIMIT reached';
@@ -105,8 +111,13 @@ const recordEventData = async (req, res) => {
         target: mockData.target, 
         time: mockData.time
       });
+      const mockSnapFilePath = path.join(mockSnapsPath, `_snap_${ mockData.id}.html`);  
       fs.writeFileSync(
-        mockListFilePath,
+        mockSnapFilePath,
+        mockData.bodyHtml
+      );
+      fs.writeFileSync(
+        mockEventsFilePath,
         JSON.stringify(mockDataSummary, null, 2)
       );
       res.json(mockData);
