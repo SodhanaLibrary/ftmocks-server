@@ -389,6 +389,26 @@ const getTestsSummary =  async (req, res) => {
   }
 };
 
+const getSnapsForTest =  async (req, res) => {
+  const testName = req.query.name;
+  const directoryPath = path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`, '_snaps');
+  try {
+    // Read all files in the directory
+    const files = fs.readdirSync(directoryPath);
+
+    // Map file names to their content
+    const result = files.map((fileName) => {
+      const filePath = path.join(directoryPath, fileName);
+      const content = fs.readFileSync(filePath, 'utf8');
+      return { fileName, content };
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getTests,
   deleteTest,
@@ -402,4 +422,5 @@ module.exports = {
   updateMockDataForTest,
   resetMockDataForTest,
   getTestsSummary,
+  getSnapsForTest
 };

@@ -5,7 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
 const mockServer = require('./mockServer');
-const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks, getTestsSummary } = require('./src/routes/TestRoutes');
+const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks, getTestsSummary, getSnapsForTest } = require('./src/routes/TestRoutes');
 const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
 const { getRecordedMocks, deleteRecordedMock, deleteAllRecordedMocks, updateRecordedMock, recordMockData, initiateRecordedMocks } = require('./src/routes/RecordedMockRoutes');
 const { getRecordedEvents, deleteRecordedEvent, recordEventData, deleteAllEvents } = require('./src/routes/RecordedEventRoutes');
@@ -111,6 +111,8 @@ app.delete('/api/v1/recordedEvents', deleteRecordedEvent);
 // Router for /api/v1/deleteAllEvents DELETE method
 app.delete('/api/v1/deleteAllEvents', deleteAllEvents);
 
+// Router for /api/v1/getTestSnaps GET method
+app.get('/api/v1/testSnaps', getSnapsForTest);
 
 // Router for /api/v1/mockServer GET method
 app.get('/api/v1/mockServer', async (req, res) => {

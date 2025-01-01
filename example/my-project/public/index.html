@@ -39,7 +39,7 @@
     const addTrack = track => {
         track.id = recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1;
         track.time = new Date();
-        track.bodyHtml = document.body.innerHTML;
+        track.bodyHtml = document.documentElement.outerHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');;
         
         fetch(window.FTMOCKS_CONFIG.record_events_url, {
                     method: 'POST',

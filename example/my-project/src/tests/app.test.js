@@ -13,7 +13,9 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { 
-  initiateJestFetch
+  initiateJestFetch,
+  saveSnap,
+  deleteAllSnaps
 } from 'ftmocks-utils';
 import App from '../App';
 import { ftmocksConifg } from './test-config';
@@ -64,16 +66,19 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
+
 // create teachers test case
 it('create teachers', async () => {
   await initiateJestFetch(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
+  await deleteAllSnaps(ftmocksConifg, 'create teachers');
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-name']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-name']"))
   fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "undefined");
   fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "undefined");
   fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "undefined");
+  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-subject']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-subject']"))
@@ -82,12 +87,15 @@ it('create teachers', async () => {
   fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
   fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
   fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
+  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-experience']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-experience']"))
+  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-submit']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-submit']"))
+  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
 });
 
 // update teachers test case
