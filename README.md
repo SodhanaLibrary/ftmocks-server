@@ -39,11 +39,10 @@ To run this project, ensure you have the following installed on your machine:
 
 2. Create a my-project.env file in the project root.
    ```bash
-   MOCK_DIR=/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/sample/my-project
+   MOCK_DIR=/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData
    PORT=5000
-   MOCK_DEFAULT_FILE=default.json
-   MOCK_DEFAULT_DIR=defaultMocks
-   MOCK_TEST_FILE=tests.json
+   PREFERRED_SERVER_PORTS=[4051]
+   MOCK_RECORDER_LIMIT=300
    ```
 
 ### Running the Project
