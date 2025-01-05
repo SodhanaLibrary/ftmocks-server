@@ -24,7 +24,12 @@ const envfile = args[0] || 'my-project.env';
 console.log(`loading env variables from ${envfile}`)
 const result = require("dotenv").config({path: envfile});
 console.log(result);
-console.log(`loaded variables`, process.env.PORT);
+console.log(`PORT from env variables`, process.env.PORT);
+if(!path.isAbsolute(process.env.MOCK_DIR)) {
+  process.env.MOCK_DIR = path.resolve(path.dirname(envfile), process.env.MOCK_DIR);
+  console.log('absolute path MOCK_DIR', process.env.MOCK_DIR );
+}
+
 const port = process.env.PORT;
 
 // Middleware to parse JSON in the request body
