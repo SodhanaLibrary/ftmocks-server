@@ -71,7 +71,7 @@ const getDefaultMockData = () => {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         entry.fileContent = JSON.parse(mockData);
       } catch (error) {
-        console.error(`Error reading mock data for ${entry.path}:`, error);
+        console.error(`Error reading mock data for ${entry.id}:`, error);
         return entry; // Return the original entry if there's an error
       }
     });

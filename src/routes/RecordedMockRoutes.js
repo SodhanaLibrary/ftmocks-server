@@ -43,7 +43,11 @@ const getRecordedMocks = async (req, res) => {
 
     // Read and attach mock data for each entry in parsedData
     parsedData = parsedData.map((entry) => {
-      const mockFilePath = entry.path;
+      const mockFilePath = path.join(
+        process.env.MOCK_DIR,
+        'recordMocks',
+        `mock_${entry.id}.json`
+      );
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         return {
@@ -51,7 +55,7 @@ const getRecordedMocks = async (req, res) => {
           mockData: JSON.parse(mockData),
         };
       } catch (error) {
-        console.error(`Error reading mock data for ${entry.path}:`, error);
+        console.error(`Error reading mock data for ${entry.id}:`, error);
         return entry; // Return the original entry if there's an error
       }
     });
@@ -94,7 +98,11 @@ const deleteRecordedMock = async (req, res) => {
     }
 
     // Get the file path of the mock to be deleted
-    const mockFilePath = defaultData[mockIndex].path;
+    const mockFilePath = path.join(
+      process.env.MOCK_DIR,
+      'recordMocks',
+      `mock_${defaultData[mockIndex].id}.json`
+    );
 
     // Remove the mock from the array
     defaultData.splice(mockIndex, 1);
@@ -194,7 +202,11 @@ const initiateRecordedMocks = async (req, res) => {
     const mockDataList = [];
     for (let index = 0; index < parsedData.length; index++) {
       const entry = parsedData[index];
-      const mockFilePath = entry.path;
+      const mockFilePath = path.join(
+        process.env.MOCK_DIR,
+        'recordMocks',
+        `mock_${entry.id}.json`
+      );;
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         const parsedMockData = JSON.parse(mockData);
@@ -256,7 +268,7 @@ const initiateRecordedMocks = async (req, res) => {
           }
         }
       } catch (error) {
-        console.error(`Error reading mock data for ${entry.path}:`, error);
+        console.error(`Error reading mock data for ${entry.id}:`, error);
         return entry; // Return the original entry if there's an error
       }
     }
