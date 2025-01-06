@@ -85,6 +85,18 @@ const createTest = async (req, res) => {
       };
       tests.push(newTest);
       fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
+      const folderPath = path.join(process.env.MOCK_DIR, `test_${nameToFolder(req.body.name)}`);
+      const mockListFilePath = path.join(folderPath, '_mock_list.json');
+      fs.mkdir(folderPath, { recursive: true }, (err) => {
+        if (err) {
+          console.error('Error creating directory:', err);
+        } else {
+          console.log('Directory created successfully!');
+        }
+      });
+      await fs.appendFile(mockListFilePath, '[]', () => {
+        console.log('mock list file created successfully');
+      });
 
       res.status(201).json({
         message: 'New test created successfully',
@@ -169,7 +181,7 @@ const util_getMockDataForTest = (testName) => {
       );
       return JSON.parse(fileContent);
     } catch (error) {
-      console.error(`Error reading file ${item.path}:`, error);
+      console.error(`Error reading file ${item.id}:`, error);
       return item; // Return the original item if there's an error
     }
   });
