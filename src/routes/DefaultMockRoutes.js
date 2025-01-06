@@ -17,7 +17,7 @@ const getDefaultMocks = async (req, res) => {
 
     // Read and attach mock data for each entry in parsedData
     parsedData = parsedData.map((entry) => {
-      const mockFilePath = entry.path;
+      const mockFilePath = path.join(process.env.MOCK_DIR, 'defaultMocks', `mock_${entry.id}.json`);;
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         return {
@@ -25,7 +25,7 @@ const getDefaultMocks = async (req, res) => {
           mockData: JSON.parse(mockData),
         };
       } catch (error) {
-        console.error(`Error reading mock data for ${entry.path}:`, error);
+        console.error(`Error reading mock data for ${entry.id}:`, error);
         return entry; // Return the original entry if there's an error
       }
     });
@@ -52,7 +52,7 @@ const deleteDefaultMock = async (req, res) => {
     }
 
     // Get the file path of the mock to be deleted
-    const mockFilePath = defaultData[mockIndex].path;
+    const mockFilePath = path.join(process.env.MOCK_DIR, 'defaultMocks', `mock_${entry.id}.json`);
 
     // Remove the mock from the array
     defaultData.splice(mockIndex, 1);
