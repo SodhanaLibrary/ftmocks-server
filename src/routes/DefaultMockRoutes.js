@@ -52,7 +52,7 @@ const deleteDefaultMock = async (req, res) => {
     }
 
     // Get the file path of the mock to be deleted
-    const mockFilePath = path.join(process.env.MOCK_DIR, 'defaultMocks', `mock_${entry.id}.json`);
+    const mockFilePath = path.join(process.env.MOCK_DIR, 'defaultMocks', `mock_${mockId}.json`);
 
     // Remove the mock from the array
     defaultData.splice(mockIndex, 1);
