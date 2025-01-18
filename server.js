@@ -11,6 +11,7 @@ const { getRecordedMocks, deleteRecordedMock, deleteAllRecordedMocks, updateReco
 const { getRecordedEvents, deleteRecordedEvent, recordEventData, deleteAllEvents } = require('./src/routes/RecordedEventRoutes');
 const { getRecordedLogs, deleteRecordedLog, recordLogData, deleteAllLogs } = require('./src/routes/RecordedLogsRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
+const { getRecordedProjects, switchProject } = require('./src/routes/ProjectRoutes.js');
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -23,6 +24,20 @@ let mockServerInstance;
 const args = process.argv.slice(2);
 const envfile = args[0] || 'my-project.env';
 console.log(`loading env variables from ${envfile}`)
+const projectsFile = 'projects.json';
+if(fs.existsSync(envfile)) {
+  let prs = [];
+  if(!fs.existsSync(projectsFile)) {
+    fs.writeFileSync(projectsFile, '[]');
+  } else {
+    const defaultData = fs.readFileSync(projectsFile, 'utf8');
+    prs = JSON.parse(defaultData);
+  }
+  if(!prs.includes(envfile)) {
+    prs.push(envfile)
+  }
+  fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2))
+}
 const result = require("dotenv").config({path: envfile});
 console.log(result);
 console.log(`PORT from env variables`, process.env.PORT);
@@ -31,7 +46,7 @@ if(!path.isAbsolute(process.env.MOCK_DIR)) {
   console.log('absolute path MOCK_DIR', process.env.MOCK_DIR );
 }
 
-const port = process.env.PORT;
+const port = process.env.PORT || 5000;
 
 // Middleware to parse JSON in the request body
 app.use(bodyParser.json());
@@ -131,6 +146,12 @@ app.delete('/api/v1/deleteAllLogs', deleteAllLogs);
 
 // Router for /api/v1/getTestSnaps GET method
 app.get('/api/v1/testSnaps', getSnapsForTest);
+
+// Router for /api/v1/projects GET method
+app.get('/api/v1/projects', getRecordedProjects);
+
+// Router for /api/v1/projects GET method
+app.put('/api/v1/projects', switchProject);
 
 // Router for /api/v1/mockServer GET method
 app.get('/api/v1/mockServer', async (req, res) => {
