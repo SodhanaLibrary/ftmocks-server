@@ -1,0 +1,59 @@
+{
+  "url": "/api/subjects/6",
+  "time": "Sun Jan 19 2025 19:54:24 GMT+0530 (India Standard Time)",
+  "method": "DELETE",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "42"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Sun, 19 Jan 2025 14:24:24 GMT"
+      ],
+      [
+        "etag",
+        "W/\"2a-zyykhdLjjhYOd0otkmCjYi3t8Ok\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "{\"message\":\"Subject deleted successfully\"}"
+  },
+  "id": "6645e7f8-0aea-4363-bd72-143f7c9afd8c"
+}

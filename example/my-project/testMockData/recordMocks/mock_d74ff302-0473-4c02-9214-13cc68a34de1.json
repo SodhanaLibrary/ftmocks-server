@@ -1,0 +1,59 @@
+{
+  "url": "/api/subjects",
+  "time": "Sun Jan 19 2025 19:54:23 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "245"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Sun, 19 Jan 2025 14:24:23 GMT"
+      ],
+      [
+        "etag",
+        "W/\"f5-3U4I2ue7zp2vrrWkH/Bix2l6Mfc\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "[{\"id\":1,\"name\":\"Mathematics\",\"credits\":4},{\"id\":2,\"name\":\"English\",\"credits\":3},{\"id\":3,\"name\":\"Science\",\"credits\":4},{\"id\":4,\"name\":\"History\",\"credits\":3},{\"id\":5,\"name\":\"Physical Education\",\"credits\":2},{\"id\":6,\"name\":\"telugu\",\"credits\":\"4\"}]"
+  },
+  "id": "d74ff302-0473-4c02-9214-13cc68a34de1"
+}
