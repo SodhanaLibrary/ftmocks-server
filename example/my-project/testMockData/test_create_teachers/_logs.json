@@ -1,0 +1,47 @@
+[
+  {
+    "type": "debug",
+    "message": "got fetch request /api/teachers [object Object]\n",
+    "time": 1737298706303
+  },
+  {
+    "type": "debug",
+    "message": "mocked /api/teachers [object Object]\n",
+    "time": 1737298706303
+  },
+  {
+    "type": "debug",
+    "message": "got fetch request /api/subjects [object Object]\n",
+    "time": 1737298706309
+  },
+  {
+    "type": "debug",
+    "message": "mocked /api/subjects [object Object]\n",
+    "time": 1737298706310
+  },
+  {
+    "type": "debug",
+    "message": "got fetch request /api/subjects/6 [object Object]\n",
+    "time": 1737298706317
+  },
+  {
+    "type": "debug",
+    "message": "mocked /api/subjects/6 [object Object]\n",
+    "time": 1737298706317
+  },
+  {
+    "type": "debug",
+    "message": "got fetch request /api/subjects [object Object]\n",
+    "time": 1737298706317
+  },
+  {
+    "type": "debug",
+    "message": "mocked /api/subjects [object Object]\n",
+    "time": 1737298706318
+  },
+  {
+    "type": "error",
+    "message": "Warning: An update to %s inside a test was not wrapped in act(...).\n\nWhen testing, code that causes React state updates should be wrapped into act(...):\n\nact(() => {\n  /* fire events that update state */\n});\n/* assert on the output */\n\nThis ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act%s Subjects \n    at fn (/Users/srinivas.dasari/Documents/CursorWorkspace-2/ftmocks-server/example/my-project/src/components/Subjects.js:9:45)\n    at div\n    at fn (/Users/srinivas.dasari/Documents/CursorWorkspace-2/ftmocks-server/example/my-project/node_modules/@emotion/react/dist/emotion-element-a1829a1e.cjs.js:58:23)\n    at fn (/Users/srinivas.dasari/Documents/CursorWorkspace-2/ftmocks-server/example/my-project/node_modules/@mui/system/Container/createContainer.js:110:19)\n    at div\n    at fn (/Users/srinivas.dasari/Documents/CursorWorkspace-2/ftmocks-server/example/my-project/src/App.js:10:51)\n",
+    "time": 1737298706318
+  }
+]

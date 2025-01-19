@@ -1,0 +1,62 @@
+{
+  "url": "/api/subjects",
+  "time": "Sun Jan 19 2025 19:54:23 GMT+0530 (India Standard Time)",
+  "method": "POST",
+  "request": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "queryString": null,
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"telugu\",\"credits\":\"4\"}"
+    }
+  },
+  "response": {
+    "status": 201,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "38"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Sun, 19 Jan 2025 14:24:23 GMT"
+      ],
+      [
+        "etag",
+        "W/\"26-+YrW7v1kgUZVe8tyhneMH5wJvI4\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "{\"id\":6,\"name\":\"telugu\",\"credits\":\"4\"}"
+  },
+  "id": "9516b032-d0ee-4b2f-abbb-8101c4391668"
+}

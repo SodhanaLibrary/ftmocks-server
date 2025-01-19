@@ -1,0 +1,59 @@
+{
+  "url": "/api/teachers/6",
+  "time": "Sun Jan 19 2025 19:54:20 GMT+0530 (India Standard Time)",
+  "method": "DELETE",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "42"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Sun, 19 Jan 2025 14:24:20 GMT"
+      ],
+      [
+        "etag",
+        "W/\"2a-hC4t+kJS9jbMdEzc98RsWUIXaXI\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "{\"message\":\"Teacher deleted successfully\"}"
+  },
+  "id": "81c00c52-d777-42c7-b9d2-dc5d453efdc8"
+}

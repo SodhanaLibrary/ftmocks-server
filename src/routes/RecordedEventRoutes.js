@@ -109,7 +109,8 @@ const recordEventData = async (req, res) => {
         id: mockData.id, 
         type: mockData.type,
         target: mockData.target, 
-        time: mockData.time
+        time: mockData.time,
+        value: mockData.value,
       });
       if (mockData.bodyHtml) {
         const mockSnapFilePath = path.join(mockSnapsPath, `_snap_${ mockData.id}.html`);  

@@ -14,6 +14,7 @@ import {
 import '@testing-library/jest-dom';
 import { 
   initiateJestFetch,
+  initiateConsoleLogs,
   saveSnap,
   deleteAllSnaps
 } from 'ftmocks-utils';
@@ -66,41 +67,38 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
-
 // create teachers test case
 it('create teachers', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'create teachers');
+  initiateJestFetch(jest, ftmocksConifg, 'create teachers');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
+
   const dom = render(<App />);
-  await deleteAllSnaps(ftmocksConifg, 'create teachers');
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-name']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-name']"))
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "undefined");
-  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "a");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "ab");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-name']"), "abc");
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-subject']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-subject']"))
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "undefined");
-  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "m");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "ma");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "mat");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "math");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='teacher-form-subject']"), "maths");
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-experience']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-experience']"))
-  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-submit']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='teacher-form-submit']"))
-  await saveSnap(dom.container.outerHTML, ftmocksConifg, 'create teachers');
 });
 
 // update teachers test case
 it('update teachers', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'update teachers');
+  initiateJestFetch(jest, ftmocksConifg, 'update teachers');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-6-edit-btn']")).toBeInTheDocument();});
@@ -115,7 +113,8 @@ it('update teachers', async () => {
 
 // delete teachers test case
 it('delete teachers', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'delete teachers');
+  initiateJestFetch(jest, ftmocksConifg, 'delete teachers');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-6-delete-btn']")).toBeInTheDocument();});
@@ -124,7 +123,8 @@ it('delete teachers', async () => {
 
 // create students test case
 it('create students', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'create students');
+  initiateJestFetch(jest, ftmocksConifg, 'create students');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='header-menu-students']")).toBeInTheDocument();});
@@ -132,16 +132,16 @@ it('create students', async () => {
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='student-form-name']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='student-form-name']"))
-  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-name']"), "undefined");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-name']"), "s");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-name']"), "sr");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-name']"), "sri");
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='student-form-age']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='student-form-age']"))
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='student-form-grade']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='student-form-grade']"))
-  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-grade']"), "undefined");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-grade']"), "A");
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='student-form-submit']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='student-form-submit']"))
@@ -149,7 +149,8 @@ it('create students', async () => {
 
 // update students test case
 it('update students', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'update students');
+  initiateJestFetch(jest, ftmocksConifg, 'update students');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='header-menu-students']")).toBeInTheDocument();});
@@ -160,7 +161,7 @@ it('update students', async () => {
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='student-form-grade']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='student-form-grade']"))
-  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-grade']"), "undefined");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='student-form-grade']"), "B");
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='student-form-submit']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='student-form-submit']"))
@@ -168,7 +169,8 @@ it('update students', async () => {
 
 // delete students test case
 it('delete students', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'delete students');
+  initiateJestFetch(jest, ftmocksConifg, 'delete students');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='header-menu-students']")).toBeInTheDocument();});
@@ -180,7 +182,8 @@ it('delete students', async () => {
 
 // create subjects test case
 it('create subjects', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'create subjects');
+  initiateJestFetch(jest, ftmocksConifg, 'create subjects');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='header-menu-subjects']")).toBeInTheDocument();});
@@ -188,12 +191,12 @@ it('create subjects', async () => {
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='subject-form-name']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='subject-form-name']"))
-  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "undefined");
-  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "undefined");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "t");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "te");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "telu");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "tel");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "telug");
+  fireEvent.change(getByXPath(dom.container, "//*[@id='subject-form-name']"), "telugu");
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='subject-form-credits']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='subject-form-credits']"))
@@ -204,7 +207,8 @@ it('create subjects', async () => {
 
 // update subjects test case
 it('update subjects', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'update subjects');
+  initiateJestFetch(jest, ftmocksConifg, 'update subjects');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='header-menu-subjects']")).toBeInTheDocument();});
@@ -222,7 +226,8 @@ it('update subjects', async () => {
 
 // delete subjects test case
 it('delete subjects', async () => {
-  await initiateJestFetch(jest, ftmocksConifg, 'delete subjects');
+  initiateJestFetch(jest, ftmocksConifg, 'delete subjects');
+  initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='header-menu-subjects']")).toBeInTheDocument();});
@@ -231,4 +236,5 @@ it('delete subjects', async () => {
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='subject-6-delete-btn']")).toBeInTheDocument();});
   fireEvent.click(getByXPath(dom.container, "//*[@id='subject-6-delete-btn']"))
 });
+
 
