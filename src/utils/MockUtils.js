@@ -95,6 +95,38 @@ const getDefaultMockDataSummaryList = () => {
   }
 };
 
+const loadMockDataByTestName = testName => {
+  try {
+    // Read the tests from '_mock_list.json'
+    const mocksPath = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(testName)}`,
+      '_mock_list.json'
+    );
+    const mocksData = fs.readFileSync(mocksPath, 'utf8');
+    const mocks = JSON.parse(mocksData);
+
+    mocks.forEach((mock) => {
+      const fileContent = JSON.parse(
+        fs.readFileSync(
+          path.join(
+            process.env.MOCK_DIR,
+            `test_${nameToFolder(testName)}`,
+            `mock_${mock.id}.json`
+          ),
+          'utf8'
+        )
+      );
+      mock.fileContent = fileContent;
+    });
+
+    return { mocks, testName };
+  } catch (error) {
+    console.error('Error loading test data:', error.message);
+    return [];
+  }
+};
+
 const loadMockData = () => {
   try {
     // Read the test ID from mockServer.config.json
@@ -312,6 +344,7 @@ module.exports = {
   getDefaultMockDataSummaryList,
   loadMockDataFromMockListFile,
   loadMockData,
+  loadMockDataByTestName,
   isSameRequest,
   areJsonEqual,
   removeDuplicates,

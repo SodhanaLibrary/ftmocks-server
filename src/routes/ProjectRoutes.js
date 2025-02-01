@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const { getDefaultMockData, processURL, loadMockData, nameToFolder, compareMockToRequest, loadMockDataByTestName } = require('../utils/MockUtils');
 
 const getRecordedProjects = async (req, res) => {
   const defaultPath = 'projects.json';
@@ -33,7 +34,48 @@ const switchProject = async (req, res) => {
     }
 };
 
+const ignoreForAll = async (req, res) => {
+  const testName = req.body.testName;
+  const param = req.body.param;
+  const defaultMockData = getDefaultMockData();
+  defaultMockData.forEach(mock => {
+    if(!mock.fileContent.ignoreParams) {
+      mock.fileContent.ignoreParams = [];
+    }
+    const cparams = mock?.fileContent?.request?.queryString?.map(qs => qs.name) || [];
+    if(!mock.fileContent.ignoreParams.includes(param) && cparams.includes(param)) {
+      mock.fileContent.ignoreParams.push(param);
+      const mockFilePath = path.join(
+        process.env.MOCK_DIR,
+        'defaultMocks',
+        `mock_${mock.fileContent.id}.json`
+      );
+      fs.writeFileSync(mockFilePath, JSON.stringify(mock.fileContent, null, 2));
+    }
+  });
+  if(testName) {
+    const testMockData = loadMockDataByTestName(testName);
+    testMockData.forEach(mock => {
+      if(!mock?.fileContent?.ignoreParams) {
+        mock.fileContent.ignoreParams = [];
+      }
+      const cparams = mock?.fileContent?.request?.queryString?.map(qs => qs.name) || [];
+      if(!mock?.fileContent?.ignoreParams.includes(param) && cparams.includes(param)) {
+        mock.fileContent.ignoreParams.push(param);
+        const mockFilePath = path.join(
+          process.env.MOCK_DIR,
+          `test_${nameToFolder(testName)}`,
+          `mock_${mock.fileContent.id}.json`
+        );
+        fs.writeFileSync(mockFilePath, JSON.stringify(mock.fileContent, null, 2));
+      } 
+    })
+  }
+  res.status(200).json({message: 'Updated successfully'});
+}
+
 module.exports = {
     getRecordedProjects,
-    switchProject
+    switchProject,
+    ignoreForAll
 };

@@ -11,7 +11,7 @@ const { getRecordedMocks, deleteRecordedMock, deleteAllRecordedMocks, updateReco
 const { getRecordedEvents, deleteRecordedEvent, recordEventData, deleteAllEvents } = require('./src/routes/RecordedEventRoutes');
 const { getRecordedLogs, deleteRecordedLog, recordLogData, deleteAllLogs } = require('./src/routes/RecordedLogsRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
-const { getRecordedProjects, switchProject } = require('./src/routes/ProjectRoutes.js');
+const { getRecordedProjects, switchProject, ignoreForAll } = require('./src/routes/ProjectRoutes.js');
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -152,6 +152,9 @@ app.get('/api/v1/projects', getRecordedProjects);
 
 // Router for /api/v1/projects GET method
 app.put('/api/v1/projects', switchProject);
+
+// Router for /api/v1/ignoreForAll POST method
+app.post('/api/v1/ignoreForAll', ignoreForAll);
 
 // Router for /api/v1/mockServer GET method
 app.get('/api/v1/mockServer', async (req, res) => {

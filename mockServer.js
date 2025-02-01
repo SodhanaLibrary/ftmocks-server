@@ -58,7 +58,7 @@ app.all("*", (req, res) => {
             try {
               res.status(status).json(JSON.parse(content));
             } catch(e) {
-              res.status(status).text(content);
+              res.status(status).end(content);
             }
           } else {
             res.status(status).end('');
