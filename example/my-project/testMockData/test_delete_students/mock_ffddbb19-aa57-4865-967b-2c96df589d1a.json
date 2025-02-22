@@ -5,9 +5,7 @@
   "request": {
     "headers": {},
     "queryString": null,
-    "postData": {
-      "mimeType": null
-    }
+    "postData": {}
   },
   "response": {
     "status": 200,

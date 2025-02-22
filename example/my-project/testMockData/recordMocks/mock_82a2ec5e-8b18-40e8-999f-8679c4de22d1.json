@@ -1,0 +1,59 @@
+{
+  "url": "/api/students/6",
+  "time": "Sat Feb 22 2025 16:26:38 GMT+0530 (India Standard Time)",
+  "method": "DELETE",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 404,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "31"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Sat, 22 Feb 2025 10:56:38 GMT"
+      ],
+      [
+        "etag",
+        "W/\"1f-LU9H1tMP71GW4rOZhbj+Fk6EQVY\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "{\"message\":\"Student not found\"}"
+  },
+  "id": "82a2ec5e-8b18-40e8-999f-8679c4de22d1"
+}

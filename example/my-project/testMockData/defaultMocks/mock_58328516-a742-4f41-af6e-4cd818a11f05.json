@@ -1,0 +1,37 @@
+{
+  "url": "/api/students?",
+  "method": "GET",
+  "request": {
+    "headers": {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "If-None-Match": "W/\"10d-9uV4DklT6lc6kwzR8I8rZ9e6b18\"",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "connection": "close",
+      "date": "Sat, 04 Jan 2025 14:26:34 GMT",
+      "etag": "W/\"10d-9uV4DklT6lc6kwzR8I8rZ9e6b18\"",
+      "x-powered-by": "Express"
+    },
+    "content": "[{\"id\":1,\"name\":\"Alice Johnson\",\"age\":16,\"grade\":\"10th\"},{\"id\":2,\"name\":\"Bob Smith\",\"age\":17,\"grade\":\"11th\"},{\"id\":3,\"name\":\"Cathy Brown\",\"age\":15,\"grade\":\"9th\"},{\"id\":4,\"name\":\"David Wilson\",\"age\":18,\"grade\":\"12th\"},{\"id\":5,\"name\":\"Eva Davis\",\"age\":16,\"grade\":\"10th\"}]"
+  },
+  "id": "58328516-a742-4f41-af6e-4cd818a11f05"
+}

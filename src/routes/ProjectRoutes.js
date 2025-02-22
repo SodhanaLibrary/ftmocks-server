@@ -42,6 +42,11 @@ const ignoreForAll = async (req, res) => {
     if(!mock.fileContent.ignoreParams) {
       mock.fileContent.ignoreParams = [];
     }
+    if(mock?.fileContent?.request?.queryString && !mock.fileContent.request.queryString.map) {
+      const qObj = Object.fromEntries(new URLSearchParams(mock.fileContent.request.queryString));
+      mock.fileContent.request.queryString = Object.keys(qObj).map(name => ({name, value: qObj[name]}));
+    }
+    console.log(mock?.fileContent?.request?.queryString);
     const cparams = mock?.fileContent?.request?.queryString?.map(qs => qs.name) || [];
     if(!mock.fileContent.ignoreParams.includes(param) && cparams.includes(param)) {
       mock.fileContent.ignoreParams.push(param);
