@@ -1,0 +1,59 @@
+{
+  "url": "/api/students/6",
+  "time": "Thu Jan 23 2025 21:56:16 GMT+0530 (India Standard Time)",
+  "method": "DELETE",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "42"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Thu, 23 Jan 2025 16:26:16 GMT"
+      ],
+      [
+        "etag",
+        "W/\"2a-AtjnaCnIxuYLqXagnN4yLTQXC/M\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "{\"message\":\"Student deleted successfully\"}"
+  },
+  "id": "f3af29d7-3d43-4dfb-871c-8f912b7d15fc"
+}

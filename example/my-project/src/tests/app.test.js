@@ -69,9 +69,8 @@ afterEach(cleanup);
 
 // create teachers test case
 it('create teachers', async () => {
-  initiateJestFetch(jest, ftmocksConifg, 'create teachers');
   initiateConsoleLogs(jest, ftmocksConifg, 'create teachers');
-
+  initiateJestFetch(jest, ftmocksConifg, 'create teachers');
   const dom = render(<App />);
 
   await waitFor(() => {expect(getByXPath(dom.container, "//*[@id='teacher-form-name']")).toBeInTheDocument();});

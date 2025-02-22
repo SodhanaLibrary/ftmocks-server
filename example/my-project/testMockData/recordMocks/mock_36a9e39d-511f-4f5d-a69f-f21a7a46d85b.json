@@ -1,0 +1,59 @@
+{
+  "url": "/api/teachers",
+  "time": "Thu Jan 23 2025 22:48:34 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "close"
+      ],
+      [
+        "content-length",
+        "295"
+      ],
+      [
+        "content-type",
+        "application/json; charset=utf-8"
+      ],
+      [
+        "date",
+        "Thu, 23 Jan 2025 17:18:34 GMT"
+      ],
+      [
+        "etag",
+        "W/\"127-+GydkufTlin9UNoomM1akJPS71U\""
+      ],
+      [
+        "vary",
+        "Accept-Encoding"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "[{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"subject\":\"Mathematics\"},{\"id\":2,\"name\":\"Ms. Maria Rodriguez\",\"subject\":\"English\"},{\"id\":3,\"name\":\"Mr. James Miller\",\"subject\":\"Science\"},{\"id\":4,\"name\":\"Mrs. Susan Lee\",\"subject\":\"History\"},{\"id\":5,\"name\":\"Dr. Rachel Scott\",\"subject\":\"Physical Education\"}]"
+  },
+  "id": "36a9e39d-511f-4f5d-a69f-f21a7a46d85b"
+}

@@ -1,0 +1,51 @@
+{
+  "url": "/api/teachers",
+  "time": "Sat Feb 22 2025 11:07:35 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {},
+    "queryString": null,
+    "postData": {
+      "mimeType": null
+    }
+  },
+  "response": {
+    "status": 500,
+    "headers": [
+      [
+        "access-control-allow-headers",
+        "*"
+      ],
+      [
+        "access-control-allow-methods",
+        "*"
+      ],
+      [
+        "access-control-allow-origin",
+        "*"
+      ],
+      [
+        "connection",
+        "keep-alive"
+      ],
+      [
+        "date",
+        "Sat, 22 Feb 2025 05:37:35 GMT"
+      ],
+      [
+        "keep-alive",
+        "timeout=5"
+      ],
+      [
+        "transfer-encoding",
+        "chunked"
+      ],
+      [
+        "x-powered-by",
+        "Express"
+      ]
+    ],
+    "content": "Proxy error: Could not proxy request /api/teachers from localhost:4050 to http://localhost:4051 (ECONNREFUSED)."
+  },
+  "id": "fd3a57cd-7f32-4e46-972c-b043c97bce6a"
+}

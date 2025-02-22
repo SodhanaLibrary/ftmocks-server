@@ -1,0 +1,37 @@
+{
+  "url": "/api/subjects?",
+  "method": "GET",
+  "request": {
+    "headers": {
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br, zstd",
+      "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+      "Connection": "keep-alive",
+      "Host": "localhost:4050",
+      "If-None-Match": "W/\"ce-DMt60t60S+RPCRb2JJ5rWrtSA4o\"",
+      "Referer": "http://localhost:4050/",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Google Chrome\";v=\"131\", \"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": []
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Origin": "*",
+      "connection": "close",
+      "date": "Sat, 04 Jan 2025 14:26:34 GMT",
+      "etag": "W/\"ce-DMt60t60S+RPCRb2JJ5rWrtSA4o\"",
+      "x-powered-by": "Express"
+    },
+    "content": "[{\"id\":1,\"name\":\"Mathematics\",\"credits\":4},{\"id\":2,\"name\":\"English\",\"credits\":3},{\"id\":3,\"name\":\"Science\",\"credits\":4},{\"id\":4,\"name\":\"History\",\"credits\":3},{\"id\":5,\"name\":\"Physical Education\",\"credits\":2}]"
+  },
+  "id": "c8d4f741-1d9c-4692-a8eb-2f94936d0fbc"
+}
