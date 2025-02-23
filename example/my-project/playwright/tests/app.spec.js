@@ -7,7 +7,7 @@ import { ftmocksConifg } from './test-config';
 
 // create teachers test case
 test('create teachers', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'create teachers');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'create teachers', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='teacher-form-name']").click();
   await page.locator("//*[@id='teacher-form-name']").evaluate(el => el.value = 'a');
@@ -26,7 +26,7 @@ test('create teachers', async ({ page }) => {
 
 // update teachers test case
 test('update teachers', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'update teachers');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'update teachers', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='teacher-6-edit-btn']").click();
   await page.locator("//*[@id='teacher-form-experience']").click();
@@ -35,14 +35,14 @@ test('update teachers', async ({ page }) => {
 
 // delete teachers test case
 test('delete teachers', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'delete teachers');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'delete teachers', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='teacher-6-delete-btn']").click();
 });
 
 // create students test case
 test('create students', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'create students');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'create students', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='header-menu-students']").click();
   await page.locator("//*[@id='student-form-name']").click();
@@ -57,7 +57,7 @@ test('create students', async ({ page }) => {
 
 // update students test case
 test('update students', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'update students');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'update students', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='header-menu-students']").click();
   await page.locator("//*[@id='student-6-edit-btn']").click();
@@ -68,7 +68,7 @@ test('update students', async ({ page }) => {
 
 // delete students test case
 test('delete students', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'delete students');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'delete students', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='header-menu-students']").click();
   await page.locator("//*[@id='student-6-delete-btn']").click();
@@ -76,7 +76,7 @@ test('delete students', async ({ page }) => {
 
 // create subjects test case
 test('create subjects', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'create subjects');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'create subjects', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='header-menu-subjects']").click();
   await page.locator("//*[@id='subject-form-name']").click();
@@ -92,7 +92,7 @@ test('create subjects', async ({ page }) => {
 
 // update subjects test case
 test('update subjects', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'update subjects');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'update subjects', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='header-menu-subjects']").click();
   await page.locator("//*[@id='subject-6-edit-btn']").click();
@@ -102,7 +102,7 @@ test('update subjects', async ({ page }) => {
 
 // delete subjects test case
 test('delete subjects', async ({ page }) => {
-  await initiatePlaywrightRoutes(page, ftmocksConifg, 'delete subjects');
+  await initiatePlaywrightRoutes(page, ftmocksConifg, 'delete subjects', '**/api/*');
   await page.goto('http://localhost:4050/');
   await page.locator("//*[@id='header-menu-subjects']").click();
   await page.locator("//*[@id='subject-6-delete-btn']").click();
