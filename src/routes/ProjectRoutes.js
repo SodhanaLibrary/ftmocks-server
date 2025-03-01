@@ -22,6 +22,8 @@ const switchProject = async (req, res) => {
     if(fs.existsSync(project_env_file)) {
         const result = require("dotenv").config({path: project_env_file});
         process.env.MOCK_DIR = result.parsed.MOCK_DIR;
+        process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
+        process.env.MOCK_RECORDER_LIMIT = result.parsed.MOCK_RECORDER_LIMIT;
         console.log(process.env.MOCK_DIR);
         if(!path.isAbsolute(process.env.MOCK_DIR)) {
             process.env.MOCK_DIR = path.resolve(path.dirname(project_env_file), process.env.MOCK_DIR);
