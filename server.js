@@ -22,7 +22,10 @@ let mockServerInstance;
 
 // Read command line arguments
 const args = process.argv.slice(2);
-const envfile = args[0] || 'my-project.env';
+let envfile = args[0] || 'my-project.env';
+if(fs.statSync(envfile).isDirectory()) {
+  envfile = path.join(envfile, 'ftmocks.env ');
+}
 console.log(`loading env variables from ${envfile}`)
 const projectsFile = 'projects.json';
 if(fs.existsSync(envfile)) {
@@ -228,6 +231,76 @@ app.post('/api/v1/mockServer', (req, res) => {
     
     if (!test) {
       return res.status(404).json({ error: 'Test not found' });
+    }
+    
+    // Start the server
+    mockServerInstance = mockServer.listen(port, () => {
+      console.log(`Mock server listening at http://localhost:${port}`);
+    });
+
+    // Here you would typically start a new mock server instance
+    // This is a placeholder for that logic
+    console.log(`Starting mock server for test ${testName} on port ${port}`);
+
+    // In a real implementation, you'd start the server here
+    // and return information about the started server
+
+    res.status(200).json({
+      message: "Mock server started successfully",
+      testName: testName,
+      port: port
+    });
+  } catch (error) {
+    console.error('Error starting mock server:', error);
+    res.status(500).json({ error: 'Failed to start mock server' });
+  }
+});
+
+// Router for /api/v1/mockServer PUT method
+app.put('/api/v1/mockServer', (req, res) => {
+  const { testName, port } = req.body;
+
+  if (!testName || !port) {
+    return res.status(400).json({ error: 'Test ID and port are required' });
+  }
+
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+
+  try {
+    // Read and parse the 'tests.json' file
+    const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
+    
+    // Find the test with the given id
+    const test = testsData.find(test => test.name === testName);
+    // Save the test ID to mockServer.config.json
+    const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
+    let config = {};
+    
+    try {
+      // Read existing config if it exists
+      if (fs.existsSync(configPath)) {
+        config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      }
+      
+      // Update the config with the new test ID
+      config.testName = testName;
+      
+      // Write the updated config back to the file
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+      
+      console.log(`Test ID ${testName} saved to mockServer.config.json`);
+    } catch (configError) {
+      console.error('Error updating mockServer.config.json:', configError);
+      // Continue execution even if config update fails
+    }
+    
+    if (!test) {
+      return res.status(404).json({ error: 'Test not found' });
+    }
+
+    if(mockServerInstance) {
+      mockServerInstance.close();
+      mockServerInstance = null;
     }
     
     // Start the server
