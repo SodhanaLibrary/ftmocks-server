@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
+const { chromium } = require('playwright');
 const mockServer = require('./mockServer');
 const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks, getTestsSummary, getSnapsForTest } = require('./src/routes/TestRoutes');
 const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
@@ -11,6 +12,8 @@ const { getRecordedMocks, deleteRecordedMock, deleteAllRecordedMocks, updateReco
 const { getRecordedEvents, deleteRecordedEvent, recordEventData, deleteAllEvents } = require('./src/routes/RecordedEventRoutes');
 const { getRecordedLogs, deleteRecordedLog, recordLogData, deleteAllLogs } = require('./src/routes/RecordedLogsRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
+const { getLatestVersions, updateLatestVersions } = require('./src/routes/VersionRoutes.js');
+const { recordMocks, recordTest } = require('./src/routes/RecordRoutes.js');
 const { getRecordedProjects, switchProject, ignoreForAll } = require('./src/routes/ProjectRoutes.js');
 
 
@@ -356,7 +359,57 @@ app.delete('/api/v1/mockServer', (req, res) => {
   }
 });
 
+app.get('/api/v1/versions', (req, res) => {
+  getLatestVersions(req, res);
+});
+
+app.put('/api/v1/versions', (req, res) => {
+  updateLatestVersions(req, res);
+});
+
 app.post('/api/v1/defaultHarMocks', upload.single('harFile'), uploadDefaultHarMocs);
+
+let browser = null;
+
+app.post('/api/v1/record/mocks', async (req, res) => {
+  if (browser) {
+    console.log('Browser session is already running. closing now');
+    browser.close();
+  }
+  if(req.body.stopMockServer && mockServerInstance) {
+    mockServerInstance.close();
+    mockServerInstance = null;
+  }
+  browser = await chromium.launch({ headless: false });
+  recordMocks(browser, req, res);
+});
+
+
+app.post('/api/v1/record/test', async (req, res) => {
+  if (browser) {
+    console.log('Browser session is already running. closing now');
+    browser.close();
+  }
+  
+  browser = await chromium.launch({ headless: false });
+  recordMocks(browser, req, res);
+});
+
+app.get('/api/v1/record', async (req, res) => {
+  if (browser) {
+      return res.send({status: 'running', message: 'Browser session is already running.'});
+  } else {
+      return res.send({status: 'stopped', message: 'Browser session is not running.'});
+  }
+});
+
+app.delete('/api/v1/record', async (req, res) => {
+  if (browser) {
+    browser.close();
+  }
+  browser = null;
+  return res.send({status: 'stopped', message: 'Browser session is not running.'});
+});
 
 
 // Function to handle all unmatched URLs
