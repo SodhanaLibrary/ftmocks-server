@@ -1,6 +1,6 @@
 {
   "name": "ftmocks-server",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Mock server for nile frontend applications ",
   "main": "index.js",
   "scripts": {
@@ -28,6 +28,7 @@
   "homepage": "https://bitbucket.org/nileglobalsw/nile-fe-mock-server#readme",
   "devDependencies": {
     "multer": "^1.4.5-lts.1",
+    "playwright": "^1.50.1",
     "prettier": "^3.3.3",
     "uuid": "^9.0.1"
   }
