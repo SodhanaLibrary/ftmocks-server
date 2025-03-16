@@ -17,46 +17,8 @@ const recordMocks = async (browser, req, res) => {
   
     const url = req.body.url; // Predefined URL
     const testName = req.body.testName;
+    process.env.recordTest = testName;
     await page.goto(url);
-    
-    // Inject script to log various user interactions
-    await page.evaluate(() => {
-        document.addEventListener('mousemove', (event) => {
-            console.log(`Mouse moved: ${event.clientX}, ${event.clientY}`);
-        });
-        document.addEventListener('click', (event) => {
-            console.log(`Mouse clicked at: ${event.clientX}, ${event.clientY}`);
-        });
-        document.addEventListener('dblclick', (event) => {
-            console.log(`Double-clicked at: ${event.clientX}, ${event.clientY}`);
-        });
-        document.addEventListener('contextmenu', (event) => {
-            console.log(`Right-click (context menu) at: ${event.clientX}, ${event.clientY}`);
-        });
-        document.addEventListener('input', (event) => {
-            if (event.target && event.target.tagName === 'INPUT') {
-                console.log(`Input changed in ${event.target.name || event.target.id || 'unknown'}: ${event.target.value}`);
-            }
-        });
-        document.addEventListener('change', (event) => {
-            console.log(`Change event in ${event.target.name || event.target.id || 'unknown'}: ${event.target.value}`);
-        });
-        document.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const entries = {};
-            formData.forEach((value, key) => {
-                entries[key] = value;
-            });
-            console.log(`Form submitted:`, entries);
-        });
-    });
-  
-    // Spy on URL changes
-    page.on('framenavigated', (frame) => {
-        sendLog(`URL changed to: ${frame.url()}`, res);
-    });
-  
     // Spy on fetch API calls
     await page.route('**', async (route) => {
         const mockData = {
@@ -79,6 +41,11 @@ const recordMocks = async (browser, req, res) => {
             id: crypto.randomUUID(),
             served: false
         };
+
+        if(mockData.url.includes('/api/v1/recordedEvents')) {
+            await route.continue();
+            return;
+        }
 
         if(req.body.avoidDuplicatesInTheTest) {
             // Check if the mock data is a duplicate of a mock data in the test
@@ -120,44 +87,261 @@ const recordMocks = async (browser, req, res) => {
         fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
         await route.continue();
     });
+    // Inject script to log various user interactions
+    await page.evaluate(() => {
+        const generateXPathWithNearestParentId = (element) => {
+            let path = '';
+            let nearestParentId = null;
+      
+            // Check if the current element's has an ID
+            if (element.id) {
+                nearestParentId = element.id;
+            }
+      
+            while (!nearestParentId && element !== document.body && element) {
+                const tagName = element.tagName.toLowerCase();
+                let index = 1;
+                let sibling = element.previousElementSibling;
+      
+                while (sibling) {
+                    if (sibling.tagName.toLowerCase() === tagName) {
+                        index += 1;
+                    }
+                    sibling = sibling.previousElementSibling;
+                }
+      
+                if (index === 1) {
+                    path = `/${tagName}${path}`;
+                } else {
+                    path = `/${tagName}[${index}]${path}`;
+                }
+      
+                // Check if the current element's parent has an ID
+                if (element.parentElement && element.parentElement.id) {
+                    nearestParentId = element.parentElement.id;
+                    break; // Stop searching when we find the nearest parent with an ID
+                }
+      
+                element = element.parentElement;
+            }
+      
+            if (nearestParentId) {
+                path = `//*[@id='${nearestParentId}']${path}`;
+                return path;
+            }
+            return null; // No parent with an ID found
+        };    
+        
+        const saveEventForTest = (event, testName = '') => {
+            event.id = crypto.randomUUID();
+            event.target = generateXPathWithNearestParentId(event.target);
+            fetch(`http://localhost:5000/api/v1/recordedEvents`, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(event),
+            }).then(response => response.json());
+        }
+
+        document.addEventListener('click', (event) => {
+            saveEventForTest({
+                type: 'click',
+                target: event.target,
+                time: new Date().toISOString(),
+                value: {
+                    clientX: event.clientX,
+                    clientY: event.clientY
+                }
+            });
+        });
+        document.addEventListener('dblclick', (event) => {
+            saveEventForTest({
+                type: 'dblclick',
+                target: event.target,
+                time: new Date().toISOString(),
+                value: {
+                    clientX: event.clientX,
+                    clientY: event.clientY
+                }
+            });
+        });
+        document.addEventListener('contextmenu', (event) => {
+            saveEventForTest({
+                type: 'contextmenu',
+                target: event.target,
+                time: new Date().toISOString(),
+                value: {
+                    clientX: event.clientX,
+                    clientY: event.clientY
+                }
+            });
+        });
+        document.addEventListener('input', (event) => {
+            if (event.target && event.target.tagName === 'INPUT') {
+                saveEventForTest({
+                    type: 'input',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: event.target.value
+                });
+            }
+        });
+        document.addEventListener('change', (event) => {
+            saveEventForTest({
+                type: 'change',
+                target: event.target,
+                time: new Date().toISOString(),
+                value: event.target.value
+            });
+        });
+        document.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const entries = {};
+            formData.forEach((value, key) => {
+                entries[key] = value;
+            });
+            saveEventForTest({
+                type: 'submit',
+                target: event.target,
+                time: new Date().toISOString(),
+                value: entries
+            });
+        });
+    });
   
-    sendLog('Perform mouse, input, form, and navigation events. Close the browser to end the program.', res);
-    // res.send('Browser session started. Check console for logs.');
+    // // Spy on URL changes
+    // page.on('framenavigated', (frame) => {
+    //     saveEventForTest({
+    //         type: 'urlchange',
+    //         target: frame.url(),
+    //         time: new Date().toISOString(),
+    //         value: frame.url()
+    //     }, testName);
+    // });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-const recordTest = async (req, res) => {
+const recordTest = async (browser, req, res) => {
     try {
         const context = await browser.newContext();
         const page = await context.newPage();
       
         const url = req.body.url; // Predefined URL
+        const testName = req.body.testName;
+        process.env.recordTest = testName;
         await page.goto(url);
-        
         // Inject script to log various user interactions
         await page.evaluate(() => {
-            document.addEventListener('mousemove', (event) => {
-                console.log(`Mouse moved: ${event.clientX}, ${event.clientY}`);
-            });
+            const generateXPathWithNearestParentId = (element) => {
+                let path = '';
+                let nearestParentId = null;
+          
+                // Check if the current element's has an ID
+                if (element.id) {
+                    nearestParentId = element.id;
+                }
+          
+                while (!nearestParentId && element !== document.body && element) {
+                    const tagName = element.tagName.toLowerCase();
+                    let index = 1;
+                    let sibling = element.previousElementSibling;
+          
+                    while (sibling) {
+                        if (sibling.tagName.toLowerCase() === tagName) {
+                            index += 1;
+                        }
+                        sibling = sibling.previousElementSibling;
+                    }
+          
+                    if (index === 1) {
+                        path = `/${tagName}${path}`;
+                    } else {
+                        path = `/${tagName}[${index}]${path}`;
+                    }
+          
+                    // Check if the current element's parent has an ID
+                    if (element.parentElement && element.parentElement.id) {
+                        nearestParentId = element.parentElement.id;
+                        break; // Stop searching when we find the nearest parent with an ID
+                    }
+          
+                    element = element.parentElement;
+                }
+          
+                if (nearestParentId) {
+                    path = `//*[@id='${nearestParentId}']${path}`;
+                    return path;
+                }
+                return null; // No parent with an ID found
+            };    
+            
+            const saveEventForTest = (event, testName = '') => {
+                event.id = crypto.randomUUID();
+                event.target = generateXPathWithNearestParentId(event.target);
+                fetch(`http://localhost:5000/api/v1/recordedEvents`, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(event),
+                }).then(response => response.json());
+            }
+    
             document.addEventListener('click', (event) => {
-                console.log(`Mouse clicked at: ${event.clientX}, ${event.clientY}`);
+                saveEventForTest({
+                    type: 'click',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: {
+                        clientX: event.clientX,
+                        clientY: event.clientY
+                    }
+                });
             });
             document.addEventListener('dblclick', (event) => {
-                console.log(`Double-clicked at: ${event.clientX}, ${event.clientY}`);
+                saveEventForTest({
+                    type: 'dblclick',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: {
+                        clientX: event.clientX,
+                        clientY: event.clientY
+                    }
+                });
             });
             document.addEventListener('contextmenu', (event) => {
-                console.log(`Right-click (context menu) at: ${event.clientX}, ${event.clientY}`);
+                saveEventForTest({
+                    type: 'contextmenu',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: {
+                        clientX: event.clientX,
+                        clientY: event.clientY
+                    }
+                });
             });
             document.addEventListener('input', (event) => {
                 if (event.target && event.target.tagName === 'INPUT') {
-                    console.log(`Input changed in ${event.target.name || event.target.id || 'unknown'}: ${event.target.value}`);
+                    saveEventForTest({
+                        type: 'input',
+                        target: event.target,
+                        time: new Date().toISOString(),
+                        value: event.target.value
+                    });
                 }
             });
             document.addEventListener('change', (event) => {
-                console.log(`Change event in ${event.target.name || event.target.id || 'unknown'}: ${event.target.value}`);
+                saveEventForTest({
+                    type: 'change',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: event.target.value
+                });
             });
             document.addEventListener('submit', (event) => {
                 event.preventDefault();
@@ -166,36 +350,24 @@ const recordTest = async (req, res) => {
                 formData.forEach((value, key) => {
                     entries[key] = value;
                 });
-                console.log(`Form submitted:`, entries);
+                saveEventForTest({
+                    type: 'submit',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: entries
+                });
             });
         });
       
-        // Spy on URL changes
-        page.on('framenavigated', (frame) => {
-            sendLog(`URL changed to: ${frame.url()}`, res);
-        });
-      
-        // Spy on fetch API calls
-        await page.route('**', async (route) => {
-            const request = route.request();
-            sendLog(`Fetching: ${request.url()}`, res);
-            sendLog(`Request Method: ${request.method()}`, res);
-            sendLog(`Request Headers: ${JSON.stringify(await request.headers())}`, res);
-            if (request.postData()) {
-                sendLog(`Request Body: ${request.postData()}`, res);
-            }
-            
-            const response = await route.fetch();
-            const responseBody = await response.text();
-            sendLog(`Response Status: ${response.status()}`, res);
-            sendLog(`Response Headers: ${JSON.stringify(response.headers())}`, res);
-            sendLog(`Response Body: ${responseBody.substring(0, 500)}...`, res); // Limit response logging size
-            
-            await route.continue();
-        });
-      
-        sendLog('Perform mouse, input, form, and navigation events. Close the browser to end the program.', res);
-        res.send('Browser session started. Check console for logs.');
+        // // Spy on URL changes
+        // page.on('framenavigated', (frame) => {
+        //     saveEventForTest({
+        //         type: 'urlchange',
+        //         target: frame.url(),
+        //         time: new Date().toISOString(),
+        //         value: frame.url()
+        //     }, testName);
+        // });
       } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });

@@ -15,6 +15,7 @@ const { getEnvProject } = require('./src/routes/EnvRoutes.js');
 const { getLatestVersions, updateLatestVersions } = require('./src/routes/VersionRoutes.js');
 const { recordMocks, recordTest } = require('./src/routes/RecordRoutes.js');
 const { getRecordedProjects, switchProject, ignoreForAll } = require('./src/routes/ProjectRoutes.js');
+const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
 
 
 const upload = multer({ dest: 'uploads/' });
@@ -129,7 +130,7 @@ app.put('/api/v1/recordedMocks/:id', updateRecordedMock);
 // Router for /api/v1/recordedEvents GET method
 app.get('/api/v1/recordedEvents', getRecordedEvents);
 
-// Router for /api/v1/recordedEvents GET method
+// Router for /api/v1/recordedEvents POST method
 app.post('/api/v1/recordedEvents', recordEventData);
 
 // Router for /api/v1/recordedEvents DELETE method
@@ -202,40 +203,8 @@ app.post('/api/v1/mockServer', (req, res) => {
     return res.status(400).json({ error: 'Test ID and port are required' });
   }
 
-  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
-
   try {
-    // Read and parse the 'tests.json' file
-    const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
-    
-    // Find the test with the given id
-    const test = testsData.find(test => test.name === testName);
-    // Save the test ID to mockServer.config.json
-    const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
-    let config = {};
-    
-    try {
-      // Read existing config if it exists
-      if (fs.existsSync(configPath)) {
-        config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      }
-      
-      // Update the config with the new test ID
-      config.testName = testName;
-      
-      // Write the updated config back to the file
-      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-      
-      console.log(`Test ID ${testName} saved to mockServer.config.json`);
-    } catch (configError) {
-      console.error('Error updating mockServer.config.json:', configError);
-      // Continue execution even if config update fails
-    }
-    
-    if (!test) {
-      return res.status(404).json({ error: 'Test not found' });
-    }
-    
+    updateMockServerTest(testName, port);
     // Start the server
     mockServerInstance = mockServer.listen(port, () => {
       console.log(`Mock server listening at http://localhost:${port}`);
@@ -267,39 +236,8 @@ app.put('/api/v1/mockServer', (req, res) => {
     return res.status(400).json({ error: 'Test ID and port are required' });
   }
 
-  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
-
   try {
-    // Read and parse the 'tests.json' file
-    const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
-    
-    // Find the test with the given id
-    const test = testsData.find(test => test.name === testName);
-    // Save the test ID to mockServer.config.json
-    const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
-    let config = {};
-    
-    try {
-      // Read existing config if it exists
-      if (fs.existsSync(configPath)) {
-        config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      }
-      
-      // Update the config with the new test ID
-      config.testName = testName;
-      
-      // Write the updated config back to the file
-      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-      
-      console.log(`Test ID ${testName} saved to mockServer.config.json`);
-    } catch (configError) {
-      console.error('Error updating mockServer.config.json:', configError);
-      // Continue execution even if config update fails
-    }
-    
-    if (!test) {
-      return res.status(404).json({ error: 'Test not found' });
-    }
+    updateMockServerTest(testName, port);
 
     if(mockServerInstance) {
       mockServerInstance.close();
@@ -392,7 +330,7 @@ app.post('/api/v1/record/test', async (req, res) => {
   }
   
   browser = await chromium.launch({ headless: false });
-  recordMocks(browser, req, res);
+  recordTest(browser, req, res);
 });
 
 app.get('/api/v1/record', async (req, res) => {
@@ -406,6 +344,7 @@ app.get('/api/v1/record', async (req, res) => {
 app.delete('/api/v1/record', async (req, res) => {
   if (browser) {
     browser.close();
+    process.env.recordTest = null;
   }
   browser = null;
   return res.send({status: 'stopped', message: 'Browser session is not running.'});
