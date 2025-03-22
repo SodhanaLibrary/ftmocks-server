@@ -371,6 +371,6 @@ app.use(handleUnmatchedUrls);
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Mock server listening at http://localhost:${port}`);
+  console.log(`FtMocks running at http://localhost:${port}`);
 });
 
