@@ -17,12 +17,20 @@ const recordMocks = async (browser, req, res) => {
   
     const url = req.body.url; // Predefined URL
     const testName = req.body.testName;
+    const pattern = req.body.pattern;
     process.env.recordTest = testName;
     await page.goto(url);
     // Spy on fetch API calls
     await page.route('**', async (route) => {
+        // Convert pattern string to RegExp
+        const patternRegex = new RegExp(pattern);
+        const urlObj = new URL(route.request().url());
+        if (!patternRegex.test(urlObj.pathname)) {
+            await route.continue();
+            return;
+        }
         const mockData = {
-            url: new URL(route.request().url()).pathname,
+            url: urlObj.pathname + urlObj.search,
             time: new Date().toString(),
             method: route.request().method(),
             request: {
