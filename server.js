@@ -328,6 +328,16 @@ app.post('/api/v1/record/test', async (req, res) => {
     console.log('Browser session is already running. closing now');
     browser.close();
   }
+
+  if(req.body.startMockServer && process.env.PREFERRED_SERVER_PORTS?.length > 0) {
+    if(mockServerInstance) {
+      mockServerInstance.close();
+    } 
+    updateMockServerTest(req.body.testName, JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]);
+    mockServerInstance = mockServer.listen(JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0], () => {
+      console.log(`Mock server listening at http://localhost:${JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]}`);
+    });
+  }
   
   browser = await chromium.launch({ headless: false });
   recordTest(browser, req, res);
