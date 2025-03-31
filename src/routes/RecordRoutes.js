@@ -96,128 +96,130 @@ const recordMocks = async (browser, req, res) => {
         await route.continue();
     });
     // Inject script to log various user interactions
-    await page.evaluate(() => {
-        const generateXPathWithNearestParentId = (element) => {
-            let path = '';
-            let nearestParentId = null;
-      
-            // Check if the current element's has an ID
-            if (element.id) {
-                nearestParentId = element.id;
-            }
-      
-            while (!nearestParentId && element !== document.body && element) {
-                const tagName = element.tagName.toLowerCase();
-                let index = 1;
-                let sibling = element.previousElementSibling;
-      
-                while (sibling) {
-                    if (sibling.tagName.toLowerCase() === tagName) {
-                        index += 1;
-                    }
-                    sibling = sibling.previousElementSibling;
-                }
-      
-                if (index === 1) {
-                    path = `/${tagName}${path}`;
-                } else {
-                    path = `/${tagName}[${index}]${path}`;
-                }
-      
-                // Check if the current element's parent has an ID
-                if (element.parentElement && element.parentElement.id) {
-                    nearestParentId = element.parentElement.id;
-                    break; // Stop searching when we find the nearest parent with an ID
-                }
-      
-                element = element.parentElement;
-            }
-      
-            if (nearestParentId) {
-                path = `//*[@id='${nearestParentId}']${path}`;
-                return path;
-            }
-            return null; // No parent with an ID found
-        };    
+    if(req.body.recordEvents) {
+        await page.evaluate(() => {
+            const generateXPathWithNearestParentId = (element) => {
+                let path = '';
+                let nearestParentId = null;
         
-        const saveEventForTest = (event, testName = '') => {
-            event.id = crypto.randomUUID();
-            event.target = generateXPathWithNearestParentId(event.target);
-            fetch(`http://localhost:5000/api/v1/recordedEvents`, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(event),
-            }).then(response => response.json());
-        }
+                // Check if the current element's has an ID
+                if (element.id) {
+                    nearestParentId = element.id;
+                }
+        
+                while (!nearestParentId && element !== document.body && element) {
+                    const tagName = element.tagName.toLowerCase();
+                    let index = 1;
+                    let sibling = element.previousElementSibling;
+        
+                    while (sibling) {
+                        if (sibling.tagName.toLowerCase() === tagName) {
+                            index += 1;
+                        }
+                        sibling = sibling.previousElementSibling;
+                    }
+        
+                    if (index === 1) {
+                        path = `/${tagName}${path}`;
+                    } else {
+                        path = `/${tagName}[${index}]${path}`;
+                    }
+        
+                    // Check if the current element's parent has an ID
+                    if (element.parentElement && element.parentElement.id) {
+                        nearestParentId = element.parentElement.id;
+                        break; // Stop searching when we find the nearest parent with an ID
+                    }
+        
+                    element = element.parentElement;
+                }
+        
+                if (nearestParentId) {
+                    path = `//*[@id='${nearestParentId}']${path}`;
+                    return path;
+                }
+                return null; // No parent with an ID found
+            };    
+            
+            const saveEventForTest = (event, testName = '') => {
+                event.id = crypto.randomUUID();
+                event.target = generateXPathWithNearestParentId(event.target);
+                fetch(`http://localhost:5000/api/v1/recordedEvents`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(event),
+                }).then(response => response.json());
+            }
 
-        document.addEventListener('click', (event) => {
-            saveEventForTest({
-                type: 'click',
-                target: event.target,
-                time: new Date().toISOString(),
-                value: {
-                    clientX: event.clientX,
-                    clientY: event.clientY
-                }
-            });
-        });
-        document.addEventListener('dblclick', (event) => {
-            saveEventForTest({
-                type: 'dblclick',
-                target: event.target,
-                time: new Date().toISOString(),
-                value: {
-                    clientX: event.clientX,
-                    clientY: event.clientY
-                }
-            });
-        });
-        document.addEventListener('contextmenu', (event) => {
-            saveEventForTest({
-                type: 'contextmenu',
-                target: event.target,
-                time: new Date().toISOString(),
-                value: {
-                    clientX: event.clientX,
-                    clientY: event.clientY
-                }
-            });
-        });
-        document.addEventListener('input', (event) => {
-            if (event.target && event.target.tagName === 'INPUT') {
+            document.addEventListener('click', (event) => {
                 saveEventForTest({
-                    type: 'input',
+                    type: 'click',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: {
+                        clientX: event.clientX,
+                        clientY: event.clientY
+                    }
+                });
+            });
+            document.addEventListener('dblclick', (event) => {
+                saveEventForTest({
+                    type: 'dblclick',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: {
+                        clientX: event.clientX,
+                        clientY: event.clientY
+                    }
+                });
+            });
+            document.addEventListener('contextmenu', (event) => {
+                saveEventForTest({
+                    type: 'contextmenu',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: {
+                        clientX: event.clientX,
+                        clientY: event.clientY
+                    }
+                });
+            });
+            document.addEventListener('input', (event) => {
+                if (event.target && event.target.tagName === 'INPUT') {
+                    saveEventForTest({
+                        type: 'input',
+                        target: event.target,
+                        time: new Date().toISOString(),
+                        value: event.target.value
+                    });
+                }
+            });
+            document.addEventListener('change', (event) => {
+                saveEventForTest({
+                    type: 'change',
                     target: event.target,
                     time: new Date().toISOString(),
                     value: event.target.value
                 });
-            }
-        });
-        document.addEventListener('change', (event) => {
-            saveEventForTest({
-                type: 'change',
-                target: event.target,
-                time: new Date().toISOString(),
-                value: event.target.value
+            });
+            document.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const formData = new FormData(event.target);
+                const entries = {};
+                formData.forEach((value, key) => {
+                    entries[key] = value;
+                });
+                saveEventForTest({
+                    type: 'submit',
+                    target: event.target,
+                    time: new Date().toISOString(),
+                    value: entries
+                });
             });
         });
-        document.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const entries = {};
-            formData.forEach((value, key) => {
-                entries[key] = value;
-            });
-            saveEventForTest({
-                type: 'submit',
-                target: event.target,
-                time: new Date().toISOString(),
-                value: entries
-            });
-        });
-    });
+    }
   
     // // Spy on URL changes
     // page.on('framenavigated', (frame) => {
