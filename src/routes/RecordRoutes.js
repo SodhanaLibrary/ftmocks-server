@@ -43,7 +43,7 @@ const recordMocks = async (browser, req, res) => {
             },
             response: {
                 status: (await route.fetch()).status(),
-                headers: Object.entries((await route.fetch()).headers()),
+                headers: (await route.fetch()).headers(),
                 content: await (await route.fetch()).text()
             },
             id: crypto.randomUUID(),
