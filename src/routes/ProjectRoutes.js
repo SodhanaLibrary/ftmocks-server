@@ -62,7 +62,7 @@ const ignoreForAll = async (req, res) => {
   });
   if(testName) {
     const testMockData = loadMockDataByTestName(testName);
-    testMockData.forEach(mock => {
+    testMockData.mocks.forEach(mock => {
       if(!mock?.fileContent?.ignoreParams) {
         mock.fileContent.ignoreParams = [];
       }
