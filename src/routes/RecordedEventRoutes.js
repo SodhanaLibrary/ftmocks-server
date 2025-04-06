@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const { nameToFolder } = require('../utils/MockUtils');
 
 const getRecordedEvents = async (req, res) => {
-  const eventsPath  = path.join(
+  const eventsPath = path.join(
     process.env.MOCK_DIR,
     req.query.name ? `test_${nameToFolder(req.query.name)}` : 'recordMocks',
     '_events.json'
@@ -18,7 +18,7 @@ const getRecordedEvents = async (req, res) => {
     }
     const eventsData = fs.readFileSync(eventsPath, 'utf8');
     let parsedData = JSON.parse(eventsData);
-    
+
     res.status(200).json(parsedData);
   } catch (error) {
     console.error(`Error reading or parsing events.json:`, error);
@@ -85,9 +85,11 @@ const recordEventData = async (req, res) => {
   let mockDataSummary = [];
 
   try {
-    console.log(mockData);
     mockData.id = uuidv4();
-    const mockDir = path.join(process.env.MOCK_DIR, testName ? `test_${nameToFolder(testName)}` : 'recordMocks');
+    const mockDir = path.join(
+      process.env.MOCK_DIR,
+      testName ? `test_${nameToFolder(testName)}` : 'recordMocks'
+    );
     const mockEventsFilePath = path.join(mockDir, `_events.json`);
     const mockSnapsPath = path.join(mockDir, `_snaps`);
     if (!fs.existsSync(mockDir)) {
@@ -108,28 +110,29 @@ const recordEventData = async (req, res) => {
       throw 'MOCK_RECORDER_LIMIT reached';
     } else {
       // Check for duplicate events with same type and time
-      const isDuplicate = mockDataSummary.some(event => 
-        event.type === mockData.type && 
-        event.time === mockData.time
+      const isDuplicate = mockDataSummary.some(
+        (event) => event.type === mockData.type && event.time === mockData.time
       );
       if (isDuplicate) {
         console.log('Duplicate event - same type and time already exists');
-        return res.json({ message: 'Duplicate event - same type and time already exists' });
+        return res.json({
+          message: 'Duplicate event - same type and time already exists',
+        });
       }
       mockDataSummary.push({
-        id: mockData.id, 
+        id: mockData.id,
         type: mockData.type,
-        target: mockData.target, 
+        target: mockData.target,
         time: mockData.time,
         value: mockData.value,
       });
-      
+
       if (mockData.bodyHtml) {
-        const mockSnapFilePath = path.join(mockSnapsPath, `_snap_${ mockData.id}.html`);  
-        fs.writeFileSync(
-          mockSnapFilePath,
-          mockData.bodyHtml
+        const mockSnapFilePath = path.join(
+          mockSnapsPath,
+          `_snap_${mockData.id}.html`
         );
+        fs.writeFileSync(mockSnapFilePath, mockData.bodyHtml);
       }
       fs.writeFileSync(
         mockEventsFilePath,
