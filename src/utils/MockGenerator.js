@@ -67,9 +67,6 @@ function processHAR(
   // Extract information and create individual JSON files for each response
   const responses = harObject.log.entries
     .map((entry, index) => {
-      console.log(
-        entry.request.url + ' is json response = ' + isJsonResponse(entry)
-      );
       // if (isJsonResponse(entry)) {
       const url = processURL(entry.request.url);
       const { method, postData } = entry.request;
@@ -183,11 +180,7 @@ function createMockFromUserInputForDefaultMocks(body) {
     console.log('its duplicate entry for default mocks');
     return null;
   } else {
-    console.log(
-      'its new entry',
-      defaultMockData.find((mock) => compareMockToMock(mock, body)),
-      body
-    );
+    console.log('its new entry');
   }
   const responseSummaryRecord = {
     fileName: `mock_${mockId}.json`,
@@ -278,8 +271,6 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
     }
   } catch (e) {
     console.error(e);
-    console.log(`*******${testName}********`);
-    console.log(body);
   }
 }
 

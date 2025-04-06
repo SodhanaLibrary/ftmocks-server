@@ -95,7 +95,7 @@ const getDefaultMockDataSummaryList = () => {
   }
 };
 
-const loadMockDataByTestName = testName => {
+const loadMockDataByTestName = (testName) => {
   try {
     // Read the tests from '_mock_list.json'
     const mocksPath = path.join(
@@ -207,7 +207,9 @@ const isSameRequest = (req1, req2) => {
       matched = false;
       // console.log('not matched at method', req1.method, req2.method);
     } else if (
-      (!req1.postData && req2.postData && req1.method.toUpperCase() !== 'GET') ||
+      (!req1.postData &&
+        req2.postData &&
+        req1.method.toUpperCase() !== 'GET') ||
       (req1.postData && !req2.postData && req1.method.toUpperCase() !== 'GET')
     ) {
       matched = areJsonEqual(req1.postData || {}, req2.postData || {});
@@ -258,13 +260,12 @@ const isSameResponse = (req1, req2) => {
     ) {
       matched = false;
     }
-    if (matched) {
-      console.log('matched responses', req1, req2);
-    }
+    // if (matched) {
+    //   console.log('matched responses', req1, req2);
+    // }
     return matched;
   } catch (error) {
     console.error(error);
-    console.log(req1, req2);
     return false;
   }
 };
@@ -309,7 +310,6 @@ const compareMockToHarEntry = (mock, harEntry) => {
     );
   } catch (error) {
     console.error(error);
-    console.log(mock, harEntry);
     return false;
   }
 };
@@ -323,7 +323,6 @@ const compareMockToMock = (mock1, mock2, matchResponse) => {
     }
   } catch (error) {
     console.error(error);
-    console.log(mock1, mock2, matchResponse);
     return false;
   }
 };

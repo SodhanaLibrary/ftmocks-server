@@ -66,7 +66,6 @@ const ignoreForAll = async (req, res) => {
         value: qObj[name],
       }));
     }
-    console.log(mock?.fileContent?.request?.queryString);
     const cparams =
       mock?.fileContent?.request?.queryString?.map((qs) => qs.name) || [];
     if (

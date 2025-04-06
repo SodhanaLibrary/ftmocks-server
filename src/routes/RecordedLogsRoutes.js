@@ -5,11 +5,7 @@ const { nameToFolder } = require('../utils/MockUtils');
 
 const getRecordedLogs = async (req, res) => {
   const folderName = `test_${nameToFolder(req.query.name)}`;
-  const defaultPath = path.join(
-    process.env.MOCK_DIR,
-    folderName,
-    '_logs.json'
-  );
+  const defaultPath = path.join(process.env.MOCK_DIR, folderName, '_logs.json');
 
   try {
     if (!fs.existsSync(defaultPath)) {
@@ -19,7 +15,7 @@ const getRecordedLogs = async (req, res) => {
     }
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
     let parsedData = JSON.parse(defaultData);
-    
+
     res.status(200).json(parsedData);
   } catch (error) {
     console.error(`Error reading or parsing default.json:`, error);
@@ -29,11 +25,7 @@ const getRecordedLogs = async (req, res) => {
 
 const deleteAllLogs = async (req, res) => {
   const folderName = `test_${nameToFolder(req.params.name)}`;
-  const defaultPath = path.join(
-    process.env.MOCK_DIR,
-    folderName,
-    '_logs.json'
-  );
+  const defaultPath = path.join(process.env.MOCK_DIR, folderName, '_logs.json');
   try {
     fs.rmSync(defaultPath, { recursive: true, force: true });
     res.status(200).json([]);
@@ -46,11 +38,7 @@ const deleteAllLogs = async (req, res) => {
 const deleteRecordedLog = async (req, res) => {
   const folderName = `test_${nameToFolder(req.params.name)}`;
   const mockId = req.params.id;
-  const defaultPath = path.join(
-    process.env.MOCK_DIR,
-    folderName,
-    '_logs.json'
-  );
+  const defaultPath = path.join(process.env.MOCK_DIR, folderName, '_logs.json');
 
   try {
     // Read and parse the default.json file
@@ -81,7 +69,6 @@ const recordLogData = async (req, res) => {
   let mockDataSummary = [];
 
   try {
-    console.log(mockData);
     mockData.id = uuidv4();
     const mockDir = path.join(process.env.MOCK_DIR, folderName);
     const mockLogsFilePath = path.join(mockDir, `_logs.json`);
@@ -100,10 +87,10 @@ const recordLogData = async (req, res) => {
       throw 'MOCK_RECORDER_LIMIT reached';
     } else {
       mockDataSummary.push({
-        id: mockData.id, 
+        id: mockData.id,
         type: mockData.type,
-        target: mockData.target, 
-        time: mockData.time
+        target: mockData.target,
+        time: mockData.time,
       });
       fs.writeFileSync(
         mockLogsFilePath,
