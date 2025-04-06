@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const { execSync } = require('child_process');
 const {
   nameToFolder,
@@ -183,6 +184,7 @@ const saveIfItIsFile = async (route, testName) => {
 
 const recordMocks = async (browser, req, res) => {
   try {
+    // Configure browser context with user data directory
     const browserContext = {
       args: ['--disable-web-security'],
     };
@@ -196,107 +198,117 @@ const recordMocks = async (browser, req, res) => {
     await page.goto(url);
     // Spy on fetch API calls
     await page.route('**', async (route) => {
-      // Convert pattern string to RegExp
-      const urlObj = new URL(route.request().url());
-      if (pattern && pattern.length > 0) {
-        const patternRegex = new RegExp(pattern);
-        if (!patternRegex.test(urlObj.pathname)) {
+      try {
+        // Convert pattern string to RegExp
+        const urlObj = new URL(route.request().url());
+        if (pattern && pattern.length > 0) {
+          const patternRegex = new RegExp(pattern);
+          if (!patternRegex.test(urlObj.pathname)) {
+            await route.continue();
+            return;
+          }
+        }
+
+        if (await saveIfItIsFile(route, testName)) {
+          return;
+        }
+
+        const mockData = {
+          url: urlObj.pathname + urlObj.search,
+          time: new Date().toString(),
+          method: route.request().method(),
+          request: {
+            headers: await route.request().headers(),
+            queryString: Array.from(urlObj.searchParams.entries()).map(
+              ([name, value]) => ({
+                name,
+                value,
+              })
+            ),
+            postData: route.request().postData()
+              ? {
+                  mimeType: 'application/json',
+                  text: route.request().postData(),
+                }
+              : null,
+          },
+          response: {
+            status: (await route.fetch()).status(),
+            headers: (await route.fetch()).headers(),
+            content: await (await route.fetch()).text(),
+          },
+          id: crypto.randomUUID(),
+          served: false,
+        };
+
+        if (mockData.url.includes('/api/v1/recordedEvents')) {
           await route.continue();
           return;
         }
-      }
 
-      if (await saveIfItIsFile(route, testName)) {
-        return;
-      }
-
-      const mockData = {
-        url: urlObj.pathname + urlObj.search,
-        time: new Date().toString(),
-        method: route.request().method(),
-        request: {
-          headers: await route.request().headers(),
-          queryString: route.request().url().split('?')[1],
-          postData: route.request().postData()
-            ? {
-                mimeType: 'application/json',
-                text: route.request().postData(),
-              }
-            : null,
-        },
-        response: {
-          status: (await route.fetch()).status(),
-          headers: (await route.fetch()).headers(),
-          content: await (await route.fetch()).text(),
-        },
-        id: crypto.randomUUID(),
-        served: false,
-      };
-
-      if (mockData.url.includes('/api/v1/recordedEvents')) {
-        await route.continue();
-        return;
-      }
-
-      if (req.body.avoidDuplicatesInTheTest) {
-        // Check if the mock data is a duplicate of a mock data in the test
-        const testMockList = loadMockDataFromMockListFile(
-          path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`),
-          `_mock_list.json`,
-          testName
-        );
-        const matchResponse = testMockList.find((mock) =>
-          compareMockToMock(mock.fileContent, mockData, true)
-        );
-        if (matchResponse) {
-          console.log('Aborting duplicate mock data in the test');
-          await route.continue();
-          return;
+        if (req.body.avoidDuplicatesInTheTest) {
+          // Check if the mock data is a duplicate of a mock data in the test
+          const testMockList = loadMockDataFromMockListFile(
+            path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`),
+            `_mock_list.json`,
+            testName
+          );
+          const matchResponse = testMockList.find((mock) =>
+            compareMockToMock(mock.fileContent, mockData, true)
+          );
+          if (matchResponse) {
+            console.log('Aborting duplicate mock data in the test');
+            await route.continue();
+            return;
+          }
         }
-      }
 
-      if (req.body.avoidDuplicatesWithDefaultMocks) {
-        // Check if the mock data is a duplicate of a mock data in the test
-        const defaultMockList = loadMockDataFromMockListFile(
+        if (req.body.avoidDuplicatesWithDefaultMocks) {
+          // Check if the mock data is a duplicate of a mock data in the test
+          const defaultMockList = loadMockDataFromMockListFile(
+            process.env.MOCK_DIR,
+            `default.json`
+          );
+          const matchResponse = defaultMockList.find((mock) =>
+            compareMockToMock(mock.fileContent, mockData, true)
+          );
+          if (matchResponse) {
+            console.log('Aborting duplicate mock data with default mocks');
+            await route.continue();
+            return;
+          }
+        }
+
+        // Save the mock data to the test
+        const mockListPath = path.join(
           process.env.MOCK_DIR,
-          `default.json`
+          `test_${nameToFolder(testName)}`,
+          '_mock_list.json'
         );
-        const matchResponse = defaultMockList.find((mock) =>
-          compareMockToMock(mock.fileContent, mockData, true)
-        );
-        if (matchResponse) {
-          console.log('Aborting duplicate mock data with default mocks');
-          await route.continue();
-          return;
+        let mockList = [];
+        if (fs.existsSync(mockListPath)) {
+          mockList = JSON.parse(fs.readFileSync(mockListPath, 'utf8'));
         }
-      }
+        mockList.push({
+          id: mockData.id,
+          url: mockData.url,
+          method: mockData.method,
+          time: mockData.time,
+        });
 
-      // Save the mock data to the test
-      const mockListPath = path.join(
-        process.env.MOCK_DIR,
-        `test_${nameToFolder(testName)}`,
-        '_mock_list.json'
-      );
-      let mockList = [];
-      if (fs.existsSync(mockListPath)) {
-        mockList = JSON.parse(fs.readFileSync(mockListPath, 'utf8'));
+        fs.writeFileSync(mockListPath, JSON.stringify(mockList, null, 2));
+        const mocDataPath = path.join(
+          process.env.MOCK_DIR,
+          `test_${nameToFolder(testName)}`,
+          `mock_${mockData.id}.json`
+        );
+        fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
+        await injectEventRecordingScript(page);
+        await route.continue();
+      } catch (error) {
+        console.error(error);
+        await route.continue();
       }
-      mockList.push({
-        id: mockData.id,
-        url: mockData.url,
-        method: mockData.method,
-        time: mockData.time,
-      });
-
-      fs.writeFileSync(mockListPath, JSON.stringify(mockList, null, 2));
-      const mocDataPath = path.join(
-        process.env.MOCK_DIR,
-        `test_${nameToFolder(testName)}`,
-        `mock_${mockData.id}.json`
-      );
-      fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
-      await injectEventRecordingScript(page);
-      await route.continue();
     });
     // Inject script to log various user interactions
     if (req.body.recordEvents) {
