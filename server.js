@@ -1,22 +1,65 @@
-const express = require("express");
-const fs = require("fs");
-const bodyParser = require("body-parser");
+const express = require('express');
+const fs = require('fs');
+const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer');
 const { chromium } = require('playwright');
 const mockServer = require('./mockServer');
-const { getTests, deleteTest, updateTest, createTest, getMockDataForTest, createMockDataForTest, deleteMockDataForTest, resetMockDataForTest, createHarMockDataForTest, updateMockDataForTest, updateTestMocks, getTestsSummary, getSnapsForTest } = require('./src/routes/TestRoutes');
-const { getDefaultMocks, deleteDefaultMock, updateDefaultMock, uploadDefaultHarMocs } = require('./src/routes/DefaultMockRoutes');
-const { getRecordedMocks, deleteRecordedMock, deleteAllRecordedMocks, updateRecordedMock, recordMockData, initiateRecordedMocks } = require('./src/routes/RecordedMockRoutes');
-const { getRecordedEvents, deleteRecordedEvent, recordEventData, deleteAllEvents } = require('./src/routes/RecordedEventRoutes');
-const { getRecordedLogs, deleteRecordedLog, recordLogData, deleteAllLogs } = require('./src/routes/RecordedLogsRoutes');
+const {
+  getTests,
+  deleteTest,
+  updateTest,
+  createTest,
+  getMockDataForTest,
+  createMockDataForTest,
+  deleteMockDataForTest,
+  resetMockDataForTest,
+  createHarMockDataForTest,
+  updateMockDataForTest,
+  updateTestMocks,
+  getTestsSummary,
+  getSnapsForTest,
+  deleteTestMocks,
+} = require('./src/routes/TestRoutes');
+const {
+  getDefaultMocks,
+  deleteDefaultMock,
+  updateDefaultMock,
+  uploadDefaultHarMocs,
+} = require('./src/routes/DefaultMockRoutes');
+const {
+  getRecordedMocks,
+  deleteRecordedMock,
+  deleteAllRecordedMocks,
+  updateRecordedMock,
+  recordMockData,
+  initiateRecordedMocks,
+} = require('./src/routes/RecordedMockRoutes');
+const {
+  getRecordedEvents,
+  deleteRecordedEvent,
+  recordEventData,
+  deleteAllEvents,
+} = require('./src/routes/RecordedEventRoutes');
+const {
+  getRecordedLogs,
+  deleteRecordedLog,
+  recordLogData,
+  deleteAllLogs,
+} = require('./src/routes/RecordedLogsRoutes');
 const { getEnvProject } = require('./src/routes/EnvRoutes.js');
-const { getLatestVersions, updateLatestVersions } = require('./src/routes/VersionRoutes.js');
+const {
+  getLatestVersions,
+  updateLatestVersions,
+} = require('./src/routes/VersionRoutes.js');
 const { recordMocks, recordTest } = require('./src/routes/RecordRoutes.js');
-const { getRecordedProjects, switchProject, ignoreForAll } = require('./src/routes/ProjectRoutes.js');
+const {
+  getRecordedProjects,
+  switchProject,
+  ignoreForAll,
+} = require('./src/routes/ProjectRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
-
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -27,30 +70,33 @@ let mockServerInstance;
 // Read command line arguments
 const args = process.argv.slice(2);
 let envfile = args[0] || 'my-project.env';
-if(fs.statSync(envfile).isDirectory()) {
-  envfile = path.join(envfile, 'ftmocks.env ');
+if (fs.statSync(envfile).isDirectory()) {
+  envfile = path.join(envfile, 'ftmocks.env');
 }
-console.log(`loading env variables from ${envfile}`)
+console.log(`loading env variables from ${envfile}`);
 const projectsFile = 'projects.json';
-if(fs.existsSync(envfile)) {
+if (fs.existsSync(envfile)) {
   let prs = [];
-  if(!fs.existsSync(projectsFile)) {
+  if (!fs.existsSync(projectsFile)) {
     fs.writeFileSync(projectsFile, '[]');
   } else {
     const defaultData = fs.readFileSync(projectsFile, 'utf8');
     prs = JSON.parse(defaultData);
   }
-  if(!prs.includes(envfile)) {
-    prs.push(envfile)
+  if (!prs.includes(envfile)) {
+    prs.push(envfile);
   }
-  fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2))
+  fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2));
 }
-const result = require("dotenv").config({path: envfile});
+const result = require('dotenv').config({ path: envfile });
 console.log(result);
 console.log(`PORT from env variables`, process.env.PORT);
-if(!path.isAbsolute(process.env.MOCK_DIR)) {
-  process.env.MOCK_DIR = path.resolve(path.dirname(envfile), process.env.MOCK_DIR);
-  console.log('absolute path MOCK_DIR', process.env.MOCK_DIR );
+if (!path.isAbsolute(process.env.MOCK_DIR)) {
+  process.env.MOCK_DIR = path.resolve(
+    path.dirname(envfile),
+    process.env.MOCK_DIR
+  );
+  console.log('absolute path MOCK_DIR', process.env.MOCK_DIR);
 }
 
 const port = process.env.PORT || 5000;
@@ -82,8 +128,15 @@ app.post('/api/v1/tests/:id/mockdata', createMockDataForTest);
 // Router for /api/v1/tests/:id/mockdata PUT method
 app.put('/api/v1/tests/:id/mockdata', updateTestMocks);
 
+// Router for /api/v1/tests/:id/mockdata DELETE method
+app.delete('/api/v1/tests/:id/mockdata', deleteTestMocks);
+
 // Router for /api/v1/tests/:id/harMockdata POST method
-app.post('/api/v1/tests/:id/harMockdata', upload.single('harFile'), createHarMockDataForTest);
+app.post(
+  '/api/v1/tests/:id/harMockdata',
+  upload.single('harFile'),
+  createHarMockDataForTest
+);
 
 // Router for /api/v1/tests/:id/mockdata/:mockId DELETE method
 app.delete('/api/v1/tests/:id/mockdata/:mockId', deleteMockDataForTest);
@@ -106,10 +159,8 @@ app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);
 // Router for /api/v1/defaultmocks/:id PUT method
 app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
 
-// Router for /api/v1/tests/:id/mockdata/:mockId PUT method
 app.get('/api/v1/env/project', getEnvProject);
 
-// Router for /api/v1/tests/:id/mockdata POST method
 app.post('/api/v1/recordMockdata', recordMockData);
 
 // Router for /api/v1/defaultmocks GET method
@@ -168,7 +219,7 @@ app.get('/api/v1/mockServer', async (req, res) => {
   const configPath = path.join(process.env.MOCK_DIR, 'mockServer.config.json');
 
   try {
-    if(!fs.existsSync(configPath)) {
+    if (!fs.existsSync(configPath)) {
       await fs.appendFile(configPath, '{}', () => {
         console.log('mockServer.config.json created successfully');
       });
@@ -187,7 +238,7 @@ app.get('/api/v1/mockServer', async (req, res) => {
 
     res.json({
       testName: config.testName,
-      port: port
+      port: port,
     });
   } catch (error) {
     console.error('Error reading mock server configuration:', error);
@@ -218,9 +269,9 @@ app.post('/api/v1/mockServer', (req, res) => {
     // and return information about the started server
 
     res.status(200).json({
-      message: "Mock server started successfully",
+      message: 'Mock server started successfully',
       testName: testName,
-      port: port
+      port: port,
     });
   } catch (error) {
     console.error('Error starting mock server:', error);
@@ -239,11 +290,11 @@ app.put('/api/v1/mockServer', (req, res) => {
   try {
     updateMockServerTest(testName, port);
 
-    if(mockServerInstance) {
+    if (mockServerInstance) {
       mockServerInstance.close();
       mockServerInstance = null;
     }
-    
+
     // Start the server
     mockServerInstance = mockServer.listen(port, () => {
       console.log(`Mock server listening at http://localhost:${port}`);
@@ -257,9 +308,9 @@ app.put('/api/v1/mockServer', (req, res) => {
     // and return information about the started server
 
     res.status(200).json({
-      message: "Mock server started successfully",
+      message: 'Mock server started successfully',
       testName: testName,
-      port: port
+      port: port,
     });
   } catch (error) {
     console.error('Error starting mock server:', error);
@@ -282,14 +333,14 @@ app.delete('/api/v1/mockServer', (req, res) => {
 
     // In a real implementation, you'd stop the server here
     // and perform any necessary cleanup
-    if(mockServerInstance) {
+    if (mockServerInstance) {
       mockServerInstance.close();
       mockServerInstance = null;
     }
 
     res.status(200).json({
-      message: "Mock server stopped successfully",
-      port: port
+      message: 'Mock server stopped successfully',
+      port: port,
     });
   } catch (error) {
     console.error('Error stopping mock server:', error);
@@ -305,7 +356,11 @@ app.put('/api/v1/versions', (req, res) => {
   updateLatestVersions(req, res);
 });
 
-app.post('/api/v1/defaultHarMocks', upload.single('harFile'), uploadDefaultHarMocs);
+app.post(
+  '/api/v1/defaultHarMocks',
+  upload.single('harFile'),
+  uploadDefaultHarMocs
+);
 
 let browser = null;
 
@@ -314,7 +369,7 @@ app.post('/api/v1/record/mocks', async (req, res) => {
     console.log('Browser session is already running. closing now');
     browser.close();
   }
-  if(req.body.stopMockServer && mockServerInstance) {
+  if (req.body.stopMockServer && mockServerInstance) {
     mockServerInstance.close();
     mockServerInstance = null;
   }
@@ -322,32 +377,48 @@ app.post('/api/v1/record/mocks', async (req, res) => {
   recordMocks(browser, req, res);
 });
 
-
 app.post('/api/v1/record/test', async (req, res) => {
   if (browser) {
     console.log('Browser session is already running. closing now');
     browser.close();
   }
 
-  if(req.body.startMockServer && process.env.PREFERRED_SERVER_PORTS?.length > 0) {
-    if(mockServerInstance) {
+  if (
+    req.body.startMockServer &&
+    process.env.PREFERRED_SERVER_PORTS?.length > 0
+  ) {
+    if (mockServerInstance) {
       mockServerInstance.close();
-    } 
-    updateMockServerTest(req.body.testName, JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]);
-    mockServerInstance = mockServer.listen(JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0], () => {
-      console.log(`Mock server listening at http://localhost:${JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]}`);
-    });
+    }
+    updateMockServerTest(
+      req.body.testName,
+      JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]
+    );
+    mockServerInstance = mockServer.listen(
+      JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0],
+      () => {
+        console.log(
+          `Mock server listening at http://localhost:${JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]}`
+        );
+      }
+    );
   }
-  
+
   browser = await chromium.launch({ headless: false });
   recordTest(browser, req, res);
 });
 
 app.get('/api/v1/record', async (req, res) => {
   if (browser) {
-      return res.send({status: 'running', message: 'Browser session is already running.'});
+    return res.send({
+      status: 'running',
+      message: 'Browser session is already running.',
+    });
   } else {
-      return res.send({status: 'stopped', message: 'Browser session is not running.'});
+    return res.send({
+      status: 'stopped',
+      message: 'Browser session is not running.',
+    });
   }
 });
 
@@ -357,14 +428,16 @@ app.delete('/api/v1/record', async (req, res) => {
     process.env.recordTest = null;
   }
   browser = null;
-  return res.send({status: 'stopped', message: 'Browser session is not running.'});
+  return res.send({
+    status: 'stopped',
+    message: 'Browser session is not running.',
+  });
 });
-
 
 // Function to handle all unmatched URLs
 function handleUnmatchedUrls(req, res) {
   console.log(`Unmatched URL: ${req.originalUrl}`);
-  
+
   // Check if the URL matches a file in the public folder
   const publicFilePath = path.join(__dirname, 'public', req.url);
   if (fs.existsSync(publicFilePath) && fs.statSync(publicFilePath).isFile()) {
@@ -383,4 +456,3 @@ app.use(handleUnmatchedUrls);
 app.listen(port, () => {
   console.log(`FtMocks running at http://localhost:${port}`);
 });
-

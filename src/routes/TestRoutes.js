@@ -85,7 +85,10 @@ const createTest = async (req, res) => {
       };
       tests.push(newTest);
       fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
-      const folderPath = path.join(process.env.MOCK_DIR, `test_${nameToFolder(req.body.name)}`);
+      const folderPath = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(req.body.name)}`
+      );
       const mockListFilePath = path.join(folderPath, '_mock_list.json');
       fs.mkdir(folderPath, { recursive: true }, (err) => {
         if (err) {
@@ -376,7 +379,38 @@ const updateTestMocks = async (req, res) => {
   }
 };
 
-const getTestsSummary =  async (req, res) => {
+const deleteTestMocks = async (req, res) => {
+  const testName = req.query.name;
+
+  try {
+    const testDir = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(testName)}`
+    );
+    const testsPath = path.join(testDir, `_mock_list.json`);
+
+    // Get list of existing mock files
+    const mockList = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
+
+    // Delete each mock file
+    mockList.forEach((mock) => {
+      const mockPath = path.join(testDir, `mock_${mock.id}.json`);
+      if (fs.existsSync(mockPath)) {
+        fs.unlinkSync(mockPath);
+      }
+    });
+
+    // Reset mock list to empty array
+    fs.writeFileSync(testsPath, JSON.stringify([], null, 2));
+
+    res.status(200).json({ message: 'All mock data deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting mock data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const getTestsSummary = async (req, res) => {
   const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
   try {
     if (!fs.existsSync(indexPath)) {
@@ -401,9 +435,13 @@ const getTestsSummary =  async (req, res) => {
   }
 };
 
-const getSnapsForTest =  async (req, res) => {
+const getSnapsForTest = async (req, res) => {
   const testName = req.query.name;
-  const directoryPath = path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`, '_snaps');
+  const directoryPath = path.join(
+    process.env.MOCK_DIR,
+    `test_${nameToFolder(testName)}`,
+    '_snaps'
+  );
   try {
     // Read all files in the directory
     const files = fs.readdirSync(directoryPath);
@@ -434,5 +472,6 @@ module.exports = {
   updateMockDataForTest,
   resetMockDataForTest,
   getTestsSummary,
-  getSnapsForTest
+  getSnapsForTest,
+  deleteTestMocks,
 };
