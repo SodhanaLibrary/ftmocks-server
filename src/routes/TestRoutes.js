@@ -459,6 +459,23 @@ const getSnapsForTest = async (req, res) => {
   }
 };
 
+const duplicateTest = async (req, res) => {
+  const testName = req.query.name;
+  const testId = req.params.id;
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+  const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
+  const testIndex = testsData.findIndex((test) => test.id === testId);
+  if (testIndex === -1) {
+    return res.status(404).json({ error: 'Test not found' });
+  }
+  const newTest = testsData[testIndex];
+  newTest.id = uuidv4();
+  newTest.name = `${newTest.name} (Copy)`;
+  testsData.push(newTest);
+  fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
+  res.status(200).json({ message: 'Test duplicated successfully' });
+};
+
 module.exports = {
   getTests,
   deleteTest,
@@ -471,6 +488,7 @@ module.exports = {
   createHarMockDataForTest,
   updateMockDataForTest,
   resetMockDataForTest,
+  duplicateTest,
   getTestsSummary,
   getSnapsForTest,
   deleteTestMocks,

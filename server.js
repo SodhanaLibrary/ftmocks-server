@@ -59,6 +59,7 @@ const {
   switchProject,
   ignoreForAll,
 } = require('./src/routes/ProjectRoutes.js');
+const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
 
 const upload = multer({ dest: 'uploads/' });
@@ -102,7 +103,7 @@ if (!path.isAbsolute(process.env.MOCK_DIR)) {
 const port = process.env.PORT || 5000;
 
 // Middleware to parse JSON in the request body
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 
 // Router for /api/v1/tests GET method
 app.get('/api/v1/tests', getTests);
@@ -433,6 +434,10 @@ app.delete('/api/v1/record', async (req, res) => {
     message: 'Browser session is not running.',
   });
 });
+
+app.post('/api/v1/crypto/encrypt', encrypt);
+app.post('/api/v1/crypto/decrypt', decrypt);
+app.get('/api/v1/crypto/listKeys', listKeys);
 
 // Function to handle all unmatched URLs
 function handleUnmatchedUrls(req, res) {

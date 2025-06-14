@@ -191,6 +191,8 @@ const recordMocks = async (browser, req, res) => {
     const context = await browser.newContext(browserContext);
     const page = await context.newPage();
 
+    // Set default timeout to 30 seconds
+    page.setDefaultTimeout(60000);
     const url = req.body.url; // Predefined URL
     const testName = req.body.testName;
     const pattern = req.body.pattern;
@@ -239,6 +241,9 @@ const recordMocks = async (browser, req, res) => {
           },
           id: crypto.randomUUID(),
           served: false,
+          ignoreParams: process.env.DEFAULT_IGNORE_PARAMS
+            ? process.env.DEFAULT_IGNORE_PARAMS.split(',')
+            : [],
         };
 
         if (mockData.url.includes('/api/v1/recordedEvents')) {
@@ -257,7 +262,16 @@ const recordMocks = async (browser, req, res) => {
             compareMockToMock(mock.fileContent, mockData, true)
           );
           if (matchResponse) {
-            console.log('Aborting duplicate mock data in the test');
+            console.log('Replacing duplicate mock data in the test');
+            const existingMockDataFile = path.join(
+              process.env.MOCK_DIR,
+              `test_${nameToFolder(testName)}`,
+              `mock_${matchResponse.id}.json`
+            );
+            fs.writeFileSync(
+              existingMockDataFile,
+              JSON.stringify(mockData, null, 2)
+            );
             await route.continue();
             return;
           }
