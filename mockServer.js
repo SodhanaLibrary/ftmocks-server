@@ -33,7 +33,7 @@ app.all('*', (req, res) => {
     let foundMock = matchedMocks.find((mock) => !mock.fileContent.served)
       ? matchedMocks.find((mock) => !mock.fileContent.served)
       : matchedMocks[matchedMocks.length - 1];
-    // console.log('foundMock', foundMock, defaultMockData);
+    console.log('foundMock', foundMock);
 
     if (!foundMock) {
       foundMock = defaultMockData?.find((mock) => {
@@ -56,29 +56,51 @@ app.all('*', (req, res) => {
       const responseData = foundMock.fileContent;
       setTimeout(
         () => {
-          const { content, headers, status } = responseData.response;
-          const includedHeaders = ['content-type'];
-
-          const headerKeys = Object.keys(headers);
-          headerKeys.forEach((aKey) => {
-            if (includedHeaders.includes(aKey)) {
-              res.set(aKey, headers[aKey]);
-            }
-          });
-
-          if (headers['content-type'] === 'image/png') {
-            var img = Buffer.from(content, 'base64');
-            res.status(status).end(img);
-          } else {
-            // console.log(responseData, response.content);
-            if (content) {
+          const { content, headers, status, file } = responseData.response;
+          if (file) {
+            console.log('Sending file', file);
+            const headerKeys = Object.keys(headers);
+            headerKeys.forEach((aKey) => {
               try {
-                res.status(status).json(JSON.parse(content));
+                res.set(aKey, headers[aKey]);
               } catch (e) {
-                res.status(status).end(content);
+                console.log('Error setting header', aKey, headers[aKey]);
               }
+            });
+            res
+              .status(status)
+              .sendFile(
+                path.join(
+                  process.env.MOCK_DIR,
+                  `test_${nameToFolder(testName)}`,
+                  '_files',
+                  file
+                )
+              );
+          } else {
+            const headerKeys = Object.keys(headers);
+            headerKeys.forEach((aKey) => {
+              try {
+                res.set(aKey, headers[aKey]);
+              } catch (e) {
+                console.log('Error setting header', aKey, headers[aKey]);
+              }
+            });
+
+            if (headers['content-type'] === 'image/png') {
+              var img = Buffer.from(content, 'base64');
+              res.status(status).end(img);
             } else {
-              res.status(status).end('');
+              // console.log(responseData, response.content);
+              if (content) {
+                try {
+                  res.status(status).json(JSON.parse(content));
+                } catch (e) {
+                  res.status(status).end(content);
+                }
+              } else {
+                res.status(status).end('');
+              }
             }
           }
         },

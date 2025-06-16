@@ -150,7 +150,7 @@ const injectEventRecordingScript = async (page) => {
   }
 };
 
-const saveIfItIsFile = async (route, testName) => {
+const saveIfItIsFile = async (route, testName, id) => {
   const urlObj = new URL(route.request().url());
 
   // Check if URL contains file extension like .js, .png, .css etc
@@ -161,23 +161,21 @@ const saveIfItIsFile = async (route, testName) => {
     const dirPath = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(testName)}`,
-      '_files',
-      path.dirname(urlObj.pathname)
+      '_files'
     );
 
     // Create directories if they don't exist
     fs.mkdirSync(dirPath, { recursive: true });
 
     // Save file with original name
-    const fileName = path.basename(urlObj.pathname);
+    const fileName = `${id}${fileExt}`;
     const filePath = path.join(dirPath, fileName);
 
     const response = await route.fetch();
     const buffer = await response.body();
     fs.writeFileSync(filePath, buffer);
 
-    await route.continue();
-    return true;
+    return fileName;
   }
   return false;
 };
@@ -211,9 +209,9 @@ const recordMocks = async (browser, req, res) => {
           }
         }
 
-        if (await saveIfItIsFile(route, testName)) {
-          return;
-        }
+        const id = crypto.randomUUID();
+        const fileName = await saveIfItIsFile(route, testName, id);
+        const response = await route.fetch();
 
         const mockData = {
           url: urlObj.pathname + urlObj.search,
@@ -235,11 +233,12 @@ const recordMocks = async (browser, req, res) => {
               : null,
           },
           response: {
-            status: (await route.fetch()).status(),
-            headers: (await route.fetch()).headers(),
-            content: await (await route.fetch()).text(),
+            file: fileName,
+            status: response.status(),
+            headers: response.headers(),
+            content: fileName ? null : await response.text(),
           },
-          id: crypto.randomUUID(),
+          id,
           served: false,
           ignoreParams: process.env.DEFAULT_IGNORE_PARAMS
             ? process.env.DEFAULT_IGNORE_PARAMS.split(',')

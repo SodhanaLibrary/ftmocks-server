@@ -333,7 +333,6 @@ const createHarMockDataForTest = async (req, res) => {
 };
 
 const updateMockDataForTest = async (req, res) => {
-  const { id, mockId } = req.params;
   const { name } = req.query;
   const updatedMockData = req.body;
 
@@ -341,10 +340,10 @@ const updateMockDataForTest = async (req, res) => {
     const mockFilePath = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(name)}`,
-      `mock_${mockId}.json`
+      `mock_${updatedMockData.id}.json`
     );
+    console.log('mockFilePath', mockFilePath, updatedMockData);
     fs.writeFileSync(mockFilePath, JSON.stringify(updatedMockData, null, 2));
-    updatedMockData.id = mockId;
     res.json(updatedMockData);
   } catch (error) {
     console.error('Error updating mock data:', error);

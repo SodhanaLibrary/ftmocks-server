@@ -89,7 +89,7 @@ const encryptVal = (keyName, value, password) => {
     ]).toString('base64');
 
     // Read existing vault or create new one
-    const vaultPath = path.join(__dirname, 'vault.json');
+    const vaultPath = path.join(process.env.MOCK_DIR, 'vault.json');
     let vault = {};
 
     if (fs.existsSync(vaultPath)) {
@@ -113,7 +113,7 @@ const encryptVal = (keyName, value, password) => {
 const decryptVal = (keyName, password) => {
   try {
     // Read from vault.json
-    const vaultPath = path.join(__dirname, 'vault.json');
+    const vaultPath = path.join(process.env.MOCK_DIR, 'vault.json');
     if (!fs.existsSync(vaultPath)) {
       throw new Error('Vault file not found');
     }
@@ -155,9 +155,9 @@ const decryptVal = (keyName, password) => {
   }
 };
 
-// Example usage of the vault functions
-if (encryptVal('exampleKey', 'My vault secret', password)) {
-  console.log('Value encrypted and saved successfully.');
-  const vaultDecrypted = decryptVal('exampleKey', password);
-  console.log(`Vault decrypted value: ${vaultDecrypted}`);
-}
+// // Example usage of the vault functions
+// if (encryptVal('exampleKey', 'My vault secret', password)) {
+//   console.log('Value encrypted and saved successfully.');
+//   const vaultDecrypted = decryptVal('exampleKey', password);
+//   console.log(`Vault decrypted value: ${vaultDecrypted}`);
+// }
