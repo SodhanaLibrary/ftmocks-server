@@ -61,6 +61,8 @@ const {
 } = require('./src/routes/ProjectRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
+const logger = require('./src/utils/Logger');
+const logRoutes = require('./src/routes/LogRoutes');
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -70,7 +72,18 @@ let mockServerInstance;
 
 // Read command line arguments
 const args = process.argv.slice(2);
+// Check for --debug flag in command line arguments
+if (args.includes('--debug')) {
+  process.env.debug = true;
+  console.log('Debug mode enabled');
+}
+// Check for --envfile flag in command line arguments
 let envfile = args[0] || 'my-project.env';
+const envfileArg = args.find((arg) => arg.startsWith('--envfile='));
+if (envfileArg) {
+  envfile = envfileArg.split('=')[1];
+}
+
 if (fs.statSync(envfile).isDirectory()) {
   envfile = path.join(envfile, 'ftmocks.env');
 }
@@ -84,9 +97,11 @@ if (fs.existsSync(envfile)) {
     const defaultData = fs.readFileSync(projectsFile, 'utf8');
     prs = JSON.parse(defaultData);
   }
-  if (!prs.includes(envfile)) {
-    prs.push(envfile);
-  }
+  prs = prs.filter((aPr) => aPr !== envfile);
+  prs.reverse();
+  prs.push(envfile);
+  prs = [...new Set(prs)]; // Remove any duplicates
+  prs.reverse();
   fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2));
 }
 const result = require('dotenv').config({ path: envfile });
@@ -104,6 +119,9 @@ const port = process.env.PORT || 5000;
 
 // Middleware to parse JSON in the request body
 app.use(bodyParser.json({ limit: '50mb' }));
+
+// Add logging middleware after app.use(cors())
+app.use(logger.logRequest.bind(logger));
 
 // Router for /api/v1/tests GET method
 app.get('/api/v1/tests', getTests);
@@ -438,6 +456,9 @@ app.delete('/api/v1/record', async (req, res) => {
 app.post('/api/v1/crypto/encrypt', encrypt);
 app.post('/api/v1/crypto/decrypt', decrypt);
 app.get('/api/v1/crypto/listKeys', listKeys);
+
+// Add log routes (add this with other route definitions)
+app.use('/api/v1', logRoutes);
 
 // Function to handle all unmatched URLs
 function handleUnmatchedUrls(req, res) {

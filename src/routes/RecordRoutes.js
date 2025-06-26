@@ -2,27 +2,26 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { execSync } = require('child_process');
+const logger = require('../utils/Logger');
 const {
   nameToFolder,
   compareMockToMock,
   loadMockDataFromMockListFile,
 } = require('../utils/MockUtils');
 
-const sendLog = (message, res) => {
-  console.log(message);
-  res.write(`data: ${message}\n\n`);
-};
-
 const injectEventRecordingScript = async (page) => {
   try {
+    logger.info('Injecting event recording script');
+
     const scriptExists = await page.evaluate(() => {
       return typeof generateXPathWithNearestParentId === 'function';
     });
 
     if (scriptExists) {
-      console.log('Event recording script already injected, skipping...');
+      logger.info('Event recording script already injected, skipping...');
       return;
     }
+
     await page.evaluate(() => {
       const generateXPathWithNearestParentId = (element) => {
         let path = '';
@@ -145,43 +144,77 @@ const injectEventRecordingScript = async (page) => {
         });
       });
     });
+
+    logger.info('Event recording script injected successfully');
   } catch (error) {
-    console.error(error);
+    logger.error('Error injecting event recording script', {
+      error: error.message,
+      stack: error.stack,
+    });
   }
 };
 
 const saveIfItIsFile = async (route, testName, id) => {
-  const urlObj = new URL(route.request().url());
+  try {
+    const urlObj = new URL(route.request().url());
 
-  // Check if URL contains file extension like .js, .png, .css etc
-  const fileExtMatch = urlObj.pathname.match(/\.[a-zA-Z0-9]+$/);
-  if (fileExtMatch) {
-    const fileExt = fileExtMatch[0];
-    // Create directory path matching URL structure
-    const dirPath = path.join(
-      process.env.MOCK_DIR,
-      `test_${nameToFolder(testName)}`,
-      '_files'
-    );
+    // Check if URL contains file extension like .js, .png, .css etc
+    const fileExtMatch = urlObj.pathname.match(/\.[a-zA-Z0-9]+$/);
+    if (fileExtMatch) {
+      const fileExt = fileExtMatch[0];
+      logger.debug(`Processing file request: ${urlObj.pathname}`, {
+        fileExt,
+        testName,
+      });
 
-    // Create directories if they don't exist
-    fs.mkdirSync(dirPath, { recursive: true });
+      // Create directory path matching URL structure
+      const dirPath = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(testName)}`,
+        '_files'
+      );
 
-    // Save file with original name
-    const fileName = `${id}${fileExt}`;
-    const filePath = path.join(dirPath, fileName);
+      // Create directories if they don't exist
+      fs.mkdirSync(dirPath, { recursive: true });
 
-    const response = await route.fetch();
-    const buffer = await response.body();
-    fs.writeFileSync(filePath, buffer);
+      // Save file with original name
+      const fileName = `${id}${fileExt}`;
+      const filePath = path.join(dirPath, fileName);
 
-    return fileName;
+      const response = await route.fetch();
+      const buffer = await response.body();
+      fs.writeFileSync(filePath, buffer);
+
+      logger.info(`File saved successfully: ${fileName}`, {
+        originalPath: urlObj.pathname,
+        savedPath: filePath,
+        fileSize: buffer.length,
+      });
+
+      return fileName;
+    }
+    return false;
+  } catch (error) {
+    logger.error('Error saving file', {
+      error: error.message,
+      url: route.request().url(),
+      testName,
+    });
+    return false;
   }
-  return false;
 };
 
 const recordMocks = async (browser, req, res) => {
   try {
+    logger.info('Starting mock recording', {
+      url: req.body.url,
+      testName: req.body.testName,
+      pattern: req.body.pattern,
+      recordEvents: req.body.recordEvents,
+      avoidDuplicatesInTheTest: req.body.avoidDuplicatesInTheTest,
+      avoidDuplicatesWithDefaultMocks: req.body.avoidDuplicatesWithDefaultMocks,
+    });
+
     // Configure browser context with user data directory
     const browserContext = {
       args: ['--disable-web-security'],
@@ -189,13 +222,19 @@ const recordMocks = async (browser, req, res) => {
     const context = await browser.newContext(browserContext);
     const page = await context.newPage();
 
+    logger.info('Browser context and page created');
+
     // Set default timeout to 30 seconds
     page.setDefaultTimeout(60000);
     const url = req.body.url; // Predefined URL
     const testName = req.body.testName;
     const pattern = req.body.pattern;
     process.env.recordTest = testName;
+
+    logger.info('Navigating to URL', { url });
     await page.goto(url);
+    logger.info('Successfully navigated to URL', { url });
+
     // Spy on fetch API calls
     await page.route('**', async (route) => {
       try {
@@ -204,10 +243,19 @@ const recordMocks = async (browser, req, res) => {
         if (pattern && pattern.length > 0) {
           const patternRegex = new RegExp(pattern);
           if (!patternRegex.test(urlObj.pathname)) {
+            logger.debug('Route skipped - pattern mismatch', {
+              url: urlObj.pathname,
+              pattern,
+            });
             await route.continue();
             return;
           }
         }
+
+        logger.debug('Processing route', {
+          url: urlObj.pathname,
+          method: route.request().method(),
+        });
 
         const id = crypto.randomUUID();
         const fileName = await saveIfItIsFile(route, testName, id);
@@ -246,11 +294,13 @@ const recordMocks = async (browser, req, res) => {
         };
 
         if (mockData.url.includes('/api/v1/recordedEvents')) {
+          logger.debug('Skipping recorded events endpoint');
           await route.continue();
           return;
         }
 
         if (req.body.avoidDuplicatesInTheTest) {
+          logger.debug('Checking for duplicates in test', { testName });
           // Check if the mock data is a duplicate of a mock data in the test
           const testMockList = loadMockDataFromMockListFile(
             path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`),
@@ -261,7 +311,10 @@ const recordMocks = async (browser, req, res) => {
             compareMockToMock(mock.fileContent, mockData, true)
           );
           if (matchResponse) {
-            console.log('Replacing duplicate mock data in the test');
+            logger.info('Replacing duplicate mock data in the test', {
+              existingId: matchResponse.id,
+              newId: mockData.id,
+            });
             const existingMockDataFile = path.join(
               process.env.MOCK_DIR,
               `test_${nameToFolder(testName)}`,
@@ -277,6 +330,7 @@ const recordMocks = async (browser, req, res) => {
         }
 
         if (req.body.avoidDuplicatesWithDefaultMocks) {
+          logger.debug('Checking for duplicates with default mocks');
           // Check if the mock data is a duplicate of a mock data in the test
           const defaultMockList = loadMockDataFromMockListFile(
             process.env.MOCK_DIR,
@@ -286,7 +340,9 @@ const recordMocks = async (browser, req, res) => {
             compareMockToMock(mock.fileContent, mockData, true)
           );
           if (matchResponse) {
-            console.log('Aborting duplicate mock data with default mocks');
+            logger.info('Aborting duplicate mock data with default mocks', {
+              defaultMockId: matchResponse.id,
+            });
             await route.continue();
             return;
           }
@@ -316,43 +372,71 @@ const recordMocks = async (browser, req, res) => {
           `mock_${mockData.id}.json`
         );
         fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
+
+        logger.info('Mock data saved successfully', {
+          mockId: mockData.id,
+          url: mockData.url,
+          method: mockData.method,
+          status: mockData.response.status,
+        });
+
         await injectEventRecordingScript(page);
         await route.continue();
       } catch (error) {
-        console.error(error);
+        logger.error('Error processing route', {
+          error: error.message,
+          stack: error.stack,
+          url: route.request().url(),
+        });
         await route.continue();
       }
     });
+
     // Inject script to log various user interactions
     if (req.body.recordEvents) {
+      logger.info('Enabling event recording');
       await injectEventRecordingScript(page);
     }
 
-    // // Spy on URL changes
-    // page.on('framenavigated', (frame) => {
-    //     saveEventForTest({
-    //         type: 'urlchange',
-    //         target: frame.url(),
-    //         time: new Date().toISOString(),
-    //         value: frame.url()
-    //     }, testName);
-    // });
+    logger.info('Mock recording setup completed successfully');
+
+    res.json({
+      success: true,
+      message: 'Mock recording started successfully',
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error('Error in recordMocks', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({
+      error: 'Internal server error',
+    });
   }
 };
 
 const recordTest = async (browser, req, res) => {
   try {
+    logger.info('Starting test recording', {
+      url: req.body.url,
+      testName: req.body.testName,
+    });
+
     const context = await browser.newContext();
     const page = await context.newPage();
+
+    logger.info('Browser context and page created for test recording');
 
     const url = req.body.url; // Predefined URL
     const testName = req.body.testName;
     process.env.recordTest = testName;
+
+    logger.info('Navigating to URL for test recording', { url });
     await page.goto(url);
+    logger.info('Successfully navigated to URL for test recording', { url });
+
     // Inject script to log various user interactions
+    logger.info('Injecting event recording script for test');
     await page.evaluate(() => {
       const generateXPathWithNearestParentId = (element) => {
         let path = '';
@@ -476,18 +560,20 @@ const recordTest = async (browser, req, res) => {
       });
     });
 
-    // // Spy on URL changes
-    // page.on('framenavigated', (frame) => {
-    //     saveEventForTest({
-    //         type: 'urlchange',
-    //         target: frame.url(),
-    //         time: new Date().toISOString(),
-    //         value: frame.url()
-    //     }, testName);
-    // });
+    logger.info('Test recording setup completed successfully');
+
+    res.json({
+      success: true,
+      message: 'Test recording started successfully',
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    logger.error('Error in recordTest', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({
+      error: 'Internal server error',
+    });
   }
 };
 

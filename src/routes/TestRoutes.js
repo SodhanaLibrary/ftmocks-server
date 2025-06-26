@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
+const logger = require('../utils/Logger');
 const {
   processHAR,
   createMockFromUserInputForTest,
@@ -10,13 +11,23 @@ const { nameToFolder } = require('../utils/MockUtils');
 const getTests = async (req, res) => {
   const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
   try {
+    logger.info('Getting tests', { testsPath: indexPath });
+
     if (!fs.existsSync(indexPath)) {
+      logger.info('Tests file does not exist, creating new file', {
+        testsPath: indexPath,
+      });
       await fs.appendFile(indexPath, '[]', () => {
-        console.log('file created successfully', indexPath);
+        logger.info('Tests file created successfully', {
+          testsPath: indexPath,
+        });
       });
     }
+
     const indexData = fs.readFileSync(indexPath, 'utf8');
     const parsedData = JSON.parse(indexData || '[]');
+
+    logger.debug('Parsed tests data', { testCount: parsedData.length });
 
     // Map the data to a more suitable format for the response
     const formattedData = parsedData.map((item) => ({
@@ -25,57 +36,94 @@ const getTests = async (req, res) => {
       mockFile: item.mockFile,
     }));
 
+    logger.info('Successfully retrieved tests', {
+      testCount: formattedData.length,
+      testNames: formattedData.map((t) => t.name),
+    });
+
     res.status(200).json(formattedData);
   } catch (error) {
-    console.error('Error reading or parsing index.json:', error);
+    logger.error('Error reading or parsing tests file', {
+      testsPath: indexPath,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 const deleteTest = async (req, res) => {
-  const fs = require('fs');
-  const path = require('path');
-
   const testId = req.params.id;
   const testName = req.query.name;
   const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
 
   try {
+    logger.info('Deleting test', { testId, testName, testsPath });
+
     let testsData = fs.readFileSync(testsPath, 'utf8');
     let tests = JSON.parse(testsData);
 
     const testIndex = tests.findIndex((test) => test.id === testId);
+
+    if (testIndex === -1) {
+      logger.warn('Test not found for deletion', { testId, testName });
+      return res.status(404).json({ error: 'Test not found' });
+    }
+
+    const testToDelete = tests[testIndex];
+    logger.debug('Found test to delete', {
+      testId,
+      testName: testToDelete.name,
+      mockFile: testToDelete.mockFile,
+    });
+
     const folderPath = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(testName)}`
     );
+
     if (fs.existsSync(folderPath)) {
       fs.rmdirSync(folderPath, { recursive: true });
-    }
-    if (testIndex === -1) {
-      return res.status(404).json({ error: 'Test not found' });
+      logger.debug('Deleted test folder', { folderPath });
+    } else {
+      logger.warn('Test folder not found for deletion', { folderPath });
     }
 
     tests.splice(testIndex, 1);
-
     fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
+
+    logger.info('Test deleted successfully', {
+      testId,
+      testName,
+      remainingTests: tests.length,
+    });
 
     res.status(200).json({ message: 'Test deleted successfully' });
   } catch (error) {
-    console.error('Error deleting test:', error);
+    logger.error('Error deleting test', {
+      testId,
+      testName,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 const createTest = async (req, res) => {
-  const fs = require('fs');
-  const path = require('path');
   const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
   let tests = [];
+
   try {
+    logger.info('Creating new test', {
+      testName: req.body.name,
+      testsPath,
+    });
+
     // Read existing tests
     const testsData = fs.readFileSync(testsPath, 'utf8');
     tests = JSON.parse(testsData);
+
     const etest = tests.find((tst) => tst.name === req.body.name);
     if (!etest) {
       const newTest = {
@@ -83,22 +131,42 @@ const createTest = async (req, res) => {
         name: req.body.name,
         mockFile: [],
       };
+
       tests.push(newTest);
       fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
+
       const folderPath = path.join(
         process.env.MOCK_DIR,
         `test_${nameToFolder(req.body.name)}`
       );
       const mockListFilePath = path.join(folderPath, '_mock_list.json');
+
+      logger.debug('Creating test directory and files', {
+        folderPath,
+        mockListFilePath,
+      });
+
       fs.mkdir(folderPath, { recursive: true }, (err) => {
         if (err) {
-          console.error('Error creating directory:', err);
+          logger.error('Error creating directory', {
+            folderPath,
+            error: err.message,
+          });
         } else {
-          console.log('Directory created successfully!');
+          logger.debug('Directory created successfully', { folderPath });
         }
       });
+
       await fs.appendFile(mockListFilePath, '[]', () => {
-        console.log('mock list file created successfully');
+        logger.debug('Mock list file created successfully', {
+          mockListFilePath,
+        });
+      });
+
+      logger.info('New test created successfully', {
+        testId: newTest.id,
+        testName: newTest.name,
+        folderPath,
       });
 
       res.status(201).json({
@@ -107,10 +175,15 @@ const createTest = async (req, res) => {
       });
       return;
     } else {
+      logger.warn('Test already exists', { testName: req.body.name });
       throw 'Test already exists';
     }
   } catch (error) {
-    console.error(`Error reading tests.json:`, error);
+    logger.error('Error creating test', {
+      testName: req.body?.name,
+      error: error.message,
+      stack: error.stack,
+    });
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -120,31 +193,54 @@ const updateTest = async (req, res) => {
   const updatedTest = req.body;
 
   try {
+    logger.info('Updating test', {
+      testId,
+      newTestName: updatedTest.name,
+      testsPath: path.join(process.env.MOCK_DIR, 'tests.json'),
+    });
+
     const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
     let testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
 
     const testIndex = testsData.findIndex((test) => test.id === testId);
     if (testIndex === -1) {
+      logger.warn('Test not found for update', { testId });
       return res.status(404).json({ error: 'Test not found' });
     }
 
+    const originalTest = testsData[testIndex];
+    logger.debug('Found test to update', {
+      testId,
+      originalName: originalTest.name,
+      newName: updatedTest.name,
+    });
+
     const testFolder = path.join(
       process.env.MOCK_DIR,
-      `test_${nameToFolder(testsData[testIndex].name)}`
+      `test_${nameToFolder(originalTest.name)}`
     );
+
     if (fs.existsSync(testFolder)) {
-      fs.renameSync(
-        testFolder,
-        path.join(
-          process.env.MOCK_DIR,
-          `test_${nameToFolder(updatedTest.name)}`
-        ),
-        (err) => {
-          if (err) {
-            throw err;
-          }
-        }
+      const newTestFolder = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(updatedTest.name)}`
       );
+
+      fs.renameSync(testFolder, newTestFolder, (err) => {
+        if (err) {
+          logger.error('Error renaming test folder', {
+            oldPath: testFolder,
+            newPath: newTestFolder,
+            error: err.message,
+          });
+          throw err;
+        }
+      });
+
+      logger.debug('Test folder renamed successfully', {
+        oldPath: testFolder,
+        newPath: newTestFolder,
+      });
     }
 
     testsData[testIndex].name = updatedTest.name;
@@ -153,9 +249,20 @@ const updateTest = async (req, res) => {
 
     fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
 
+    logger.info('Test updated successfully', {
+      testId,
+      originalName: originalTest.name,
+      newName: updatedTest.name,
+    });
+
     res.status(200).json({ message: 'Test updated successfully' });
   } catch (error) {
-    console.error('Error updating test:', error);
+    logger.error('Error updating test', {
+      testId,
+      newTestName: updatedTest?.name,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -166,38 +273,76 @@ const util_getMockDataForTest = (testName) => {
     `test_${nameToFolder(testName)}`,
     '_mock_list.json'
   );
+
+  logger.debug('Getting mock data for test', { testName, testDataPath });
+
   // Read the mock data from the test-specific file
   let mockData = [];
   if (fs.existsSync(testDataPath)) {
     mockData = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));
+    logger.debug('Loaded mock list', { testName, mockCount: mockData.length });
+  } else {
+    logger.warn('Mock list file not found', { testName, testDataPath });
   }
+
   // Read data from path attribute file names and assign as mockData
   const updatedMockData = mockData.map((item) => {
     try {
-      const fileContent = fs.readFileSync(
-        path.join(
-          process.env.MOCK_DIR,
-          `test_${nameToFolder(testName)}`,
-          `mock_${item.id}.json`
-        ),
-        'utf8'
+      const mockFilePath = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(testName)}`,
+        `mock_${item.id}.json`
       );
-      return JSON.parse(fileContent);
+
+      const fileContent = fs.readFileSync(mockFilePath, 'utf8');
+      const parsedContent = JSON.parse(fileContent);
+
+      logger.debug('Successfully loaded mock file', {
+        testName,
+        mockId: item.id,
+        mockFilePath,
+      });
+
+      return parsedContent;
     } catch (error) {
-      console.error(`Error reading file ${item.id}:`, error);
+      logger.error('Error reading mock file', {
+        testName,
+        mockId: item.id,
+        error: error.message,
+      });
       return item; // Return the original item if there's an error
     }
   });
+
+  logger.debug('Mock data processing completed', {
+    testName,
+    totalMocks: updatedMockData.length,
+    successfulLoads: updatedMockData.filter((m) => m.id).length,
+  });
+
   return updatedMockData;
 };
 
 const getMockDataForTest = async (req, res) => {
   const testName = req.query.name;
+
   try {
+    logger.info('Getting mock data for test', { testName });
+
     const updatedMockData = util_getMockDataForTest(testName);
+
+    logger.info('Successfully retrieved mock data for test', {
+      testName,
+      mockCount: updatedMockData.length,
+    });
+
     res.status(200).json(updatedMockData);
   } catch (error) {
-    console.error('Error reading mock data:', error);
+    logger.error('Error reading mock data', {
+      testName,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Failed to retrieve mock data' });
   }
 };
@@ -205,11 +350,31 @@ const getMockDataForTest = async (req, res) => {
 const createMockDataForTest = async (req, res) => {
   const testName = req.query.name;
   const mockData = req.body;
+
   try {
+    logger.info('Creating mock data for test', {
+      testName,
+      mockUrl: mockData.url,
+      mockMethod: mockData.method,
+    });
+
     createMockFromUserInputForTest(mockData, testName);
+
+    logger.info('Mock data created successfully', {
+      testName,
+      mockUrl: mockData.url,
+      mockMethod: mockData.method,
+    });
+
     res.status(200).json({ message: 'Uploaded successfully' });
   } catch (error) {
-    console.error('Error adding mock data:', error);
+    logger.error('Error adding mock data', {
+      testName,
+      mockUrl: mockData?.url,
+      mockMethod: mockData?.method,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Failed to add mock data' });
   }
 };
@@ -220,6 +385,12 @@ const deleteMockDataForTest = async (req, res) => {
   const testName = req.query.name;
 
   try {
+    logger.info('Deleting mock data for test', {
+      testId,
+      mockId,
+      testName,
+    });
+
     const tetFilePath = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(testName)}`,
@@ -229,8 +400,23 @@ const deleteMockDataForTest = async (req, res) => {
     // Read and parse the mock data file
     let mockData = JSON.parse(fs.readFileSync(tetFilePath, 'utf8'));
 
+    logger.debug('Loaded mock list for deletion', {
+      testName,
+      totalMocks: mockData.length,
+      targetMockId: mockId,
+    });
+
     // Remove the mock record with the given mockId
+    const originalCount = mockData.length;
     mockData = mockData.filter((mock) => mock.id !== mockId);
+    const removedCount = originalCount - mockData.length;
+
+    if (removedCount === 0) {
+      logger.warn('Mock not found in list for deletion', {
+        testName,
+        mockId,
+      });
+    }
 
     // Write the updated mock data back to the file
     fs.writeFileSync(tetFilePath, JSON.stringify(mockData, null, 2));
@@ -245,14 +431,26 @@ const deleteMockDataForTest = async (req, res) => {
 
     if (fs.existsSync(mockFilePath)) {
       fs.unlinkSync(mockFilePath);
-      console.log(`Deleted mock file: ${mockFilePath}`);
+      logger.debug('Deleted mock file', { mockFilePath });
     } else {
-      console.warn(`Mock file not found: ${mockFilePath}`);
+      logger.warn('Mock file not found for deletion', { mockFilePath });
     }
+
+    logger.info('Mock data deleted successfully', {
+      testName,
+      mockId,
+      remainingMocks: mockData.length,
+    });
 
     res.status(200).json({ message: 'Mock data deleted successfully' });
   } catch (error) {
-    console.error('Error deleting mock data:', error);
+    logger.error('Error deleting mock data', {
+      testId,
+      mockId,
+      testName,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Failed to delete mock data' });
   }
 };
@@ -261,18 +459,40 @@ const resetMockDataForTest = async (req, res) => {
   const currentTest = req.body;
 
   try {
+    logger.info('Resetting mock data for test', {
+      testName: currentTest.name,
+      mockCount: currentTest.mockData.length,
+    });
+
     currentTest.mockData.forEach((mockData) => {
       const mockFilePath = path.join(
         process.env.MOCK_DIR,
         `test_${nameToFolder(currentTest.name)}`,
         `mock_${mockData.id}.json`
       );
+
       mockData.served = false;
       fs.writeFileSync(mockFilePath, JSON.stringify(mockData, null, 2));
+
+      logger.debug('Reset mock served status', {
+        testName: currentTest.name,
+        mockId: mockData.id,
+        mockUrl: mockData.url,
+      });
     });
+
+    logger.info('Mock data reset completed', {
+      testName: currentTest.name,
+      resetMocks: currentTest.mockData.length,
+    });
+
     res.json(currentTest);
   } catch (error) {
-    console.error('Error updating mock data:', error);
+    logger.error('Error updating mock data', {
+      testName: currentTest?.name,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -282,10 +502,18 @@ const createHarMockDataForTest = async (req, res) => {
   const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
 
   if (!req.file) {
+    logger.warn('No HAR file uploaded');
     return res.status(400).json({ error: 'No HAR file uploaded' });
   }
 
   try {
+    logger.info('Processing HAR file for test', {
+      testId,
+      harFileName: req.file.originalname,
+      harFileSize: req.file.size,
+      avoidDuplicates: req.body.avoidDuplicates,
+    });
+
     // Read and parse the 'tests.json' file
     const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
 
@@ -293,13 +521,19 @@ const createHarMockDataForTest = async (req, res) => {
     const testIndex = testsData.findIndex((test) => test.id === testId);
 
     if (testIndex === -1) {
+      logger.warn('Test not found for HAR processing', { testId });
       return res.status(404).json({ error: 'Test not found' });
     }
 
     const harFilePath = req.file.path;
     const testName = nameToFolder(req.body.testName);
 
-    console.log('avoidDuplicates = ', req.body.avoidDuplicates);
+    logger.debug('HAR processing parameters', {
+      testId,
+      testName,
+      harFilePath,
+      avoidDuplicates: req.body.avoidDuplicates,
+    });
 
     // Process the HAR file and create mock data
     await processHAR(
@@ -319,13 +553,25 @@ const createHarMockDataForTest = async (req, res) => {
 
     // Clean up the uploaded HAR file
     fs.unlinkSync(harFilePath);
+    logger.debug('Cleaned up uploaded HAR file', { harFilePath });
+
+    logger.info('HAR file processed successfully', {
+      testId,
+      testName,
+      mockFileName,
+    });
 
     res.status(201).json({
       message: 'HAR file processed and mock data added successfully',
       fileName: mockFileName,
     });
   } catch (error) {
-    console.error('Error processing HAR file:', error);
+    logger.error('Error processing HAR file', {
+      testId,
+      harFileName: req.file?.originalname,
+      error: error.message,
+      stack: error.stack,
+    });
     res
       .status(500)
       .json({ error: 'Failed to process HAR file and add mock data' });
@@ -337,16 +583,35 @@ const updateMockDataForTest = async (req, res) => {
   const updatedMockData = req.body;
 
   try {
+    logger.info('Updating mock data for test', {
+      testName: name,
+      mockId: updatedMockData.id,
+      mockUrl: updatedMockData.url,
+    });
+
     const mockFilePath = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(name)}`,
       `mock_${updatedMockData.id}.json`
     );
-    console.log('mockFilePath', mockFilePath, updatedMockData);
+
+    logger.debug('Mock file path', { mockFilePath });
+
     fs.writeFileSync(mockFilePath, JSON.stringify(updatedMockData, null, 2));
+
+    logger.info('Mock data updated successfully', {
+      testName: name,
+      mockId: updatedMockData.id,
+    });
+
     res.json(updatedMockData);
   } catch (error) {
-    console.error('Error updating mock data:', error);
+    logger.error('Error updating mock data', {
+      testName: name,
+      mockId: updatedMockData?.id,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -356,11 +621,17 @@ const updateTestMocks = async (req, res) => {
   const updatedMocks = req.body;
 
   try {
+    logger.info('Updating test mocks', {
+      testName,
+      mockCount: updatedMocks.length,
+    });
+
     const testDir = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(testName)}`
     );
     const testsPath = path.join(testDir, `_mock_list.json`);
+
     const newMockSummary = updatedMocks.map((mock) => ({
       fileName: `mock_${mock.id}.json`,
       method: mock.method,
@@ -369,11 +640,26 @@ const updateTestMocks = async (req, res) => {
       url: mock.url,
       id: mock.id,
     }));
+
+    logger.debug('Created new mock summary', {
+      testName,
+      summaryCount: newMockSummary.length,
+    });
+
     fs.writeFileSync(testsPath, JSON.stringify(newMockSummary, null, 2));
+
+    logger.info('Test mocks updated successfully', {
+      testName,
+      updatedMocks: newMockSummary.length,
+    });
 
     res.status(200).json({ message: 'Test updated successfully' });
   } catch (error) {
-    console.error('Error updating test:', error);
+    logger.error('Error updating test mocks', {
+      testName,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -382,6 +668,8 @@ const deleteTestMocks = async (req, res) => {
   const testName = req.query.name;
 
   try {
+    logger.info('Deleting all test mocks', { testName });
+
     const testDir = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(testName)}`
@@ -391,34 +679,67 @@ const deleteTestMocks = async (req, res) => {
     // Get list of existing mock files
     const mockList = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
 
+    logger.debug('Found mocks to delete', {
+      testName,
+      mockCount: mockList.length,
+    });
+
     // Delete each mock file
+    let deletedCount = 0;
     mockList.forEach((mock) => {
       const mockPath = path.join(testDir, `mock_${mock.id}.json`);
       if (fs.existsSync(mockPath)) {
         fs.unlinkSync(mockPath);
+        deletedCount++;
+        logger.debug('Deleted mock file', { mockPath });
+      } else {
+        logger.warn('Mock file not found for deletion', { mockPath });
       }
     });
 
     // Reset mock list to empty array
     fs.writeFileSync(testsPath, JSON.stringify([], null, 2));
 
+    logger.info('All test mocks deleted successfully', {
+      testName,
+      totalMocks: mockList.length,
+      deletedMocks: deletedCount,
+    });
+
     res.status(200).json({ message: 'All mock data deleted successfully' });
   } catch (error) {
-    console.error('Error deleting mock data:', error);
+    logger.error('Error deleting test mocks', {
+      testName,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
 const getTestsSummary = async (req, res) => {
   const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
+
   try {
+    logger.info('Getting tests summary');
+
     if (!fs.existsSync(indexPath)) {
+      logger.info('Tests file does not exist, creating new file', {
+        testsPath: indexPath,
+      });
       await fs.appendFile(indexPath, '[]', () => {
-        console.log('file created successfully', indexPath);
+        logger.info('Tests file created successfully', {
+          testsPath: indexPath,
+        });
       });
     }
+
     const indexData = fs.readFileSync(indexPath, 'utf8');
     const parsedData = JSON.parse(indexData || '[]');
+
+    logger.debug('Parsed tests data for summary', {
+      testCount: parsedData.length,
+    });
 
     // Map the data to a more suitable format for the response
     const formattedData = parsedData.map((item) => ({
@@ -427,9 +748,21 @@ const getTestsSummary = async (req, res) => {
       mocks: util_getMockDataForTest(item.name),
     }));
 
+    logger.info('Successfully retrieved tests summary', {
+      testCount: formattedData.length,
+      totalMocks: formattedData.reduce(
+        (sum, test) => sum + test.mocks.length,
+        0
+      ),
+    });
+
     res.status(200).json(formattedData);
   } catch (error) {
-    console.error('Error reading or parsing index.json:', error);
+    logger.error('Error reading or parsing tests summary', {
+      testsPath: indexPath,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -441,9 +774,25 @@ const getSnapsForTest = async (req, res) => {
     `test_${nameToFolder(testName)}`,
     '_snaps'
   );
+
   try {
+    logger.info('Getting snaps for test', {
+      testName,
+      snapsPath: directoryPath,
+    });
+
+    if (!fs.existsSync(directoryPath)) {
+      logger.warn('Snaps directory not found', {
+        testName,
+        snapsPath: directoryPath,
+      });
+      return res.status(200).json([]);
+    }
+
     // Read all files in the directory
     const files = fs.readdirSync(directoryPath);
+
+    logger.debug('Found snap files', { testName, fileCount: files.length });
 
     // Map file names to their content
     const result = files.map((fileName) => {
@@ -452,8 +801,19 @@ const getSnapsForTest = async (req, res) => {
       return { fileName, content };
     });
 
+    logger.info('Successfully retrieved snaps for test', {
+      testName,
+      snapCount: result.length,
+    });
+
     res.status(200).json(result);
   } catch (error) {
+    logger.error('Error getting snaps for test', {
+      testName,
+      snapsPath: directoryPath,
+      error: error.message,
+      stack: error.stack,
+    });
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -462,17 +822,50 @@ const duplicateTest = async (req, res) => {
   const testName = req.query.name;
   const testId = req.params.id;
   const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
-  const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
-  const testIndex = testsData.findIndex((test) => test.id === testId);
-  if (testIndex === -1) {
-    return res.status(404).json({ error: 'Test not found' });
+
+  try {
+    logger.info('Duplicating test', { testId, testName });
+
+    const testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
+    const testIndex = testsData.findIndex((test) => test.id === testId);
+
+    if (testIndex === -1) {
+      logger.warn('Test not found for duplication', { testId, testName });
+      return res.status(404).json({ error: 'Test not found' });
+    }
+
+    const originalTest = testsData[testIndex];
+    const newTest = { ...originalTest };
+    newTest.id = uuidv4();
+    newTest.name = `${newTest.name} (Copy)`;
+
+    logger.debug('Created test copy', {
+      originalId: originalTest.id,
+      newId: newTest.id,
+      originalName: originalTest.name,
+      newName: newTest.name,
+    });
+
+    testsData.push(newTest);
+    fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
+
+    logger.info('Test duplicated successfully', {
+      originalId: originalTest.id,
+      newId: newTest.id,
+      originalName: originalTest.name,
+      newName: newTest.name,
+    });
+
+    res.status(200).json({ message: 'Test duplicated successfully' });
+  } catch (error) {
+    logger.error('Error duplicating test', {
+      testId,
+      testName,
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Internal server error' });
   }
-  const newTest = testsData[testIndex];
-  newTest.id = uuidv4();
-  newTest.name = `${newTest.name} (Copy)`;
-  testsData.push(newTest);
-  fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
-  res.status(200).json({ message: 'Test duplicated successfully' });
 };
 
 module.exports = {
