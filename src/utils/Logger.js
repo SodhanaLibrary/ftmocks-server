@@ -23,8 +23,6 @@ class Logger {
       ...additionalData,
     };
 
-    console.log(logEntry);
-
     // Only write to file if debug mode is enabled
     if (process.env.debug) {
       // Write to daily log file
