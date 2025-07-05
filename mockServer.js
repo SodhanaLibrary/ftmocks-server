@@ -196,7 +196,9 @@ app.all('*', (req, res) => {
             const headerKeys = Object.keys(headers).filter(
               (aKey) =>
                 !aKey.toLowerCase().includes('content-encoding') &&
-                !aKey.toLowerCase().includes('transfer-encoding')
+                !aKey.toLowerCase().includes('transfer-encoding') &&
+                !aKey.toLowerCase().includes('accept-encoding') &&
+                !aKey.toLowerCase().includes('te')
             );
 
             headerKeys.forEach((aKey) => {
