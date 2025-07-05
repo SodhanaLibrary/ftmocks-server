@@ -13,45 +13,77 @@ class Logger {
     }
   }
 
+  getCallerInfo() {
+    const stack = new Error().stack;
+    const stackLines = stack.split('\n');
+
+    // Find the first line that's not from the Logger class
+    let callerLine = '';
+    for (let i = 3; i < stackLines.length; i++) {
+      const line = stackLines[i];
+      if (!line.includes('Logger.js') && !line.includes('node_modules')) {
+        callerLine = line;
+        break;
+      }
+    }
+
+    if (callerLine) {
+      // Extract file name and function name from stack trace
+      const match = callerLine.match(/at\s+(.+?)\s+\((.+?):(\d+):(\d+)\)/);
+      if (match) {
+        const functionName = match[1];
+        const filePath = match[2];
+        const fileName = path.basename(filePath);
+        return { fileName, functionName };
+      }
+    }
+
+    return { fileName: 'unknown', functionName: 'unknown' };
+  }
+
   log(level, message, additionalData = {}) {
     const timestamp = new Date().toISOString();
+    const { fileName, functionName } = this.getCallerInfo();
+
     const logEntry = {
       id: require('uuid').v4(),
       timestamp,
       level: level.toUpperCase(),
       message,
+      fileName,
+      functionName,
       ...additionalData,
     };
 
     // Only write to file if debug mode is enabled
     if (process.env.debug) {
-      // Write to daily log file
-      const today = new Date().toISOString().split('T')[0];
-      const logFile = path.join(this.logsDir, `${today}.json`);
-
-      let logs = [];
-      if (fs.existsSync(logFile)) {
-        try {
-          const content = fs.readFileSync(logFile, 'utf8');
-          logs = JSON.parse(content);
-        } catch (error) {
-          console.error('Error reading log file:', error);
-          logs = [];
-        }
-      }
-
-      logs.push(logEntry);
-
-      try {
-        fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-      } catch (error) {
-        console.error('Error writing to log file:', error);
-      }
+      console.log(logEntry);
+      // // Write to daily log file
+      // const today = new Date().toISOString().split('T')[0];
+      // const logFile = path.join(this.logsDir, `${today}.json`);
+      // let logs = [];
+      // if (fs.existsSync(logFile)) {
+      //   try {
+      //     const content = fs.readFileSync(logFile, 'utf8');
+      //     logs = JSON.parse(content);
+      //   } catch (error) {
+      //     console.error('Error reading log file:', error);
+      //     logs = [];
+      //   }
+      // }
+      // logs.push(logEntry);
+      // try {
+      //   fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
+      // } catch (error) {
+      //   console.error('Error writing to log file:', error);
+      // }
     }
 
     // Always log to console in development or when debug is enabled
     if (process.env.NODE_ENV === 'development' || process.env.debug) {
-      console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+      console.log(
+        `[${timestamp}] [${level.toUpperCase()}] [${fileName}:${functionName}] ${message}`
+      );
     }
 
     return logEntry;
