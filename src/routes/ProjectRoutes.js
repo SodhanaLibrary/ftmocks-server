@@ -269,8 +269,74 @@ const ignoreForAll = async (req, res) => {
   }
 };
 
+const removeProject = async (req, res) => {
+  const project = req.body.project;
+  const defaultPath = 'projects.json';
+
+  try {
+    logger.info('Getting recorded projects', { projectsFile: defaultPath });
+
+    if (!fs.existsSync(defaultPath)) {
+      logger.warn('Projects file does not exist, returning empty array', {
+        projectsFile: defaultPath,
+      });
+      return res.status(200).json([]);
+    }
+
+    const defaultData = fs.readFileSync(defaultPath, 'utf8');
+    let parsedData = JSON.parse(defaultData);
+
+    logger.info('Successfully retrieved recorded projects', {
+      projectCount: parsedData.length,
+      projects: parsedData.map((p) => path.basename(p)),
+    });
+
+    const newData = parsedData.filter((p) => p !== project);
+
+    fs.writeFileSync(defaultPath, JSON.stringify(newData, null, 2));
+
+    res.status(200).json(newData);
+  } catch (error) {
+    logger.error('Error reading or parsing projects file', {
+      projectsFile: defaultPath,
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(200).json([]);
+  }
+};
+
+const addProject = async (req, res) => {
+  const project = req.body.project;
+  const defaultPath = 'projects.json';
+
+  try {
+    logger.info('Getting recorded projects', { projectsFile: defaultPath });
+
+    if (!fs.existsSync(defaultPath)) {
+      fs.writeFileSync(defaultPath, JSON.stringify([], null, 2));
+    }
+
+    const defaultData = fs.readFileSync(defaultPath, 'utf8');
+    let parsedData = JSON.parse(defaultData);
+
+    parsedData.unshift(project);
+
+    fs.writeFileSync(defaultPath, JSON.stringify(parsedData, null, 2));
+
+    res.status(200).json(parsedData);
+  } catch (error) {
+    logger.error('Error reading or parsing projects file', {
+      projectsFile: defaultPath,
+      error: error.message,
+      stack: error.stack,
+    });
+  }
+};
 module.exports = {
   getRecordedProjects,
   switchProject,
   ignoreForAll,
+  removeProject,
+  addProject,
 };

@@ -58,6 +58,8 @@ const {
   getRecordedProjects,
   switchProject,
   ignoreForAll,
+  removeProject,
+  addProject,
 } = require('./src/routes/ProjectRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
@@ -227,8 +229,14 @@ app.get('/api/v1/testSnaps', getSnapsForTest);
 // Router for /api/v1/projects GET method
 app.get('/api/v1/projects', getRecordedProjects);
 
-// Router for /api/v1/projects GET method
+// Router for /api/v1/projects PUT method
 app.put('/api/v1/projects', switchProject);
+
+// Router for /api/v1/projects POST method
+app.post('/api/v1/projects', addProject);
+
+// Router for /api/v1/projects DELETE method
+app.delete('/api/v1/projects', removeProject);
 
 // Router for /api/v1/ignoreForAll POST method
 app.post('/api/v1/ignoreForAll', ignoreForAll);
