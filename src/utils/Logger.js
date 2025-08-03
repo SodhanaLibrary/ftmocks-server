@@ -89,19 +89,31 @@ class Logger {
     return logEntry;
   }
 
-  info(message, additionalData = {}) {
+  info(message, additionalData = {}, consoleLog = false) {
+    if (consoleLog) {
+      console.log(message, additionalData);
+    }
     return this.log('info', message, additionalData);
   }
 
-  error(message, additionalData = {}) {
+  error(message, additionalData = {}, consoleLog = true) {
+    if (consoleLog) {
+      console.log(message, additionalData);
+    }
     return this.log('error', message, additionalData);
   }
 
-  warn(message, additionalData = {}) {
+  warn(message, additionalData = {}, consoleLog = false) {
+    if (consoleLog) {
+      console.log(message, additionalData);
+    }
     return this.log('warn', message, additionalData);
   }
 
-  debug(message, additionalData = {}) {
+  debug(message, additionalData = {}, consoleLog = false) {
+    if (consoleLog) {
+      console.log(message, additionalData);
+    }
     return this.log('debug', message, additionalData);
   }
 

@@ -473,9 +473,9 @@ const isSameRequest = (req1, req2) => {
 
 const isSameResponse = (req1, req2) => {
   try {
-    logger.debug('Comparing responses', {
-      req1Status: req1.response?.status,
-      req2Status: req2.response?.status,
+    logger.debug('callling isSameResponse', {
+      req1,
+      req2,
     });
 
     let matched = true;
@@ -592,7 +592,7 @@ const compareMockToHarEntry = (mock, harEntry) => {
     );
     const postData = mock.fileContent.request?.postData;
 
-    const result = isSameRequest(
+    const requestMatch = isSameRequest(
       { url: mockURL, method: mock.fileContent.method, postData },
       {
         method: harEntry.request.method,
@@ -601,13 +601,32 @@ const compareMockToHarEntry = (mock, harEntry) => {
       }
     );
 
+    const responseMatch = isSameResponse(
+      {
+        response: {
+          status: mock.fileContent.response.status,
+          content: mock.fileContent.response.content,
+        },
+      },
+      {
+        response: {
+          status: harEntry.response.status,
+          content:
+            typeof harEntry.response.content === 'string'
+              ? harEntry.response.content
+              : JSON.stringify(harEntry.response.content),
+        },
+      }
+    );
+
     logger.debug('Mock to HAR entry comparison result', {
-      result,
+      requestMatch,
+      responseMatch,
       mockURL,
       harURL: reqURL,
     });
 
-    return result;
+    return requestMatch && responseMatch;
   } catch (error) {
     logger.error('Error comparing mock to HAR entry', {
       mockId: mock?.id,
