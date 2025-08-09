@@ -237,24 +237,12 @@ const ignoreForAll = async (req, res) => {
             });
           }
         });
-
-        logger.info('Test mocks processing completed', {
-          testName,
-          totalTestMocks: testMockData.mocks.length,
-          updatedTestMocks: testMocksUpdated,
-        });
       }
     }
-
-    const totalUpdated =
-      defaultMocksUpdated + (testName ? testMockData?.mocks?.length || 0 : 0);
 
     logger.info('Ignore parameter operation completed successfully', {
       param,
       testName: testName || 'all tests',
-      totalMocksProcessed: totalUpdated,
-      defaultMocksUpdated,
-      testMocksUpdated: testName ? testMockData?.mocks?.length || 0 : 0,
     });
 
     res.status(200).json({ message: 'Updated successfully' });

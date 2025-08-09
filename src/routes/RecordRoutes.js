@@ -11,18 +11,23 @@ const {
 
 const injectEventRecordingScript = async (page) => {
   try {
-    logger.info('Injecting event recording script');
+    const eventsFile = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(process.env.recordTest)}`,
+      `_events.json`
+    );
 
-    const scriptExists = await page.evaluate(() => {
-      return typeof generateXPathWithNearestParentId === 'function';
+    // Expose a function to receive click info from the browser
+    await page.exposeFunction('saveEventForTest', (event) => {
+      event.id = crypto.randomUUID();
+      const events = JSON.parse(fs.readFileSync(eventsFile, 'utf8'));
+      events.push(event);
+      fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
     });
 
-    if (scriptExists) {
-      logger.info('Event recording script already injected, skipping...');
-      return;
-    }
+    fs.writeFileSync(eventsFile, JSON.stringify([], null, 2));
 
-    await page.evaluate(() => {
+    await page.addInitScript(() => {
       const generateXPathWithNearestParentId = (element) => {
         let path = '';
         let nearestParentId = null;
@@ -66,22 +71,25 @@ const injectEventRecordingScript = async (page) => {
         return null; // No parent with an ID found
       };
 
-      const saveEventForTest = (event, testName = '') => {
-        event.id = crypto.randomUUID();
-        event.target = generateXPathWithNearestParentId(event.target);
-        fetch(`http://localhost:5000/api/v1/recordedEvents`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(event),
-        }).then((response) => response.json());
+      const getParentElementWithEvent = (event, eventType) => {
+        let depth = 5;
+        let target = event.target;
+        while (target && target !== document && depth > 0) {
+          if (target.getAttribute(eventType) || target[eventType]) {
+            return target;
+          }
+          target = target.parentNode;
+          depth -= 1;
+        }
+        return event.target;
       };
 
       document.addEventListener('click', (event) => {
-        saveEventForTest({
+        window.saveEventForTest({
           type: 'click',
-          target: event.target,
+          target: generateXPathWithNearestParentId(
+            getParentElementWithEvent(event, 'onclick')
+          ),
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
@@ -90,9 +98,11 @@ const injectEventRecordingScript = async (page) => {
         });
       });
       document.addEventListener('dblclick', (event) => {
-        saveEventForTest({
+        window.saveEventForTest({
           type: 'dblclick',
-          target: event.target,
+          target: generateXPathWithNearestParentId(
+            getParentElementWithEvent(event, 'ondblclick')
+          ),
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
@@ -101,9 +111,11 @@ const injectEventRecordingScript = async (page) => {
         });
       });
       document.addEventListener('contextmenu', (event) => {
-        saveEventForTest({
+        window.saveEventForTest({
           type: 'contextmenu',
-          target: event.target,
+          target: generateXPathWithNearestParentId(
+            getParentElementWithEvent(event, 'oncontextmenu')
+          ),
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
@@ -113,18 +125,22 @@ const injectEventRecordingScript = async (page) => {
       });
       document.addEventListener('input', (event) => {
         if (event.target && event.target.tagName === 'INPUT') {
-          saveEventForTest({
+          window.saveEventForTest({
             type: 'input',
-            target: event.target,
+            target: generateXPathWithNearestParentId(
+              getParentElementWithEvent(event, 'oninput')
+            ),
             time: new Date().toISOString(),
             value: event.target.value,
           });
         }
       });
       document.addEventListener('change', (event) => {
-        saveEventForTest({
+        window.saveEventForTest({
           type: 'change',
-          target: event.target,
+          target: generateXPathWithNearestParentId(
+            getParentElementWithEvent(event, 'onchange')
+          ),
           time: new Date().toISOString(),
           value: event.target.value,
         });
@@ -136,9 +152,11 @@ const injectEventRecordingScript = async (page) => {
         formData.forEach((value, key) => {
           entries[key] = value;
         });
-        saveEventForTest({
+        window.saveEventForTest({
           type: 'submit',
-          target: event.target,
+          target: generateXPathWithNearestParentId(
+            getParentElementWithEvent(event, 'onsubmit')
+          ),
           time: new Date().toISOString(),
           value: entries,
         });
@@ -219,6 +237,7 @@ const recordMocks = async (browser, req, res) => {
     const browserContext = {
       args: ['--disable-web-security'],
     };
+
     const context = await browser.newContext(browserContext);
     const page = await context.newPage();
 
@@ -230,10 +249,7 @@ const recordMocks = async (browser, req, res) => {
     const testName = req.body.testName;
     const pattern = req.body.pattern;
     process.env.recordTest = testName;
-
-    logger.info('Navigating to URL', { url });
-    await page.goto(url);
-    logger.info('Successfully navigated to URL', { url });
+    process.env.recordMocks = testName;
 
     // Spy on fetch API calls
     await page.route('**', async (route) => {
@@ -292,12 +308,6 @@ const recordMocks = async (browser, req, res) => {
             ? process.env.DEFAULT_IGNORE_PARAMS.split(',')
             : [],
         };
-
-        if (mockData.url.includes('/api/v1/recordedEvents')) {
-          logger.debug('Skipping recorded events endpoint');
-          await route.continue();
-          return;
-        }
 
         if (req.body.avoidDuplicatesInTheTest) {
           logger.debug('Checking for duplicates in test', { testName });
@@ -380,7 +390,6 @@ const recordMocks = async (browser, req, res) => {
           status: mockData.response.status,
         });
 
-        await injectEventRecordingScript(page);
         await route.continue();
       } catch (error) {
         logger.error('Error processing route', {
@@ -398,7 +407,21 @@ const recordMocks = async (browser, req, res) => {
       await injectEventRecordingScript(page);
     }
 
+    logger.info('Navigating to URL', { url });
+    await page.goto(url);
+    logger.info('Successfully navigated to URL', { url });
+
     logger.info('Mock recording setup completed successfully');
+
+    // Handle browser close event
+    context.on('close', () => {
+      logger.info('Browser context closed for test recording', {
+        testName,
+        url,
+      });
+      process.env.recordMocks = null;
+      process.env.recordTest = null;
+    });
 
     res.json({
       success: true,
@@ -431,136 +454,26 @@ const recordTest = async (browser, req, res) => {
     const testName = req.body.testName;
     process.env.recordTest = testName;
 
+    // Inject script to log various user interactions
+    if (req.body.recordEvents) {
+      logger.info('Enabling event recording');
+      await injectEventRecordingScript(page);
+    }
     logger.info('Navigating to URL for test recording', { url });
     await page.goto(url);
     logger.info('Successfully navigated to URL for test recording', { url });
 
-    // Inject script to log various user interactions
-    logger.info('Injecting event recording script for test');
-    await page.evaluate(() => {
-      const generateXPathWithNearestParentId = (element) => {
-        let path = '';
-        let nearestParentId = null;
-
-        // Check if the current element's has an ID
-        if (element.id) {
-          nearestParentId = element.id;
-        }
-
-        while (!nearestParentId && element !== document.body && element) {
-          const tagName = element.tagName.toLowerCase();
-          let index = 1;
-          let sibling = element.previousElementSibling;
-
-          while (sibling) {
-            if (sibling.tagName.toLowerCase() === tagName) {
-              index += 1;
-            }
-            sibling = sibling.previousElementSibling;
-          }
-
-          if (index === 1) {
-            path = `/${tagName}${path}`;
-          } else {
-            path = `/${tagName}[${index}]${path}`;
-          }
-
-          // Check if the current element's parent has an ID
-          if (element.parentElement && element.parentElement.id) {
-            nearestParentId = element.parentElement.id;
-            break; // Stop searching when we find the nearest parent with an ID
-          }
-
-          element = element.parentElement;
-        }
-
-        if (nearestParentId) {
-          path = `//*[@id='${nearestParentId}']${path}`;
-          return path;
-        }
-        return null; // No parent with an ID found
-      };
-
-      const saveEventForTest = (event, testName = '') => {
-        event.id = crypto.randomUUID();
-        event.target = generateXPathWithNearestParentId(event.target);
-        fetch(`http://localhost:5000/api/v1/recordedEvents`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(event),
-        }).then((response) => response.json());
-      };
-
-      document.addEventListener('click', (event) => {
-        saveEventForTest({
-          type: 'click',
-          target: event.target,
-          time: new Date().toISOString(),
-          value: {
-            clientX: event.clientX,
-            clientY: event.clientY,
-          },
-        });
-      });
-      document.addEventListener('dblclick', (event) => {
-        saveEventForTest({
-          type: 'dblclick',
-          target: event.target,
-          time: new Date().toISOString(),
-          value: {
-            clientX: event.clientX,
-            clientY: event.clientY,
-          },
-        });
-      });
-      document.addEventListener('contextmenu', (event) => {
-        saveEventForTest({
-          type: 'contextmenu',
-          target: event.target,
-          time: new Date().toISOString(),
-          value: {
-            clientX: event.clientX,
-            clientY: event.clientY,
-          },
-        });
-      });
-      document.addEventListener('input', (event) => {
-        if (event.target && event.target.tagName === 'INPUT') {
-          saveEventForTest({
-            type: 'input',
-            target: event.target,
-            time: new Date().toISOString(),
-            value: event.target.value,
-          });
-        }
-      });
-      document.addEventListener('change', (event) => {
-        saveEventForTest({
-          type: 'change',
-          target: event.target,
-          time: new Date().toISOString(),
-          value: event.target.value,
-        });
-      });
-      document.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const entries = {};
-        formData.forEach((value, key) => {
-          entries[key] = value;
-        });
-        saveEventForTest({
-          type: 'submit',
-          target: event.target,
-          time: new Date().toISOString(),
-          value: entries,
-        });
-      });
-    });
-
     logger.info('Test recording setup completed successfully');
+
+    // Handle browser close event
+    context.on('close', () => {
+      logger.info('Browser context closed for test recording', {
+        testName,
+        url,
+      });
+      process.env.recordTest = null;
+      browser.close();
+    });
 
     res.json({
       success: true,

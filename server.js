@@ -21,6 +21,7 @@ const {
   getTestsSummary,
   getSnapsForTest,
   deleteTestMocks,
+  duplicateTest,
 } = require('./src/routes/TestRoutes');
 const {
   getDefaultMocks,
@@ -139,6 +140,9 @@ app.delete('/api/v1/tests/:id', deleteTest);
 
 // Router for /api/v1/tests PUT method
 app.put('/api/v1/tests/:id', updateTest);
+
+// Router for /api/v1/tests POST method
+app.post('/api/v1/tests/:id/duplicate', duplicateTest);
 
 // Router for /api/v1/tests/:id/mockdata GET method
 app.get('/api/v1/tests/:id/mockdata', getMockDataForTest);
@@ -405,11 +409,16 @@ app.post('/api/v1/record/mocks', async (req, res) => {
 });
 
 app.post('/api/v1/record/test', async (req, res) => {
-  if (browser) {
-    console.log('Browser session is already running. closing now');
-    browser.close();
+  try {
+    if (browser) {
+      console.log('Browser session is already running. closing now');
+      browser.close();
+    }
+  } catch (error) {
+    logger.error('Error closing browser:', error);
+  } finally {
+    browser = null;
   }
-
   if (
     req.body.startMockServer &&
     process.env.PREFERRED_SERVER_PORTS?.length > 0
@@ -433,6 +442,31 @@ app.post('/api/v1/record/test', async (req, res) => {
 
   browser = await chromium.launch({ headless: false });
   recordTest(browser, req, res);
+});
+
+app.post('/api/v1/record/stop', async (req, res) => {
+  if (browser) {
+    console.log('Browser session is already running. closing now');
+    browser.close();
+    browser = null;
+  }
+  return res.send({
+    status: 'stopped',
+    message: 'Browser session is not running.',
+  });
+});
+app.get('/api/v1/record/status', async (req, res) => {
+  if (browser) {
+    return res.send({
+      status: 'running',
+      message: 'Browser session is already running.',
+    });
+  } else {
+    return res.send({
+      status: 'stopped',
+      message: 'Browser session is not running.',
+    });
+  }
 });
 
 app.get('/api/v1/record', async (req, res) => {
