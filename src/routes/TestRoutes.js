@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
+const { execSync } = require('child_process');
 const logger = require('../utils/Logger');
 const {
   processHAR,
@@ -848,6 +849,37 @@ const duplicateTest = async (req, res) => {
 
     testsData.push(newTest);
     fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
+
+    // Create new directory for the duplicated test
+    const newTestDir = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(newTest.name)}`
+    );
+    if (!fs.existsSync(newTestDir)) {
+      fs.mkdirSync(newTestDir, { recursive: true });
+      logger.debug('Created new test directory', { directory: newTestDir });
+    }
+    // Copy files from original test directory to new test directory
+    const originalTestDir = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(testName)}`
+    );
+    if (fs.existsSync(originalTestDir)) {
+      const files = fs.readdirSync(originalTestDir);
+      files.forEach((file) => {
+        const sourcePath = path.join(originalTestDir, file);
+        const destPath = path.join(newTestDir, file);
+        try {
+          fs.copyFileSync(sourcePath, destPath);
+          logger.debug('Copied test file', {
+            from: sourcePath,
+            to: destPath,
+          });
+        } catch (e) {
+          logger.error('Unable to copy file', { sourcePath, destPath });
+        }
+      });
+    }
 
     logger.info('Test duplicated successfully', {
       originalId: originalTest.id,

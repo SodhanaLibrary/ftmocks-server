@@ -2,6 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('./Logger');
 
+const isValidJsonString = (jsonString) => {
+  try {
+    JSON.parse(jsonString);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 const areJsonEqual = (jsonObj1, jsonObj2) => {
   try {
     // Check if both are objects and not null
@@ -59,6 +68,19 @@ const areJsonEqual = (jsonObj1, jsonObj2) => {
     });
     return false;
   }
+};
+
+const areJsonStringsEqual = (jsonObjString1, jsonObjString2) => {
+  if (jsonObjString1 === jsonObjString2) {
+    return true;
+  }
+  if (
+    !isValidJsonString(jsonObjString1) ||
+    !isValidJsonString(jsonObjString2)
+  ) {
+    return false;
+  }
+  return areJsonEqual(JSON.parse(jsonObjString1), JSON.parse(jsonObjString2));
 };
 
 const nameToFolder = (name) => {
@@ -490,9 +512,9 @@ const isSameResponse = (req1, req2) => {
       (!req1.response.content && req2.response.content) ||
       (req1.response.content && !req2.response.content)
     ) {
-      matched = areJsonEqual(
-        JSON.parse(req1.response.content) || {},
-        JSON.parse(req2.response.content) || {}
+      matched = areJsonStringsEqual(
+        req1.response.content,
+        req2.response.content
       );
       logger.debug('Comparing response content with default values', {
         matched,
@@ -502,10 +524,7 @@ const isSameResponse = (req1, req2) => {
     } else if (
       req1.response.content &&
       req2.response.content &&
-      !areJsonEqual(
-        JSON.parse(req1.response.content) || {},
-        JSON.parse(req2.response.content) || {}
-      )
+      !areJsonStringsEqual(req1.response.content, req2.response.content)
     ) {
       matched = false;
       logger.debug('Response content comparison failed', {
@@ -720,6 +739,8 @@ module.exports = {
   loadMockDataByTestName,
   isSameRequest,
   areJsonEqual,
+  areJsonStringsEqual,
+  isValidJsonString,
   removeDuplicates,
   nameToFolder,
   compareMockToRequest,
