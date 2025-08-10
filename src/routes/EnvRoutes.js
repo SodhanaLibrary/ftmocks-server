@@ -1,15 +1,35 @@
 const path = require('path');
 const fs = require('fs');
 const logger = require('../utils/Logger');
+const {
+  getRelativePath,
+  getAbsolutePathWithMockDir,
+} = require('../utils/MockUtils');
 
 const getEnvProject = async (req, res) => {
   try {
     logger.info('Getting environment project configuration');
-
+    const absolutePlaywrightDir = getAbsolutePathWithMockDir(
+      process.env.PLAYWRIGHT_DIR
+    );
+    const absoluteFallbackDir = getAbsolutePathWithMockDir(
+      process.env.FALLBACK_DIR
+    );
     const envConfig = {
       MOCK_DIR: process.env.MOCK_DIR,
       PORT: process.env.PORT,
       PREFERRED_SERVER_PORTS: process.env.PREFERRED_SERVER_PORTS,
+      TEST_SUITE_NAME: process.env.TEST_SUITE_NAME,
+      PLAYWRIGHT_DIR: process.env.PLAYWRIGHT_DIR,
+      FALLBACK_DIR: process.env.FALLBACK_DIR,
+      RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR: getRelativePath(
+        absolutePlaywrightDir,
+        process.env.MOCK_DIR
+      ),
+      RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR: getRelativePath(
+        absoluteFallbackDir,
+        process.env.MOCK_DIR
+      ),
     };
 
     logger.debug('Environment configuration retrieved', {
