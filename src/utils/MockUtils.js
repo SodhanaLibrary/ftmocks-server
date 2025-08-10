@@ -730,6 +730,28 @@ const removeDuplicates = (jsonArray) => {
   }
 };
 
+const getAbsolutePathWithMockDir = (filePath) => {
+  if (path.isAbsolute(filePath)) {
+    return filePath;
+  }
+  return path.resolve(process.env.MOCK_DIR, filePath);
+};
+
+const getRelativePathWithMockDir = (filePath) => {
+  if (path.isAbsolute(filePath)) {
+    return path.relative(process.env.MOCK_DIR, filePath);
+  } else {
+    return path.relative(
+      process.env.MOCK_DIR,
+      getAbsolutePathWithMockDir(filePath)
+    );
+  }
+};
+
+const getRelativePath = (path1, path2) => {
+  return path.relative(path1, path2);
+};
+
 module.exports = {
   processURL,
   getDefaultMockData,
@@ -746,4 +768,7 @@ module.exports = {
   compareMockToRequest,
   compareMockToHarEntry,
   compareMockToMock,
+  getRelativePathWithMockDir,
+  getAbsolutePathWithMockDir,
+  getRelativePath,
 };

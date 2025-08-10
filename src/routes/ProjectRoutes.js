@@ -64,6 +64,9 @@ const switchProject = async (req, res) => {
       MOCK_DIR: result.parsed.MOCK_DIR,
       PREFERRED_SERVER_PORTS: result.parsed.PREFERRED_SERVER_PORTS,
       MOCK_RECORDER_LIMIT: result.parsed.MOCK_RECORDER_LIMIT,
+      TEST_SUITE_NAME: result.parsed.TEST_SUITE_NAME,
+      PLAYWRIGHT_DIR: result.parsed.PLAYWRIGHT_DIR,
+      FALLBACK_DIR: result.parsed.FALLBACK_DIR,
     };
 
     logger.debug('Environment variables loaded', loadedEnvVars);
@@ -71,7 +74,9 @@ const switchProject = async (req, res) => {
     process.env.MOCK_DIR = result.parsed.MOCK_DIR;
     process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
     process.env.MOCK_RECORDER_LIMIT = result.parsed.MOCK_RECORDER_LIMIT;
-
+    process.env.TEST_SUITE_NAME = result.parsed.TEST_SUITE_NAME;
+    process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
+    process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
     logger.info('Environment variables set in process', {
       MOCK_DIR: process.env.MOCK_DIR,
     });

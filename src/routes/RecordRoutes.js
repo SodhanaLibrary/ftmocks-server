@@ -9,7 +9,7 @@ const {
   loadMockDataFromMockListFile,
 } = require('../utils/MockUtils');
 
-const injectEventRecordingScript = async (page) => {
+const injectEventRecordingScript = async (page, url) => {
   try {
     const eventsFile = path.join(
       process.env.MOCK_DIR,
@@ -25,8 +25,22 @@ const injectEventRecordingScript = async (page) => {
       fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
     });
 
-    fs.writeFileSync(eventsFile, JSON.stringify([], null, 2));
-
+    fs.writeFileSync(
+      eventsFile,
+      JSON.stringify(
+        [
+          {
+            id: crypto.randomUUID(),
+            type: 'url',
+            target: url,
+            time: new Date().toISOString(),
+            value: url,
+          },
+        ],
+        null,
+        2
+      )
+    );
     await page.addInitScript(() => {
       const generateXPathWithNearestParentId = (element) => {
         let path = '';
@@ -161,6 +175,37 @@ const injectEventRecordingScript = async (page) => {
           value: entries,
         });
       });
+      document.addEventListener('popstate', () => {
+        window.saveEventForTest({
+          type: 'url',
+          target: window.location.pathname,
+          time: new Date().toISOString(),
+          value: window.location.href,
+        });
+      });
+
+      // Also track URL changes via history API
+      const originalPushState = window.history.pushState;
+      window.history.pushState = function () {
+        originalPushState.apply(this, arguments);
+        window.saveEventForTest({
+          type: 'url',
+          target: window.location.pathname,
+          time: new Date().toISOString(),
+          value: window.location.href,
+        });
+      };
+
+      const originalReplaceState = window.history.replaceState;
+      window.history.replaceState = function () {
+        originalReplaceState.apply(this, arguments);
+        window.saveEventForTest({
+          type: 'url',
+          target: window.location.pathname,
+          time: new Date().toISOString(),
+          value: window.location.href,
+        });
+      };
     });
 
     logger.info('Event recording script injected successfully');
@@ -404,7 +449,7 @@ const recordMocks = async (browser, req, res) => {
     // Inject script to log various user interactions
     if (req.body.recordEvents) {
       logger.info('Enabling event recording');
-      await injectEventRecordingScript(page);
+      await injectEventRecordingScript(page, url);
     }
 
     logger.info('Navigating to URL', { url });
@@ -457,7 +502,7 @@ const recordTest = async (browser, req, res) => {
     // Inject script to log various user interactions
     if (req.body.recordEvents) {
       logger.info('Enabling event recording');
-      await injectEventRecordingScript(page);
+      await injectEventRecordingScript(page, url);
     }
     logger.info('Navigating to URL for test recording', { url });
     await page.goto(url);
