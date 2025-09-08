@@ -304,7 +304,6 @@ const recordMockData = async (req, res) => {
     const mockSummary = {
       fileName: `mock_${mockData.id}.json`,
       method: mockData.method,
-      path: mockFilePath,
       url: mockData.url,
       id: mockData.id,
     };

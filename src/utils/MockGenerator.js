@@ -204,7 +204,6 @@ function processHAR(
           const responseSummaryRecord = {
             fileName: responseFileName,
             method,
-            path: responseFilePath,
             postData,
             url,
             id: mockId,
@@ -315,7 +314,6 @@ function createMockFromUserInputForDefaultMocks(body) {
     const responseSummaryRecord = {
       fileName: `mock_${mockId}.json`,
       method: body.method,
-      path: mock_file,
       postData: body.request.postData,
       url: body.url,
       id: mockId,
@@ -435,7 +433,6 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
       const responseSummaryRecord = {
         fileName: `mock_${mockId}.json`,
         method: body.method,
-        path: mock_file,
         postData: body.request.postData,
         url: body.url,
         id: mockId,

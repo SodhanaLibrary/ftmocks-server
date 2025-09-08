@@ -61,6 +61,9 @@ const {
   ignoreForAll,
   removeProject,
   addProject,
+  loadEnvVariables,
+  getLatestProject,
+  saveCurrentProject,
 } = require('./src/routes/ProjectRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
@@ -82,7 +85,7 @@ if (args.includes('--debug')) {
   console.log('Debug mode enabled');
 }
 // Check for --envfile flag in command line arguments
-let envfile = args[0] || 'my-project.env';
+let envfile = args[0] || getLatestProject();
 const envfileArg = args.find((arg) => arg.startsWith('--envfile='));
 if (envfileArg) {
   envfile = envfileArg.split('=')[1];
@@ -94,6 +97,7 @@ if (fs.statSync(envfile).isDirectory()) {
 console.log(`loading env variables from ${envfile}`);
 const projectsFile = 'projects.json';
 if (fs.existsSync(envfile)) {
+  loadEnvVariables(envfile);
   let prs = [];
   if (!fs.existsSync(projectsFile)) {
     fs.writeFileSync(projectsFile, '[]');
@@ -108,16 +112,11 @@ if (fs.existsSync(envfile)) {
   prs.reverse();
   fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2));
 }
-const result = require('dotenv').config({ path: envfile });
-console.log(result);
-console.log(`PORT from env variables`, process.env.PORT);
-if (!path.isAbsolute(process.env.MOCK_DIR)) {
-  process.env.MOCK_DIR = path.resolve(
-    path.dirname(envfile),
-    process.env.MOCK_DIR
-  );
-  console.log('absolute path MOCK_DIR', process.env.MOCK_DIR);
-}
+console.log(
+  `PORT and MOCK_DIR from env variables`,
+  process.env.PORT,
+  process.env.MOCK_DIR
+);
 
 const port = process.env.PORT || 5000;
 
