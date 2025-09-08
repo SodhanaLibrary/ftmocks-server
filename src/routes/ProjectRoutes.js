@@ -11,6 +11,47 @@ const {
   loadMockDataByTestName,
 } = require('../utils/MockUtils');
 
+const loadEnvVariables = (project_env_file) => {
+  logger.info('Loading environment variables', { envFile: project_env_file });
+
+  if (!fs.existsSync(project_env_file)) {
+    logger.error('Environment file not found', { envFile: project_env_file });
+    return;
+  }
+
+  const result = require('dotenv').config({ path: project_env_file });
+
+  // Log the loaded environment variables
+  const loadedEnvVars = {
+    MOCK_DIR: result.parsed.MOCK_DIR,
+    PREFERRED_SERVER_PORTS: result.parsed.PREFERRED_SERVER_PORTS,
+    MOCK_RECORDER_LIMIT: result.parsed.MOCK_RECORDER_LIMIT,
+    TEST_SUITE_NAME: result.parsed.TEST_SUITE_NAME,
+    PLAYWRIGHT_DIR: result.parsed.PLAYWRIGHT_DIR,
+    FALLBACK_DIR: result.parsed.FALLBACK_DIR,
+  };
+
+  process.env.MOCK_DIR = result.parsed.MOCK_DIR;
+  process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
+  process.env.MOCK_RECORDER_LIMIT = result.parsed.MOCK_RECORDER_LIMIT;
+  process.env.TEST_SUITE_NAME = result.parsed.TEST_SUITE_NAME;
+  process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
+  process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
+
+  if (!path.isAbsolute(process.env.MOCK_DIR)) {
+    const originalMockDir = process.env.MOCK_DIR;
+    process.env.MOCK_DIR = path.resolve(
+      path.dirname(project_env_file),
+      process.env.MOCK_DIR
+    );
+  }
+
+  logger.info('Environment variables loaded successfully', {
+    envFile: project_env_file,
+    finalMockDir: process.env.MOCK_DIR,
+  });
+};
+
 const getRecordedProjects = async (req, res) => {
   const defaultPath = 'projects.json';
 
@@ -47,57 +88,7 @@ const switchProject = async (req, res) => {
   const project_env_file = req.body.env_file;
 
   try {
-    logger.info('Switching project', { envFile: project_env_file });
-
-    if (!fs.existsSync(project_env_file)) {
-      logger.error('Environment file not found', { envFile: project_env_file });
-      return res.status(404).json('File not found');
-    }
-
-    logger.debug('Loading environment variables from file', {
-      envFile: project_env_file,
-    });
-    const result = require('dotenv').config({ path: project_env_file });
-
-    // Log the loaded environment variables
-    const loadedEnvVars = {
-      MOCK_DIR: result.parsed.MOCK_DIR,
-      PREFERRED_SERVER_PORTS: result.parsed.PREFERRED_SERVER_PORTS,
-      MOCK_RECORDER_LIMIT: result.parsed.MOCK_RECORDER_LIMIT,
-      TEST_SUITE_NAME: result.parsed.TEST_SUITE_NAME,
-      PLAYWRIGHT_DIR: result.parsed.PLAYWRIGHT_DIR,
-      FALLBACK_DIR: result.parsed.FALLBACK_DIR,
-    };
-
-    logger.debug('Environment variables loaded', loadedEnvVars);
-
-    process.env.MOCK_DIR = result.parsed.MOCK_DIR;
-    process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
-    process.env.MOCK_RECORDER_LIMIT = result.parsed.MOCK_RECORDER_LIMIT;
-    process.env.TEST_SUITE_NAME = result.parsed.TEST_SUITE_NAME;
-    process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
-    process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
-    logger.info('Environment variables set in process', {
-      MOCK_DIR: process.env.MOCK_DIR,
-    });
-
-    if (!path.isAbsolute(process.env.MOCK_DIR)) {
-      const originalMockDir = process.env.MOCK_DIR;
-      process.env.MOCK_DIR = path.resolve(
-        path.dirname(project_env_file),
-        process.env.MOCK_DIR
-      );
-      logger.info('Converted relative MOCK_DIR to absolute path', {
-        original: originalMockDir,
-        absolute: process.env.MOCK_DIR,
-      });
-    }
-
-    logger.info('Project switched successfully', {
-      envFile: project_env_file,
-      finalMockDir: process.env.MOCK_DIR,
-    });
-
+    loadEnvVariables(project_env_file);
     res.status(200).json({ message: 'env file loaded successfully' });
   } catch (error) {
     logger.error('Error switching project', {
@@ -326,10 +317,40 @@ const addProject = async (req, res) => {
     });
   }
 };
+
+const getLatestProject = () => {
+  const defaultPath = 'projects.json';
+  if (!fs.existsSync(defaultPath)) {
+    return null;
+  }
+  const defaultData = fs.readFileSync(defaultPath, 'utf8');
+  const parsedData = JSON.parse(defaultData);
+  return parsedData?.length > 0 ? parsedData[0] : 'my-project.env';
+};
+
+const saveCurrentProject = async (project) => {
+  const defaultPath = 'projects.json';
+  let defaultData = [];
+  let parsedData = [];
+  if (!fs.existsSync(defaultPath)) {
+    fs.writeFileSync(defaultPath, JSON.stringify([], null, 2));
+  } else {
+    defaultData = fs.readFileSync(defaultPath, 'utf8');
+    parsedData = JSON.parse(defaultData);
+  }
+  parsedData = parsedData.filter((p) => p !== project);
+  parsedData.unshift(project);
+  parsedData = [...new Set(parsedData)];
+  fs.writeFileSync(defaultPath, JSON.stringify(parsedData, null, 2));
+};
+
 module.exports = {
   getRecordedProjects,
   switchProject,
   ignoreForAll,
   removeProject,
   addProject,
+  loadEnvVariables,
+  getLatestProject,
+  saveCurrentProject,
 };

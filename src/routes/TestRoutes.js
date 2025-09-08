@@ -35,6 +35,7 @@ const getTests = async (req, res) => {
       id: item.id,
       name: item.name,
       mockFile: item.mockFile,
+      mode: item.mode,
     }));
 
     logger.info('Successfully retrieved tests', {
@@ -194,11 +195,16 @@ const updateTest = async (req, res) => {
   const updatedTest = req.body;
 
   try {
-    logger.info('Updating test', {
-      testId,
-      newTestName: updatedTest.name,
-      testsPath: path.join(process.env.MOCK_DIR, 'tests.json'),
-    });
+    logger.info(
+      'Updating test',
+      {
+        testId,
+        newTestName: updatedTest.name,
+        mode: updatedTest.mode,
+        testsPath: path.join(process.env.MOCK_DIR, 'tests.json'),
+      },
+      true
+    );
 
     const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
     let testsData = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
@@ -210,41 +216,49 @@ const updateTest = async (req, res) => {
     }
 
     const originalTest = testsData[testIndex];
-    logger.debug('Found test to update', {
-      testId,
-      originalName: originalTest.name,
-      newName: updatedTest.name,
-    });
-
-    const testFolder = path.join(
-      process.env.MOCK_DIR,
-      `test_${nameToFolder(originalTest.name)}`
+    logger.debug(
+      'Found test to update',
+      {
+        testId,
+        originalName: originalTest.name,
+        originalMode: originalTest.mode,
+        newName: updatedTest.name,
+        mode: updatedTest.mode,
+      },
+      true
     );
 
-    if (fs.existsSync(testFolder)) {
-      const newTestFolder = path.join(
+    if (originalTest.name !== updatedTest.name) {
+      const testFolder = path.join(
         process.env.MOCK_DIR,
-        `test_${nameToFolder(updatedTest.name)}`
+        `test_${nameToFolder(originalTest.name)}`
       );
 
-      fs.renameSync(testFolder, newTestFolder, (err) => {
-        if (err) {
-          logger.error('Error renaming test folder', {
-            oldPath: testFolder,
-            newPath: newTestFolder,
-            error: err.message,
-          });
-          throw err;
-        }
-      });
+      if (fs.existsSync(testFolder)) {
+        const newTestFolder = path.join(
+          process.env.MOCK_DIR,
+          `test_${nameToFolder(updatedTest.name)}`
+        );
 
-      logger.debug('Test folder renamed successfully', {
-        oldPath: testFolder,
-        newPath: newTestFolder,
-      });
+        fs.renameSync(testFolder, newTestFolder, (err) => {
+          if (err) {
+            logger.error('Error renaming test folder', {
+              oldPath: testFolder,
+              newPath: newTestFolder,
+              error: err.message,
+            });
+            throw err;
+          }
+        });
+
+        logger.debug('Test folder renamed successfully', {
+          oldPath: testFolder,
+          newPath: newTestFolder,
+        });
+      }
     }
-
     testsData[testIndex].name = updatedTest.name;
+    testsData[testIndex].mode = updatedTest.mode;
     testsData[testIndex].mockFile =
       `test_${nameToFolder(updatedTest.name)}/_mock_list.json`;
 
@@ -636,7 +650,6 @@ const updateTestMocks = async (req, res) => {
     const newMockSummary = updatedMocks.map((mock) => ({
       fileName: `mock_${mock.id}.json`,
       method: mock.method,
-      path: path.join(testDir, `mock_${mock.id}.json`),
       postData: mock.request.postData,
       url: mock.url,
       id: mock.id,
@@ -747,6 +760,7 @@ const getTestsSummary = async (req, res) => {
       id: item.id,
       name: item.name,
       mocks: util_getMockDataForTest(item.name),
+      mode: item.mode,
     }));
 
     logger.info('Successfully retrieved tests summary', {
