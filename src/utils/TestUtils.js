@@ -219,8 +219,24 @@ const getMocksDiffFromDefaultMocks = (name) => {
   }
 };
 
+const getTestByName = (testName) => {
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+  let tests = [];
+  try {
+    // Read existing tests
+    const testsData = fs.readFileSync(testsPath, 'utf8');
+    tests = JSON.parse(testsData);
+    const etest = tests.find((tst) => tst.name === testName);
+    return etest;
+  } catch (error) {
+    console.error(`Error reading tests.json:`, error);
+    return null;
+  }
+};
+
 module.exports = {
   createTest,
   getPreviousGetMocks,
   getAfterGetMocks,
+  getTestByName,
 };
