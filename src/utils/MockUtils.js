@@ -2,6 +2,31 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('./Logger');
 
+function charDifference(str1, str2) {
+  let count1 = {},
+    count2 = {};
+
+  for (let ch of str1) count1[ch] = (count1[ch] || 0) + 1;
+  for (let ch of str2) count2[ch] = (count2[ch] || 0) + 1;
+
+  let diff = 0;
+  let chars = new Set([...Object.keys(count1), ...Object.keys(count2)]);
+
+  for (let ch of chars) {
+    diff += Math.abs((count1[ch] || 0) - (count2[ch] || 0));
+  }
+
+  return diff;
+}
+
+const clearNulls = (postData) => {
+  Object.keys(postData || {}).forEach((key) => {
+    if (postData[key] === null) {
+      delete postData[key];
+    }
+  });
+};
+
 const isValidJsonString = (jsonString) => {
   try {
     JSON.parse(jsonString);
@@ -493,6 +518,31 @@ const isSameRequest = (req1, req2) => {
   }
 };
 
+const getSameRequestRank = (req1, req2) => {
+  let rank = 1;
+  clearNulls(req1.postData);
+  clearNulls(req2.postData);
+  // Compare path names
+  const url1 = new URL(`http://domain.com${req1.url}`);
+  const url2 = new URL(`http://domain.com${req2.url}`);
+  if (url1.pathname !== url2.pathname) {
+    rank = 0;
+  } else if (url1.method?.toLowerCase() !== url2.method?.toLowerCase()) {
+    rank = 0;
+  } else {
+    // Compare query strings
+    const queryDiff = charDifference(url1.search || '', url2.search || '');
+    rank = rank + queryDiff;
+    // Compare post data
+    const charDiff = charDifference(
+      JSON.stringify(req1.postData || {}),
+      JSON.stringify(req2.postData || {})
+    );
+    rank = rank + charDiff;
+  }
+  return rank;
+};
+
 const isSameResponse = (req1, req2) => {
   try {
     logger.debug('callling isSameResponse', {
@@ -566,6 +616,51 @@ const compareMockToRequest = (mock, req) => {
       : mock.fileContent.request?.postData;
 
     const result = isSameRequest(
+      { url: mockURL, method: mock.fileContent.method, postData },
+      {
+        method: req.method,
+        postData: req.body,
+        url: reqURL,
+      }
+    );
+
+    logger.debug('Mock to request comparison result', {
+      result,
+      mockURL,
+      reqURL,
+    });
+
+    return result;
+  } catch (error) {
+    logger.error('Error comparing mock to request', {
+      mockId: mock?.id,
+      reqUrl: req?.originalUrl,
+      error: error.message,
+      stack: error.stack,
+    });
+    return false;
+  }
+};
+
+const getCompareRankMockToRequest = (mock, req) => {
+  try {
+    logger.debug('Comparing mock to request', {
+      mockUrl: mock.fileContent?.url,
+      reqUrl: req.originalUrl,
+      mockMethod: mock.fileContent?.method,
+      reqMethod: req.method,
+    });
+
+    const mockURL = processURL(
+      mock.fileContent.url,
+      mock.fileContent.ignoreParams
+    );
+    const reqURL = processURL(req.originalUrl, mock.fileContent.ignoreParams);
+    const postData = mock.fileContent.request?.postData?.text
+      ? JSON.parse(mock.fileContent.request?.postData?.text)
+      : mock.fileContent.request?.postData;
+
+    const result = getSameRequestRank(
       { url: mockURL, method: mock.fileContent.method, postData },
       {
         method: req.method,
@@ -771,4 +866,5 @@ module.exports = {
   getRelativePathWithMockDir,
   getAbsolutePathWithMockDir,
   getRelativePath,
+  getCompareRankMockToRequest,
 };

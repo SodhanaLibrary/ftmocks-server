@@ -9,7 +9,9 @@ const {
   loadMockData,
   nameToFolder,
   compareMockToRequest,
+  getCompareRankMockToRequest,
 } = require('./src/utils/MockUtils');
+const { getTestByName } = require('./src/utils/TestUtils');
 
 const app = express();
 
@@ -30,12 +32,6 @@ app.all('*', (req, res) => {
     const mockData = mockDataObj.mocks;
     const testName = mockDataObj.testName;
     const defaultMockData = getDefaultMockData();
-
-    logger.debug('Loaded mock data', {
-      testName,
-      testMockCount: mockData?.length || 0,
-      defaultMockCount: defaultMockData?.length || 0,
-    });
 
     let served = false;
     let matchedMocks =
@@ -63,15 +59,6 @@ app.all('*', (req, res) => {
         return isMatch;
       }) || [];
 
-    logger.debug('Test mock matching completed', {
-      matchedCount: matchedMocks.length,
-      matchedMocks: matchedMocks.map((m) => ({
-        id: m.id,
-        url: m.fileContent.url,
-        served: m.fileContent.served,
-      })),
-    });
-
     let foundMock = matchedMocks.find((mock) => !mock.fileContent.served)
       ? matchedMocks.find((mock) => !mock.fileContent.served)
       : matchedMocks[matchedMocks.length - 1];
@@ -88,13 +75,6 @@ app.all('*', (req, res) => {
 
       foundMock = defaultMockData?.find((mock) => {
         const isMatch = compareMockToRequest(mock, req);
-        if (isMatch) {
-          logger.debug('Found matching default mock', {
-            mockId: mock.id,
-            mockUrl: mock.fileContent.url,
-            mockMethod: mock.fileContent.method,
-          });
-        }
         return isMatch;
       });
 
@@ -104,6 +84,33 @@ app.all('*', (req, res) => {
           mockUrl: foundMock.fileContent.url,
           mockMethod: foundMock.fileContent.method,
         });
+      }
+    }
+
+    const test = getTestByName(testName);
+    if (!foundMock && test.mode !== 'strict') {
+      const mockRanks = {};
+      mockData.forEach((tm) => {
+        const rank = getCompareRankMockToRequest(tm, req);
+        if (rank > 0) {
+          mockRanks[tm.id] = rank;
+        }
+      });
+      defaultMockData.forEach((tm) => {
+        const rank = getCompareRankMockToRequest(tm, req);
+        if (rank > 0) {
+          mockRanks[tm.id] = rank;
+        }
+      });
+      // Sort by rank to find the best match
+      const sortedRanks = Object.entries(mockRanks).sort((a, b) => a[1] - b[1]);
+      if (sortedRanks.length > 0) {
+        const bestMockId = sortedRanks?.[0]?.[0];
+        if (bestMockId) {
+          foundMock = [...mockData, ...defaultMockData].find(
+            (mock) => mock.id === bestMockId
+          );
+        }
       }
     }
 
