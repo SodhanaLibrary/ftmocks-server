@@ -218,17 +218,6 @@ const recordEventData = async (req, res) => {
       });
     }
 
-    // Check recorder limit
-    const recorderLimit = process.env.MOCK_RECORDER_LIMIT || 1000;
-    if (mockDataSummary.length >= recorderLimit) {
-      logger.warn('Mock recorder limit reached', {
-        currentCount: mockDataSummary.length,
-        limit: recorderLimit,
-        testName: testName || 'recordMocks',
-      });
-      throw 'MOCK_RECORDER_LIMIT reached';
-    }
-
     // Check for duplicate events
     const isDuplicate = mockDataSummary.some(
       (event) => event.type === mockData.type && event.time === mockData.time

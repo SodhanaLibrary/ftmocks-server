@@ -25,7 +25,6 @@ const loadEnvVariables = (project_env_file) => {
   const loadedEnvVars = {
     MOCK_DIR: result.parsed.MOCK_DIR,
     PREFERRED_SERVER_PORTS: result.parsed.PREFERRED_SERVER_PORTS,
-    MOCK_RECORDER_LIMIT: result.parsed.MOCK_RECORDER_LIMIT,
     TEST_SUITE_NAME: result.parsed.TEST_SUITE_NAME,
     PLAYWRIGHT_DIR: result.parsed.PLAYWRIGHT_DIR,
     FALLBACK_DIR: result.parsed.FALLBACK_DIR,
@@ -33,7 +32,6 @@ const loadEnvVariables = (project_env_file) => {
 
   process.env.MOCK_DIR = result.parsed.MOCK_DIR;
   process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
-  process.env.MOCK_RECORDER_LIMIT = result.parsed.MOCK_RECORDER_LIMIT;
   process.env.TEST_SUITE_NAME = result.parsed.TEST_SUITE_NAME;
   process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
   process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
@@ -45,6 +43,21 @@ const loadEnvVariables = (project_env_file) => {
       process.env.MOCK_DIR
     );
   }
+
+  let prs = [];
+  const projectsFile = 'projects.json';
+  if (!fs.existsSync(projectsFile)) {
+    fs.writeFileSync(projectsFile, '[]');
+  } else {
+    const defaultData = fs.readFileSync(projectsFile, 'utf8');
+    prs = JSON.parse(defaultData);
+  }
+  prs = prs.filter((aPr) => aPr !== project_env_file);
+  prs.reverse();
+  prs.push(project_env_file);
+  prs = [...new Set(prs)]; // Remove any duplicates
+  prs.reverse();
+  fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2));
 
   logger.info('Environment variables loaded successfully', {
     envFile: project_env_file,

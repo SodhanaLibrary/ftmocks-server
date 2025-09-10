@@ -28,6 +28,7 @@ const {
   deleteDefaultMock,
   updateDefaultMock,
   uploadDefaultHarMocs,
+  moveDefaultmocks,
 } = require('./src/routes/DefaultMockRoutes');
 const {
   getRecordedMocks,
@@ -98,19 +99,6 @@ console.log(`loading env variables from ${envfile}`);
 const projectsFile = 'projects.json';
 if (fs.existsSync(envfile)) {
   loadEnvVariables(envfile);
-  let prs = [];
-  if (!fs.existsSync(projectsFile)) {
-    fs.writeFileSync(projectsFile, '[]');
-  } else {
-    const defaultData = fs.readFileSync(projectsFile, 'utf8');
-    prs = JSON.parse(defaultData);
-  }
-  prs = prs.filter((aPr) => aPr !== envfile);
-  prs.reverse();
-  prs.push(envfile);
-  prs = [...new Set(prs)]; // Remove any duplicates
-  prs.reverse();
-  fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2));
 }
 console.log(
   `PORT and MOCK_DIR from env variables`,
@@ -177,6 +165,9 @@ app.get('/api/v1/defaultmocks', getDefaultMocks);
 
 // Router for /api/v1/defaultmocks POST method
 app.post('/api/v1/defaultmocks', createMockDataForTest);
+
+// Router for /api/v1/defaultmocks POST method
+app.post('/api/v1/moveDefaultmocks', moveDefaultmocks);
 
 // Router for /api/v1/defaultmocks/:id DELETE method
 app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);

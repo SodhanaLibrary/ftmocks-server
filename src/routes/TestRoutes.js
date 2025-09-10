@@ -448,7 +448,7 @@ const deleteMockDataForTest = async (req, res) => {
       fs.unlinkSync(mockFilePath);
       logger.debug('Deleted mock file', { mockFilePath });
     } else {
-      logger.warn('Mock file not found for deletion', { mockFilePath });
+      logger.warn('Mock file not found for deletion', { mockFilePath }, true);
     }
 
     logger.info('Mock data deleted successfully', {
@@ -459,13 +459,17 @@ const deleteMockDataForTest = async (req, res) => {
 
     res.status(200).json({ message: 'Mock data deleted successfully' });
   } catch (error) {
-    logger.error('Error deleting mock data', {
-      testId,
-      mockId,
-      testName,
-      error: error.message,
-      stack: error.stack,
-    });
+    logger.error(
+      'Error deleting mock data',
+      {
+        testId,
+        mockId,
+        testName,
+        error: error.message,
+        stack: error.stack,
+      },
+      true
+    );
     res.status(500).json({ error: 'Failed to delete mock data' });
   }
 };

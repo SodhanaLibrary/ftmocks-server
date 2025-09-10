@@ -3,6 +3,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/Logger');
 const { processHAR } = require('../utils/MockGenerator');
+const { nameToFolder } = require('../utils/MockUtils');
 
 const getDefaultMocks = async (req, res) => {
   const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
@@ -220,9 +221,126 @@ const uploadDefaultHarMocs = async (req, res) => {
   }
 };
 
+const moveDefaultmocks = async (req, res) => {
+  try {
+    logger.info('Moving default mocks to individual tests');
+
+    const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
+
+    if (!fs.existsSync(defaultPath)) {
+      logger.warn('Default mocks file does not exist');
+      return res.status(404).json({ error: 'Default mocks file not found' });
+    }
+
+    // Read default mocks
+    const defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
+    logger.debug('Loaded default mocks', { mockCount: defaultData.length });
+
+    if (defaultData.length === 0) {
+      logger.info('No default mocks to move');
+      return res.status(200).json({ message: 'No default mocks to move' });
+    }
+
+    // Get all tests from tests.json
+    const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+    let tests = [];
+
+    if (fs.existsSync(testsPath)) {
+      const testsData = fs.readFileSync(testsPath, 'utf8');
+      tests = JSON.parse(testsData);
+      logger.debug('Loaded tests from tests.json', { testCount: tests.length });
+    } else {
+      logger.warn('tests.json file does not exist');
+      return res.status(404).json({ error: 'Tests file not found' });
+    }
+
+    if (tests.length === 0) {
+      logger.info('No tests found to move default mocks to');
+      return res.status(200).json({ message: 'No tests found' });
+    }
+    // Get all test directories
+    const mockDir = process.env.MOCK_DIR;
+    const testDirs = tests.map((test) => `test_${nameToFolder(test.name)}`);
+
+    logger.debug('Found test directories', {
+      testCount: testDirs.length,
+      testDirs,
+    });
+
+    let movedCount = 0;
+
+    // Move each default mock to all test directories
+    for (const testDir of testDirs) {
+      const testMockListPath = path.join(mockDir, testDir, '_mock_list.json');
+
+      // Read existing test mock list or create empty array
+      let testMockList = [];
+      if (fs.existsSync(testMockListPath)) {
+        testMockList = JSON.parse(fs.readFileSync(testMockListPath, 'utf8'));
+      }
+
+      // Copy each default mock to the test
+      for (const defaultMock of defaultData) {
+        // Generate new ID for the test mock
+
+        // Copy mock metadata to test mock list
+        testMockList.push({
+          ...defaultMock,
+        });
+
+        // Copy mock data file
+        const defaultMockFilePath = path.join(
+          mockDir,
+          'defaultMocks',
+          `mock_${defaultMock.id}.json`
+        );
+        const testMockFilePath = path.join(
+          mockDir,
+          testDir,
+          `mock_${defaultMock.id}.json`
+        );
+
+        if (fs.existsSync(defaultMockFilePath)) {
+          const mockData = fs.readFileSync(defaultMockFilePath, 'utf8');
+          fs.writeFileSync(testMockFilePath, mockData);
+          movedCount++;
+
+          logger.debug('Copied mock to test', {
+            testDir,
+            mockUrl: defaultMock.url,
+            mockMethod: defaultMock.method,
+          });
+        }
+      }
+
+      // Write updated test mock list
+      fs.writeFileSync(testMockListPath, JSON.stringify(testMockList, null, 2));
+    }
+
+    logger.info('Successfully moved default mocks to tests', {
+      totalMoved: movedCount,
+      testCount: testDirs.length,
+      defaultMockCount: defaultData.length,
+    });
+
+    res.status(200).json({
+      message: 'Default mocks moved successfully',
+      movedCount,
+      testCount: testDirs.length,
+    });
+  } catch (error) {
+    logger.error('Error moving default mocks', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Failed to move default mocks' });
+  }
+};
+
 module.exports = {
   getDefaultMocks,
   deleteDefaultMock,
   updateDefaultMock,
   uploadDefaultHarMocs,
+  moveDefaultmocks,
 };
