@@ -83,21 +83,18 @@ const recordLogData = async (req, res) => {
     } else {
       mockDataSummary = JSON.parse(fs.readFileSync(mockLogsFilePath, 'utf8'));
     }
-    if (mockDataSummary.length >= process.env.MOCK_RECORDER_LIMIT) {
-      throw 'MOCK_RECORDER_LIMIT reached';
-    } else {
-      mockDataSummary.push({
-        id: mockData.id,
-        type: mockData.type,
-        target: mockData.target,
-        time: mockData.time,
-      });
-      fs.writeFileSync(
-        mockLogsFilePath,
-        JSON.stringify(mockDataSummary, null, 2)
-      );
-      res.json(mockData);
-    }
+
+    mockDataSummary.push({
+      id: mockData.id,
+      type: mockData.type,
+      target: mockData.target,
+      time: mockData.time,
+    });
+    fs.writeFileSync(
+      mockLogsFilePath,
+      JSON.stringify(mockDataSummary, null, 2)
+    );
+    res.json(mockData);
   } catch (error) {
     console.error('Error updating mock data:', error);
     res.status(500).json({ error: 'Internal server error' });

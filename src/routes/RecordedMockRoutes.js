@@ -291,16 +291,6 @@ const recordMockData = async (req, res) => {
       });
     }
 
-    // Check recorder limit
-    const recorderLimit = process.env.MOCK_RECORDER_LIMIT || 1000;
-    if (mockDataSummary.length >= recorderLimit) {
-      logger.warn('Mock recorder limit reached', {
-        currentCount: mockDataSummary.length,
-        limit: recorderLimit,
-      });
-      throw 'MOCK_RECORDER_LIMIT reached';
-    }
-
     const mockSummary = {
       fileName: `mock_${mockData.id}.json`,
       method: mockData.method,
