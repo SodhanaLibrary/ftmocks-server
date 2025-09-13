@@ -4,6 +4,7 @@ const logger = require('../utils/Logger');
 const {
   getRelativePath,
   getAbsolutePathWithMockDir,
+  getRelativePathWithCurrentDir,
 } = require('../utils/MockUtils');
 
 const getEnvProject = async (req, res) => {
@@ -12,14 +13,19 @@ const getEnvProject = async (req, res) => {
     const absolutePlaywrightDir = getAbsolutePathWithMockDir(
       process.env.PLAYWRIGHT_DIR
     );
-    const absoluteFallbackDir = getAbsolutePathWithMockDir(
+    let absoluteFallbackDir = getAbsolutePathWithMockDir(
       process.env.FALLBACK_DIR
     );
+    // absoluteFallbackDir = getRelativePathWithCurrentDir(
+    //   absoluteFallbackDir,
+    //   absolutePlaywrightDir
+    // );
+    console.log('absoluteFallbackDir', absoluteFallbackDir);
+    console.log('absolutePlaywrightDir', absolutePlaywrightDir);
     const envConfig = {
       MOCK_DIR: process.env.MOCK_DIR,
       PORT: process.env.PORT,
       PREFERRED_SERVER_PORTS: process.env.PREFERRED_SERVER_PORTS,
-      TEST_SUITE_NAME: process.env.TEST_SUITE_NAME,
       PLAYWRIGHT_DIR: process.env.PLAYWRIGHT_DIR,
       FALLBACK_DIR: process.env.FALLBACK_DIR,
       RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR: getRelativePath(
@@ -27,8 +33,8 @@ const getEnvProject = async (req, res) => {
         process.env.MOCK_DIR
       ),
       RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR: getRelativePath(
-        absoluteFallbackDir,
-        process.env.MOCK_DIR
+        absolutePlaywrightDir,
+        absoluteFallbackDir
       ),
     };
 

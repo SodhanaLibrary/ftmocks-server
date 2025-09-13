@@ -25,14 +25,12 @@ const loadEnvVariables = (project_env_file) => {
   const loadedEnvVars = {
     MOCK_DIR: result.parsed.MOCK_DIR,
     PREFERRED_SERVER_PORTS: result.parsed.PREFERRED_SERVER_PORTS,
-    TEST_SUITE_NAME: result.parsed.TEST_SUITE_NAME,
     PLAYWRIGHT_DIR: result.parsed.PLAYWRIGHT_DIR,
     FALLBACK_DIR: result.parsed.FALLBACK_DIR,
   };
 
   process.env.MOCK_DIR = result.parsed.MOCK_DIR;
   process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
-  process.env.TEST_SUITE_NAME = result.parsed.TEST_SUITE_NAME;
   process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
   process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
 
@@ -341,22 +339,6 @@ const getLatestProject = () => {
   return parsedData?.length > 0 ? parsedData[0] : 'my-project.env';
 };
 
-const saveCurrentProject = async (project) => {
-  const defaultPath = 'projects.json';
-  let defaultData = [];
-  let parsedData = [];
-  if (!fs.existsSync(defaultPath)) {
-    fs.writeFileSync(defaultPath, JSON.stringify([], null, 2));
-  } else {
-    defaultData = fs.readFileSync(defaultPath, 'utf8');
-    parsedData = JSON.parse(defaultData);
-  }
-  parsedData = parsedData.filter((p) => p !== project);
-  parsedData.unshift(project);
-  parsedData = [...new Set(parsedData)];
-  fs.writeFileSync(defaultPath, JSON.stringify(parsedData, null, 2));
-};
-
 module.exports = {
   getRecordedProjects,
   switchProject,
@@ -365,5 +347,4 @@ module.exports = {
   addProject,
   loadEnvVariables,
   getLatestProject,
-  saveCurrentProject,
 };
