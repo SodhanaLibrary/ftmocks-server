@@ -42,47 +42,174 @@ const injectEventRecordingScript = async (page, url) => {
       )
     );
     await page.addInitScript(() => {
-      const generateXPathWithNearestParentId = (element) => {
-        let path = '';
-        let nearestParentId = null;
+      const isUniqueElement = (selector) => {
+        const elements = document.querySelectorAll(selector);
+        return elements.length === 1;
+      };
 
-        // Check if the current element's has an ID
-        if (element.id) {
-          nearestParentId = element.id;
-        }
+      const isUniqueText = (text) => {
+        // Escape special characters in text for use in XPath
+        const escapedText = text.replace(/"/g, '\\"');
+        const xpath = `//*[contains(text(), "${escapedText}")]`;
+        const elements = document.evaluate(
+          xpath,
+          document,
+          null,
+          XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+          null
+        );
+        return elements.snapshotLength === 1;
+      };
 
-        while (!nearestParentId && element !== document.body && element) {
+      const getBestSelectors = (element) => {
+        const selectors = [];
+        try {
           const tagName = element.tagName.toLowerCase();
-          let index = 1;
-          let sibling = element.previousElementSibling;
+          if (element.id) {
+            selectors.push({ type: 'locator', value: `#${element.id}` });
+          }
+          if (
+            element.getAttribute('data-testid') &&
+            isUniqueElement(
+              `[data-testid="${element.getAttribute('data-testid')}"]`
+            )
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[data-testid="${element.getAttribute('data-testid')}"]`,
+            });
+          }
+          if (
+            element.getAttribute('data-cy') &&
+            isUniqueElement(`[data-cy="${element.getAttribute('data-cy')}"]`)
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[data-cy="${element.getAttribute('data-cy')}"]`,
+            });
+          }
+          if (
+            element.name &&
+            tagName === 'input' &&
+            (element.type === 'text' || element.type === 'password') &&
+            isUniqueElement(`[name="${element.name}"]`)
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[name="${element.name}"]`,
+            });
+          } else if (
+            element.name &&
+            tagName === 'input' &&
+            (element.type === 'checkbox' || element.type === 'radio') &&
+            isUniqueElement(
+              `[name="${element.name}"][value="${element.value}"]`
+            )
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[name="${element.name}"][value="${element.value}"]`,
+            });
+          }
+          if (
+            element.ariaLabel &&
+            isUniqueElement(`[aria-label="${element.ariaLabel}"]`)
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[aria-label="${element.ariaLabel}"]`,
+            });
+          }
+          if (
+            element.role &&
+            element.name &&
+            isUniqueElement(`[role="${element.role}"][name="${element.name}"]`)
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[role="${element.role}"][name="${element.name}"]`,
+            });
+          }
+          if (
+            element.role &&
+            element.textContent &&
+            isUniqueText(element.textContent)
+          ) {
+            selectors.push({
+              type: 'text',
+              value: {
+                role: element.role,
+                textContent: element.textContent,
+              },
+            });
+          }
+          if (element.textContent && isUniqueText(element.textContent)) {
+            selectors.push({
+              type: 'text',
+              value: {
+                tagName,
+                textContent: element.textContent,
+              },
+            });
+          }
+          return selectors;
+        } catch (error) {
+          console.error('Error getting best selectors', {
+            error: error.message,
+            stack: error.stack,
+          });
+          return selectors;
+        }
+      };
 
-          while (sibling) {
-            if (sibling.tagName.toLowerCase() === tagName) {
-              index += 1;
+      const generateXPathWithNearestParentId = (element) => {
+        try {
+          let path = '';
+          let nearestParentId = null;
+
+          // Check if the current element's has an ID
+          if (element.id) {
+            nearestParentId = element.id;
+          }
+
+          while (!nearestParentId && element !== document.body && element) {
+            const tagName = element.tagName.toLowerCase();
+            let index = 1;
+            let sibling = element.previousElementSibling;
+
+            while (sibling) {
+              if (sibling.tagName.toLowerCase() === tagName) {
+                index += 1;
+              }
+              sibling = sibling.previousElementSibling;
             }
-            sibling = sibling.previousElementSibling;
+
+            if (index === 1) {
+              path = `/${tagName}${path}`;
+            } else {
+              path = `/${tagName}[${index}]${path}`;
+            }
+
+            // Check if the current element's parent has an ID
+            if (element.parentElement && element.parentElement.id) {
+              nearestParentId = element.parentElement.id;
+              break; // Stop searching when we find the nearest parent with an ID
+            }
+
+            element = element.parentElement;
           }
 
-          if (index === 1) {
-            path = `/${tagName}${path}`;
-          } else {
-            path = `/${tagName}[${index}]${path}`;
+          if (nearestParentId) {
+            path = `//*[@id='${nearestParentId}']${path}`;
+            return path;
           }
-
-          // Check if the current element's parent has an ID
-          if (element.parentElement && element.parentElement.id) {
-            nearestParentId = element.parentElement.id;
-            break; // Stop searching when we find the nearest parent with an ID
-          }
-
-          element = element.parentElement;
+        } catch (error) {
+          console.error('Error generating XPath with nearest parent ID', {
+            error: error.message,
+            stack: error.stack,
+          });
+          return null;
         }
-
-        if (nearestParentId) {
-          path = `//*[@id='${nearestParentId}']${path}`;
-          return path;
-        }
-        return null; // No parent with an ID found
       };
 
       const getParentElementWithEventOrId = (event, eventType) => {
@@ -130,125 +257,106 @@ const injectEventRecordingScript = async (page, url) => {
         return event.target;
       };
 
-      const isUniqueElementByRoleTextContent = (role, textContent) => {
-        const elements = document.querySelectorAll(`[role="${role}"]`);
-        const count = 0;
-        for (const element of elements) {
-          if (element.textContent === textContent) {
-            count++;
-          }
-        }
-        return count === 1;
-      };
-
-      const isUniqueElementByRoleAndName = (role, name) => {
-        const elements = document.querySelectorAll(`[role="${role}"]`);
-        const count = 0;
-        for (const element of elements) {
-          if (element.name === name) {
-            count++;
-          }
-        }
-        return count === 1;
-      };
-
-      const isUniqueElementByRoleAndAriaLabel = (role, ariaLabel) => {
-        const elements = document.querySelectorAll(`[role="${role}"]`);
-        const count = 0;
-        for (const element of elements) {
-          if (element.ariaLabel === ariaLabel) {
-            count++;
-          }
-        }
-        return count === 1;
-      };
-
-      const isUniqueElementByNameAndValue = (name, value) => {
-        const elements = document.querySelectorAll(`[name="${name}"]`);
-        const count = 0;
-        for (const element of elements) {
-          if (element.value === value) {
-            count++;
-          }
-        }
-        return count === 1;
-      };
-
-      const isUniqueElementByName = (name) => {
-        const elements = document.querySelectorAll(`[name="${name}"]`);
-        return elements.length === 1;
-      };
-
-      const isUniqueElementByAriaLabel = (ariaLabel) => {
-        const elements = document.querySelectorAll(
-          `[aria-label="${ariaLabel}"]`
-        );
-        return elements.length === 1;
+      const getElement = (target) => {
+        return {
+          tagName: target.tagName,
+          textContent:
+            target.textContent?.length > 0 && target.textContent?.length < 100
+              ? target.textContent
+              : null,
+          id: target.id,
+          role: target.role,
+          name: target.name,
+          ariaLabel: target.ariaLabel,
+          value: target.value,
+          type: target.type,
+          checked: target.checked,
+          selected: target.selected,
+          disabled: target.disabled,
+          readonly: target.readonly,
+          placeholder: target.placeholder,
+          title: target.title,
+          href: target.href,
+          src: target.src,
+          alt: target.alt,
+        };
       };
 
       document.addEventListener('click', (event) => {
+        const currentTarget = getParentElementWithEventOrId(event, 'onclick');
         window.saveEventForTest({
           type: 'click',
-          target: generateXPathWithNearestParentId(
-            getParentElementWithEventOrId(event, 'onclick')
-          ),
+          target: generateXPathWithNearestParentId(currentTarget),
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
             clientY: event.clientY,
           },
+          selectors: getBestSelectors(currentTarget),
+          element: getElement(currentTarget),
         });
       });
       document.addEventListener('dblclick', (event) => {
+        const currentTarget = getParentElementWithEventOrId(
+          event,
+          'ondblclick'
+        );
         window.saveEventForTest({
           type: 'dblclick',
-          target: generateXPathWithNearestParentId(
-            getParentElementWithEventOrId(event, 'ondblclick')
-          ),
+          target: generateXPathWithNearestParentId(currentTarget),
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
             clientY: event.clientY,
           },
+          selectors: getBestSelectors(currentTarget),
+          element: getElement(currentTarget),
         });
       });
       document.addEventListener('contextmenu', (event) => {
+        const currentTarget = getParentElementWithEventOrId(
+          event,
+          'oncontextmenu'
+        );
         window.saveEventForTest({
           type: 'contextmenu',
-          target: generateXPathWithNearestParentId(
-            getParentElementWithEventOrId(event, 'oncontextmenu')
-          ),
+          target: generateXPathWithNearestParentId(currentTarget),
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
             clientY: event.clientY,
           },
+          selectors: getBestSelectors(currentTarget),
+          element: getElement(currentTarget),
         });
       });
       document.addEventListener('input', (event) => {
+        const currentTarget = getParentElementWithEventOrId(event, 'oninput');
         if (event.target && event.target.tagName === 'INPUT') {
           window.saveEventForTest({
             type: 'input',
-            target: generateXPathWithNearestParentId(
-              getParentElementWithEventOrId(event, 'oninput')
-            ),
+            target: generateXPathWithNearestParentId(currentTarget),
             time: new Date().toISOString(),
             value: event.target.value,
+            selectors: getBestSelectors(currentTarget),
+            element: getElement(currentTarget),
           });
         }
       });
       document.addEventListener('change', (event) => {
+        const currentTarget = getParentElementWithEventOrId(event, 'onchange');
         window.saveEventForTest({
           type: 'change',
-          target: generateXPathWithNearestParentId(
-            getParentElementWithEventOrId(event, 'onchange')
-          ),
+          target: generateXPathWithNearestParentId(currentTarget),
           time: new Date().toISOString(),
           value: event.target.value,
+          selectors: getBestSelectors(currentTarget),
+          element: getElement(currentTarget),
         });
       });
       document.addEventListener('submit', (event) => {
         event.preventDefault();
+        const currentTarget = getParentElementWithEventOrId(event, 'onsubmit');
         const formData = new FormData(event.target);
         const entries = {};
         formData.forEach((value, key) => {
@@ -256,11 +364,11 @@ const injectEventRecordingScript = async (page, url) => {
         });
         window.saveEventForTest({
           type: 'submit',
-          target: generateXPathWithNearestParentId(
-            getParentElementWithEventOrId(event, 'onsubmit')
-          ),
+          target: generateXPathWithNearestParentId(currentTarget),
           time: new Date().toISOString(),
           value: entries,
+          selectors: getBestSelectors(currentTarget),
+          element: getElement(currentTarget),
         });
       });
       document.addEventListener('popstate', () => {
