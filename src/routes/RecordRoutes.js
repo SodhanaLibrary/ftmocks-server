@@ -85,11 +85,43 @@ const injectEventRecordingScript = async (page, url) => {
         return null; // No parent with an ID found
       };
 
-      const getParentElementWithEvent = (event, eventType) => {
+      const getParentElementWithEventOrId = (event, eventType) => {
         let depth = 5;
         let target = event.target;
+        const clickableTagNames = [
+          'button',
+          'a',
+          'input',
+          'option',
+          'details',
+          'summary',
+          'select',
+        ];
+
         while (target && target !== document && depth > 0) {
-          if (target.getAttribute(eventType) || target[eventType]) {
+          // Check if the target is a clickable element
+          // Check for test attributes and accessibility attributes
+          if (
+            target.getAttribute('data-testid') ||
+            target.getAttribute('data-cy') ||
+            target.getAttribute('data-qa') ||
+            target.getAttribute('name') ||
+            target.getAttribute('aria-label') ||
+            target.getAttribute('role') ||
+            target.getAttribute('id')
+          ) {
+            return target;
+          } else if (
+            target.getAttribute(eventType) ||
+            target[eventType] ||
+            target.getAttribute(`on${eventType}`) ||
+            target.getAttribute(`${eventType}`) ||
+            target.getAttribute(
+              `${eventType.charAt(0).toUpperCase() + eventType.slice(1)}`
+            )
+          ) {
+            return target;
+          } else if (clickableTagNames.includes(target.tagName.toLowerCase())) {
             return target;
           }
           target = target.parentNode;
@@ -98,11 +130,67 @@ const injectEventRecordingScript = async (page, url) => {
         return event.target;
       };
 
+      const isUniqueElementByRoleTextContent = (role, textContent) => {
+        const elements = document.querySelectorAll(`[role="${role}"]`);
+        const count = 0;
+        for (const element of elements) {
+          if (element.textContent === textContent) {
+            count++;
+          }
+        }
+        return count === 1;
+      };
+
+      const isUniqueElementByRoleAndName = (role, name) => {
+        const elements = document.querySelectorAll(`[role="${role}"]`);
+        const count = 0;
+        for (const element of elements) {
+          if (element.name === name) {
+            count++;
+          }
+        }
+        return count === 1;
+      };
+
+      const isUniqueElementByRoleAndAriaLabel = (role, ariaLabel) => {
+        const elements = document.querySelectorAll(`[role="${role}"]`);
+        const count = 0;
+        for (const element of elements) {
+          if (element.ariaLabel === ariaLabel) {
+            count++;
+          }
+        }
+        return count === 1;
+      };
+
+      const isUniqueElementByNameAndValue = (name, value) => {
+        const elements = document.querySelectorAll(`[name="${name}"]`);
+        const count = 0;
+        for (const element of elements) {
+          if (element.value === value) {
+            count++;
+          }
+        }
+        return count === 1;
+      };
+
+      const isUniqueElementByName = (name) => {
+        const elements = document.querySelectorAll(`[name="${name}"]`);
+        return elements.length === 1;
+      };
+
+      const isUniqueElementByAriaLabel = (ariaLabel) => {
+        const elements = document.querySelectorAll(
+          `[aria-label="${ariaLabel}"]`
+        );
+        return elements.length === 1;
+      };
+
       document.addEventListener('click', (event) => {
         window.saveEventForTest({
           type: 'click',
           target: generateXPathWithNearestParentId(
-            getParentElementWithEvent(event, 'onclick')
+            getParentElementWithEventOrId(event, 'onclick')
           ),
           time: new Date().toISOString(),
           value: {
@@ -115,7 +203,7 @@ const injectEventRecordingScript = async (page, url) => {
         window.saveEventForTest({
           type: 'dblclick',
           target: generateXPathWithNearestParentId(
-            getParentElementWithEvent(event, 'ondblclick')
+            getParentElementWithEventOrId(event, 'ondblclick')
           ),
           time: new Date().toISOString(),
           value: {
@@ -128,7 +216,7 @@ const injectEventRecordingScript = async (page, url) => {
         window.saveEventForTest({
           type: 'contextmenu',
           target: generateXPathWithNearestParentId(
-            getParentElementWithEvent(event, 'oncontextmenu')
+            getParentElementWithEventOrId(event, 'oncontextmenu')
           ),
           time: new Date().toISOString(),
           value: {
@@ -142,7 +230,7 @@ const injectEventRecordingScript = async (page, url) => {
           window.saveEventForTest({
             type: 'input',
             target: generateXPathWithNearestParentId(
-              getParentElementWithEvent(event, 'oninput')
+              getParentElementWithEventOrId(event, 'oninput')
             ),
             time: new Date().toISOString(),
             value: event.target.value,
@@ -153,7 +241,7 @@ const injectEventRecordingScript = async (page, url) => {
         window.saveEventForTest({
           type: 'change',
           target: generateXPathWithNearestParentId(
-            getParentElementWithEvent(event, 'onchange')
+            getParentElementWithEventOrId(event, 'onchange')
           ),
           time: new Date().toISOString(),
           value: event.target.value,
@@ -169,7 +257,7 @@ const injectEventRecordingScript = async (page, url) => {
         window.saveEventForTest({
           type: 'submit',
           target: generateXPathWithNearestParentId(
-            getParentElementWithEvent(event, 'onsubmit')
+            getParentElementWithEventOrId(event, 'onsubmit')
           ),
           time: new Date().toISOString(),
           value: entries,

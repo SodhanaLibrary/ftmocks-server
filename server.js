@@ -35,7 +35,6 @@ const {
   deleteRecordedMock,
   deleteAllRecordedMocks,
   updateRecordedMock,
-  recordMockData,
   initiateRecordedMocks,
 } = require('./src/routes/RecordedMockRoutes');
 const {
@@ -64,8 +63,8 @@ const {
   addProject,
   loadEnvVariables,
   getLatestProject,
-  saveCurrentProject,
 } = require('./src/routes/ProjectRoutes.js');
+const { saveFile, runTest } = require('./src/routes/CodeRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
 const logger = require('./src/utils/Logger');
@@ -96,7 +95,6 @@ if (fs.statSync(envfile).isDirectory()) {
   envfile = path.join(envfile, 'ftmocks.env');
 }
 console.log(`loading env variables from ${envfile}`);
-const projectsFile = 'projects.json';
 if (fs.existsSync(envfile)) {
   loadEnvVariables(envfile);
 }
@@ -177,8 +175,6 @@ app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
 
 app.get('/api/v1/env/project', getEnvProject);
 
-app.post('/api/v1/recordMockdata', recordMockData);
-
 // Router for /api/v1/defaultmocks GET method
 app.get('/api/v1/recordedMocks', getRecordedMocks);
 
@@ -201,10 +197,14 @@ app.get('/api/v1/recordedEvents', getRecordedEvents);
 app.post('/api/v1/recordedEvents', recordEventData);
 
 // Router for /api/v1/recordedEvents DELETE method
-app.delete('/api/v1/recordedEvents', deleteRecordedEvent);
+app.delete('/api/v1/recordedEvents/:id', deleteRecordedEvent);
 
 // Router for /api/v1/deleteAllEvents DELETE method
 app.delete('/api/v1/deleteAllEvents', deleteAllEvents);
+
+app.post('/api/v1/code/save', saveFile);
+
+app.post('/api/v1/code/runTest', runTest);
 
 // Router for /api/v1/recordedLogs GET method
 app.get('/api/v1/recordedLogs', getRecordedLogs);

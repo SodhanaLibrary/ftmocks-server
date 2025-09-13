@@ -247,96 +247,6 @@ const updateRecordedMock = async (req, res) => {
   }
 };
 
-const recordMockData = async (req, res) => {
-  const mockData = req.body;
-  let mockDataSummary = [];
-
-  try {
-    logger.info('Recording mock data', {
-      url: mockData.url,
-      method: mockData.method,
-      hasResponse: !!mockData.response,
-    });
-
-    mockData.id = uuidv4();
-    const mockDir = path.join(process.env.MOCK_DIR, 'recordMocks');
-    const mockListFilePath = path.join(mockDir, `_mock_list.json`);
-    const mockFilePath = path.join(mockDir, `mock_${mockData.id}.json`);
-
-    logger.debug('Mock recording paths', {
-      mockDir,
-      mockListFilePath,
-      mockFilePath,
-    });
-
-    if (!fs.existsSync(mockDir)) {
-      fs.mkdirSync(mockDir);
-      logger.debug('Created mock directory', { mockDir });
-    }
-
-    if (!fs.existsSync(mockListFilePath)) {
-      logger.info('Mock list file does not exist, creating new file', {
-        mockListFilePath,
-      });
-      await fs.appendFile(mockListFilePath, '', () => {
-        logger.info('Mock list file created successfully', {
-          mockListFilePath,
-        });
-      });
-      mockDataSummary = [];
-    } else {
-      mockDataSummary = JSON.parse(fs.readFileSync(mockListFilePath, 'utf8'));
-      logger.debug('Loaded existing mock list', {
-        mockCount: mockDataSummary.length,
-      });
-    }
-
-    const mockSummary = {
-      fileName: `mock_${mockData.id}.json`,
-      method: mockData.method,
-      url: mockData.url,
-      id: mockData.id,
-    };
-
-    mockDataSummary.push(mockSummary);
-
-    logger.debug('Added mock to summary', {
-      mockId: mockData.id,
-      mockUrl: mockData.url,
-      mockMethod: mockData.method,
-      totalMocks: mockDataSummary.length,
-    });
-
-    // Write mock data file
-    fs.writeFileSync(mockFilePath, JSON.stringify(mockData, null, 2));
-    logger.debug('Saved mock data file', { mockFilePath });
-
-    // Write updated mock list
-    fs.writeFileSync(
-      mockListFilePath,
-      JSON.stringify(mockDataSummary, null, 2)
-    );
-    logger.debug('Updated mock list file', { mockListFilePath });
-
-    logger.info('Mock recorded successfully', {
-      mockId: mockData.id,
-      mockUrl: mockData.url,
-      mockMethod: mockData.method,
-      totalMocks: mockDataSummary.length,
-    });
-
-    res.json(mockData);
-  } catch (error) {
-    logger.error('Error recording mock data', {
-      url: mockData?.url,
-      method: mockData?.method,
-      error: error.message,
-      stack: error.stack,
-    });
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
 const initiateRecordedMocks = async (req, res) => {
   const defaultPath = path.join(
     process.env.MOCK_DIR,
@@ -522,7 +432,6 @@ module.exports = {
   getRecordedMocks,
   deleteRecordedMock,
   updateRecordedMock,
-  recordMockData,
   initiateRecordedMocks,
   deleteAllRecordedMocks,
 };
