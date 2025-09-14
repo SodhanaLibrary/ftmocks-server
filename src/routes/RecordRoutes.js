@@ -228,15 +228,10 @@ const injectEventRecordingScript = async (page, url) => {
         while (target && target !== document && depth > 0) {
           // Check if the target is a clickable element
           // Check for test attributes and accessibility attributes
-          if (
-            target.getAttribute('data-testid') ||
-            target.getAttribute('data-cy') ||
-            target.getAttribute('data-qa') ||
-            target.getAttribute('name') ||
-            target.getAttribute('aria-label') ||
-            target.getAttribute('role') ||
-            target.getAttribute('id')
-          ) {
+          const selectors = getBestSelectors(target);
+          if (selectors.length > 0) {
+            return target;
+          } else if (target.getAttribute('id')) {
             return target;
           } else if (
             target.getAttribute(eventType) ||
@@ -284,6 +279,7 @@ const injectEventRecordingScript = async (page, url) => {
 
       document.addEventListener('click', (event) => {
         const currentTarget = getParentElementWithEventOrId(event, 'onclick');
+        const selectors = getBestSelectors(currentTarget);
         window.saveEventForTest({
           type: 'click',
           target: generateXPathWithNearestParentId(currentTarget),
@@ -292,7 +288,7 @@ const injectEventRecordingScript = async (page, url) => {
             clientX: event.clientX,
             clientY: event.clientY,
           },
-          selectors: getBestSelectors(currentTarget),
+          selectors,
           element: getElement(currentTarget),
         });
       });
