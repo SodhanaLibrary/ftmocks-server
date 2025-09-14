@@ -184,8 +184,22 @@ const injectEventRecordingScript = async (page, url) => {
               sibling = sibling.previousElementSibling;
             }
 
+            let nextSibling = element.nextElementSibling;
+            let usedNextSibling = false;
+            while (nextSibling) {
+              if (nextSibling.tagName.toLowerCase() === tagName) {
+                usedNextSibling = true;
+                break;
+              }
+              nextSibling = nextSibling.nextElementSibling;
+            }
+
             if (index === 1) {
-              path = `/${tagName}${path}`;
+              if (usedNextSibling) {
+                path = `/${tagName}[1]${path}`;
+              } else {
+                path = `/${tagName}${path}`;
+              }
             } else {
               path = `/${tagName}[${index}]${path}`;
             }

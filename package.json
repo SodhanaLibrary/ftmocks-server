@@ -1,6 +1,6 @@
 {
   "name": "ftmocks-server",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Mock server for frontend applications ",
   "main": "index.js",
   "scripts": {
@@ -33,4 +33,3 @@
     "uuid": "^9.0.1"
   }
 }
-
