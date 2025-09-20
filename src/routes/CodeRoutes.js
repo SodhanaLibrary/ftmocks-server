@@ -63,16 +63,53 @@ const runTest = async (req, res) => {
     // Change to the playwright directory before running the test
     process.chdir(absolutePlaywrightDir);
 
-    execSync(
-      `NODE_ENV=dev npx playwright test ${filePath} --headed --retries=0`
+    // Set up streaming response
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    });
+
+    // Use spawn instead of execSync to capture output in real-time
+    const { spawn } = require('child_process');
+    const testProcess = spawn(
+      'npx',
+      ['playwright', 'test', filePath, '--headed', '--retries=0'],
+      {
+        env: { ...process.env, NODE_ENV: 'dev' },
+        cwd: absolutePlaywrightDir,
+      }
     );
+
+    // Stream stdout to response
+    testProcess.stdout.on('data', (data) => {
+      console.log('stdout: ', data.toString());
+      res.write(data.toString());
+    });
+
+    // Stream stderr to response
+    testProcess.stderr.on('data', (data) => {
+      console.log('stderr: ', data.toString());
+      res.write(data.toString());
+    });
+
+    // Handle process completion
+    testProcess.on('close', (code) => {
+      console.log('close: ', code);
+      res.write(`\nTest process completed with exit code: ${code}\n`);
+      res.end();
+    });
+
+    // Handle process errors
+    testProcess.on('error', (error) => {
+      console.log('error: ', error);
+      res.write(`\nError running test: ${error.message}\n`);
+      res.end();
+    });
   } catch (error) {
     console.error('Error running test:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  res.json({
-    success: true,
-    message: 'initiated test run successfully',
-  });
 };
 
 module.exports = {
