@@ -44,7 +44,7 @@ const injectEventRecordingScript = async (page, url) => {
     await page.addInitScript(() => {
       const isUniqueElement = (selector) => {
         const elements = document.querySelectorAll(selector);
-        return elements.length === 1;
+        return elements.length === 1 || elements.length === 0;
       };
 
       const isUniqueText = (text) => {
@@ -63,25 +63,29 @@ const injectEventRecordingScript = async (page, url) => {
 
       const getBestSelectors = (element) => {
         const selectors = [];
+        const excludeTagNames = ['script', 'style', 'link', 'meta', 'svg'];
         try {
           const tagName = element.tagName.toLowerCase();
+          if (excludeTagNames.includes(tagName)) {
+            return selectors;
+          }
           if (element.id) {
             selectors.push({ type: 'locator', value: `#${element.id}` });
           }
           if (
             element.getAttribute('data-testid') &&
             isUniqueElement(
-              `[data-testid="${element.getAttribute('data-testid')}"]`
+              `[data-testid='${element.getAttribute('data-testid')}']`
             )
           ) {
             selectors.push({
               type: 'locator',
-              value: `[data-testid="${element.getAttribute('data-testid')}"]`,
+              value: `[data-testid='${element.getAttribute('data-testid')}']`,
             });
           }
           if (
             element.getAttribute('data-cy') &&
-            isUniqueElement(`[data-cy="${element.getAttribute('data-cy')}"]`)
+            isUniqueElement(`[data-cy='${element.getAttribute('data-cy')}']`)
           ) {
             selectors.push({
               type: 'locator',
@@ -92,7 +96,7 @@ const injectEventRecordingScript = async (page, url) => {
             element.name &&
             tagName === 'input' &&
             (element.type === 'text' || element.type === 'password') &&
-            isUniqueElement(`[name="${element.name}"]`)
+            isUniqueElement(`[name='${element.name}']`)
           ) {
             selectors.push({
               type: 'locator',
@@ -103,7 +107,7 @@ const injectEventRecordingScript = async (page, url) => {
             tagName === 'input' &&
             (element.type === 'checkbox' || element.type === 'radio') &&
             isUniqueElement(
-              `[name="${element.name}"][value="${element.value}"]`
+              `[name='${element.name}'][value='${element.value}']`
             )
           ) {
             selectors.push({
@@ -113,7 +117,7 @@ const injectEventRecordingScript = async (page, url) => {
           }
           if (
             element.ariaLabel &&
-            isUniqueElement(`[aria-label="${element.ariaLabel}"]`)
+            isUniqueElement(`[aria-label='${element.ariaLabel}']`)
           ) {
             selectors.push({
               type: 'locator',
@@ -123,11 +127,29 @@ const injectEventRecordingScript = async (page, url) => {
           if (
             element.role &&
             element.name &&
-            isUniqueElement(`[role="${element.role}"][name="${element.name}"]`)
+            isUniqueElement(`[role='${element.role}'][name='${element.name}']`)
           ) {
             selectors.push({
               type: 'locator',
-              value: `[role="${element.role}"][name="${element.name}"]`,
+              value: `[role='${element.role}'][name='${element.name}']`,
+            });
+          }
+          if (
+            element.src &&
+            isUniqueElement(`${tagName}[src='${element.src}']`)
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `${tagName}[src='${element.src}']`,
+            });
+          }
+          if (
+            element.href &&
+            isUniqueElement(`${tagName}[href='${element.href}']`)
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `${tagName}[href='${element.href}']`,
             });
           }
           if (
@@ -364,23 +386,23 @@ const injectEventRecordingScript = async (page, url) => {
           element: getElement(currentTarget),
         });
       });
-      document.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const currentTarget = getParentElementWithEventOrId(event, 'onsubmit');
-        const formData = new FormData(event.target);
-        const entries = {};
-        formData.forEach((value, key) => {
-          entries[key] = value;
-        });
-        window.saveEventForTest({
-          type: 'submit',
-          target: generateXPathWithNearestParentId(currentTarget),
-          time: new Date().toISOString(),
-          value: entries,
-          selectors: getBestSelectors(currentTarget),
-          element: getElement(currentTarget),
-        });
-      });
+      // document.addEventListener('submit', (event) => {
+      //   event.preventDefault();
+      //   const currentTarget = getParentElementWithEventOrId(event, 'onsubmit');
+      //   const formData = new FormData(event.target);
+      //   const entries = {};
+      //   formData.forEach((value, key) => {
+      //     entries[key] = value;
+      //   });
+      //   window.saveEventForTest({
+      //     type: 'submit',
+      //     target: generateXPathWithNearestParentId(currentTarget),
+      //     time: new Date().toISOString(),
+      //     value: entries,
+      //     selectors: getBestSelectors(currentTarget),
+      //     element: getElement(currentTarget),
+      //   });
+      // });
       document.addEventListener('popstate', () => {
         window.saveEventForTest({
           type: 'url',

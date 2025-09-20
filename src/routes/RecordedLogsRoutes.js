@@ -8,13 +8,11 @@ const getRecordedLogs = async (req, res) => {
   const defaultPath = path.join(process.env.MOCK_DIR, folderName, '_logs.json');
 
   try {
-    if (!fs.existsSync(defaultPath)) {
-      await fs.appendFile(defaultPath, '[]', () => {
-        console.log('default file created successfully');
-      });
+    let parsedData = [];
+    if (fs.existsSync(defaultPath)) {
+      const defaultData = fs.readFileSync(defaultPath, 'utf8');
+      parsedData = JSON.parse(defaultData);
     }
-    const defaultData = fs.readFileSync(defaultPath, 'utf8');
-    let parsedData = JSON.parse(defaultData);
 
     res.status(200).json(parsedData);
   } catch (error) {
