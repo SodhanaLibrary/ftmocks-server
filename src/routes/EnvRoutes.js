@@ -20,8 +20,6 @@ const getEnvProject = async (req, res) => {
     //   absoluteFallbackDir,
     //   absolutePlaywrightDir
     // );
-    console.log('absoluteFallbackDir', absoluteFallbackDir);
-    console.log('absolutePlaywrightDir', absolutePlaywrightDir);
     const envConfig = {
       MOCK_DIR: process.env.MOCK_DIR,
       PORT: process.env.PORT,

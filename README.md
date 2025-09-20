@@ -38,8 +38,14 @@ To run this project, ensure you have the following installed on your machine:
    ```
 
 3. Install dependencies:
+
    ```bash
    npm i
+   ```
+
+4. Install playwright:
+   ```bash
+   npx playwright install
    ```
 
 ### Configuration

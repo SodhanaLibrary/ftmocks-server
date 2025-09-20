@@ -48,7 +48,7 @@ const saveFile = async (req, res) => {
 
 const runTest = async (req, res) => {
   try {
-    const { testName, fileName } = req.body;
+    const { testName, generatedCode, fileName } = req.body;
     const absolutePlaywrightDir = getAbsolutePathWithMockDir(
       process.env.PLAYWRIGHT_DIR || ''
     );
@@ -59,6 +59,7 @@ const runTest = async (req, res) => {
       fs.mkdirSync(fullDirectoryPath, { recursive: true });
     }
     const filePath = path.join(fullDirectoryPath, fileName);
+    fs.writeFileSync(filePath, generatedCode, 'utf8');
     // Change to the playwright directory before running the test
     process.chdir(absolutePlaywrightDir);
 

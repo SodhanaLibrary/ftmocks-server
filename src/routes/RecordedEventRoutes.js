@@ -17,23 +17,21 @@ const getRecordedEvents = async (req, res) => {
       eventsPath,
     });
 
-    if (!fs.existsSync(eventsPath)) {
-      logger.info('Events file does not exist, creating new file', {
+    let parsedData = [];
+
+    if (fs.existsSync(eventsPath)) {
+      const eventsData = fs.readFileSync(eventsPath, 'utf8');
+      parsedData = JSON.parse(eventsData);
+      logger.info('Successfully retrieved recorded events', {
+        testName: req.query.name || 'recordMocks',
+        eventCount: parsedData.length,
         eventsPath,
       });
-      await fs.appendFile(eventsPath, '[]', () => {
-        logger.info('Events file created successfully', { eventsPath });
+    } else {
+      logger.info('Events file does not exist', {
+        eventsPath,
       });
     }
-
-    const eventsData = fs.readFileSync(eventsPath, 'utf8');
-    let parsedData = JSON.parse(eventsData);
-
-    logger.info('Successfully retrieved recorded events', {
-      testName: req.query.name || 'recordMocks',
-      eventCount: parsedData.length,
-      eventsPath,
-    });
 
     res.status(200).json(parsedData);
   } catch (error) {
