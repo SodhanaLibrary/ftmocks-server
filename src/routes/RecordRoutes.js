@@ -49,6 +49,16 @@ const injectEventRecordingScript = async (page, url) => {
       )
     );
     await page.addInitScript(() => {
+      const isUniqueXpath = (xpath) => {
+        const elements = document.evaluate(
+          xpath,
+          document,
+          null,
+          XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+          null
+        );
+        return elements.snapshotLength === 1;
+      };
       const isUniqueElement = (selector) => {
         const elements = document.querySelectorAll(selector);
         return elements.length === 1 || elements.length === 0;
@@ -214,9 +224,20 @@ const injectEventRecordingScript = async (page, url) => {
       };
 
       const generateXPathWithNearestParentId = (element) => {
+        const otherIdAttributes = [
+          'data-id',
+          'data-action',
+          'data-testid',
+          'data-cy',
+          'data-role',
+          'data-name',
+          'data-label',
+        ];
         try {
           let path = '';
           let nearestParentId = null;
+          let nearestParentAttribute = null;
+          let nearestParentAttributeValue = null;
 
           // Check if the current element's has an ID
           if (element.id) {
@@ -259,6 +280,22 @@ const injectEventRecordingScript = async (page, url) => {
             if (element.parentElement && element.parentElement.id) {
               nearestParentId = element.parentElement.id;
               break; // Stop searching when we find the nearest parent with an ID
+            } else if (element.parentElement) {
+              otherIdAttributes.forEach((attribute) => {
+                const parentAttributeValue =
+                  element.parentElement.getAttribute(attribute);
+                console.log('attribute: ', attribute, parentAttributeValue);
+                if (
+                  parentAttributeValue &&
+                  isUniqueXpath(`//*[@${attribute}='${parentAttributeValue}']`)
+                ) {
+                  nearestParentAttribute = attribute;
+                  nearestParentAttributeValue = parentAttributeValue;
+                }
+              });
+              if (nearestParentAttribute && nearestParentAttributeValue) {
+                break;
+              }
             }
 
             element = element.parentElement;
@@ -266,6 +303,9 @@ const injectEventRecordingScript = async (page, url) => {
 
           if (nearestParentId) {
             path = `//*[@id='${nearestParentId}']${path}`;
+            return path;
+          } else if (nearestParentAttribute && nearestParentAttributeValue) {
+            path = `//*[@${nearestParentAttribute}='${nearestParentAttributeValue}']${path}`;
             return path;
           }
         } catch (error) {
@@ -402,17 +442,17 @@ const injectEventRecordingScript = async (page, url) => {
           });
         }
       });
-      document.addEventListener('change', (event) => {
-        const currentTarget = getParentElementWithEventOrId(event, 'onchange');
-        window.saveEventForTest({
-          type: 'change',
-          target: generateXPathWithNearestParentId(currentTarget),
-          time: new Date().toISOString(),
-          value: event.target.value,
-          selectors: getBestSelectors(currentTarget),
-          element: getElement(currentTarget),
-        });
-      });
+      // document.addEventListener('change', (event) => {
+      //   const currentTarget = getParentElementWithEventOrId(event, 'onchange');
+      //   window.saveEventForTest({
+      //     type: 'change',
+      //     target: generateXPathWithNearestParentId(currentTarget),
+      //     time: new Date().toISOString(),
+      //     value: event.target.value,
+      //     selectors: getBestSelectors(currentTarget),
+      //     element: getElement(currentTarget),
+      //   });
+      // });
       // document.addEventListener('submit', (event) => {
       //   event.preventDefault();
       //   const currentTarget = getParentElementWithEventOrId(event, 'onsubmit');
