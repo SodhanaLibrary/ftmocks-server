@@ -21,7 +21,14 @@ const injectEventRecordingScript = async (page, url) => {
     await page.exposeFunction('saveEventForTest', (event) => {
       event.id = crypto.randomUUID();
       const events = JSON.parse(fs.readFileSync(eventsFile, 'utf8'));
-      events.push(event);
+      if (
+        event.type === 'input' &&
+        events[events.length - 1]?.type === 'input'
+      ) {
+        events[events.length - 1].value = event.value;
+      } else {
+        events.push(event);
+      }
       fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
     });
 
@@ -81,6 +88,26 @@ const injectEventRecordingScript = async (page, url) => {
             selectors.push({
               type: 'locator',
               value: `[data-testid='${element.getAttribute('data-testid')}']`,
+            });
+          }
+          if (
+            element.getAttribute('data-id') &&
+            isUniqueElement(`[data-id='${element.getAttribute('data-id')}']`)
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[data-id='${element.getAttribute('data-id')}']`,
+            });
+          }
+          if (
+            element.getAttribute('data-action') &&
+            isUniqueElement(
+              `[data-action='${element.getAttribute('data-action')}']`
+            )
+          ) {
+            selectors.push({
+              type: 'locator',
+              value: `[data-action='${element.getAttribute('data-action')}']`,
             });
           }
           if (
@@ -174,12 +201,14 @@ const injectEventRecordingScript = async (page, url) => {
               },
             });
           }
+          console.log('selectors: ', selectors, element);
           return selectors;
         } catch (error) {
           console.error('Error getting best selectors', {
             error: error.message,
             stack: error.stack,
           });
+          console.log('selectors: ', selectors, element);
           return selectors;
         }
       };
@@ -249,7 +278,6 @@ const injectEventRecordingScript = async (page, url) => {
       };
 
       const getParentElementWithEventOrId = (event, eventType) => {
-        let depth = 5;
         let target = event.target;
         const clickableTagNames = [
           'button',
@@ -261,7 +289,7 @@ const injectEventRecordingScript = async (page, url) => {
           'select',
         ];
 
-        while (target && target !== document && depth > 0) {
+        while (target && target !== document) {
           // Check if the target is a clickable element
           // Check for test attributes and accessibility attributes
           const selectors = getBestSelectors(target);
@@ -283,7 +311,6 @@ const injectEventRecordingScript = async (page, url) => {
             return target;
           }
           target = target.parentNode;
-          depth -= 1;
         }
         return event.target;
       };
