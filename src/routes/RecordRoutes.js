@@ -20,6 +20,9 @@ const injectEventRecordingScript = async (page, url) => {
     // Expose a function to receive click info from the browser
     await page.exposeFunction('saveEventForTest', (event) => {
       event.id = crypto.randomUUID();
+      if (!fs.existsSync(eventsFile)) {
+        fs.writeFileSync(eventsFile, JSON.stringify([], null, 2));
+      }
       const events = JSON.parse(fs.readFileSync(eventsFile, 'utf8'));
       if (
         event.type === 'input' &&
@@ -327,6 +330,13 @@ const injectEventRecordingScript = async (page, url) => {
           'details',
           'summary',
           'select',
+          'li',
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'h6',
         ];
 
         while (target && target !== document) {
