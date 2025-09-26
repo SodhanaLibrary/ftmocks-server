@@ -445,6 +445,18 @@ const deleteMockDataForTest = async (req, res) => {
     );
 
     if (fs.existsSync(mockFilePath)) {
+      const mockFileContent = fs.readFileSync(mockFilePath, 'utf8');
+      const mockFileData = JSON.parse(mockFileContent);
+      if (mockFileData.response.file) {
+        const filePath = path.join(
+          process.env.MOCK_DIR,
+          `test_${nameToFolder(testName)}`,
+          '_files',
+          mockFileData.response.file
+        );
+        fs.unlinkSync(filePath);
+        logger.debug('Deleted file', { filePath });
+      }
       fs.unlinkSync(mockFilePath);
       logger.debug('Deleted mock file', { mockFilePath });
     } else {
@@ -714,6 +726,13 @@ const deleteTestMocks = async (req, res) => {
         logger.warn('Mock file not found for deletion', { mockPath });
       }
     });
+
+    // Delete _files directory if it exists
+    const filesDir = path.join(testDir, '_files');
+    if (fs.existsSync(filesDir)) {
+      fs.rmSync(filesDir, { recursive: true, force: true });
+      logger.debug('Deleted _files directory', { filesDir });
+    }
 
     // Reset mock list to empty array
     fs.writeFileSync(testsPath, JSON.stringify([], null, 2));
