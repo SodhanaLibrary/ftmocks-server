@@ -198,6 +198,10 @@ const injectEventRecordingScript = async (page, url) => {
             isUniqueText(element.textContent)
           ) {
             selectors.push({
+              type: 'locator',
+              value: `//*[@role='${element.role}' and contains(text(), '${element.textContent}')]`,
+            });
+            selectors.push({
               type: 'text',
               value: {
                 role: element.role,
@@ -206,6 +210,10 @@ const injectEventRecordingScript = async (page, url) => {
             });
           }
           if (element.textContent && isUniqueText(element.textContent)) {
+            selectors.push({
+              type: 'locator',
+              value: `//*[contains(text(), '${element.textContent}')]`,
+            });
             selectors.push({
               type: 'text',
               value: {
