@@ -175,21 +175,23 @@ const injectEventRecordingScript = async (page, url) => {
             });
           }
           if (
-            element.src &&
-            isUniqueElement(`${tagName}[src='${element.src}']`)
+            element.getAttribute('src') &&
+            isUniqueElement(`${tagName}[src='${element.getAttribute('src')}']`)
           ) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[src='${element.src}']`,
+              value: `${tagName}[src='${element.getAttribute('src')}']`,
             });
           }
           if (
-            element.href &&
-            isUniqueElement(`${tagName}[href='${element.href}']`)
+            element.getAttribute('href') &&
+            isUniqueElement(
+              `${tagName}[href='${element.getAttribute('href')}']`
+            )
           ) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[href='${element.href}']`,
+              value: `${tagName}[href='${element.getAttribute('href')}']`,
             });
           }
           if (
@@ -392,8 +394,8 @@ const injectEventRecordingScript = async (page, url) => {
           readonly: target.readonly,
           placeholder: target.placeholder,
           title: target.title,
-          href: target.href,
-          src: target.src,
+          href: target.getAttribute('href'),
+          src: target.getAttribute('src'),
           alt: target.alt,
         };
       };
@@ -580,6 +582,20 @@ const saveIfItIsFile = async (route, testName, id) => {
   }
 };
 
+const excludeHeaders = (headers) => {
+  if (!process.env.EXCLUDED_HEADERS) {
+    return headers;
+  }
+  process.env.EXCLUDED_HEADERS.split(',').forEach((header) => {
+    Object.keys(headers).forEach((key) => {
+      if (key.toLowerCase() === header.toLowerCase()) {
+        delete headers[key];
+      }
+    });
+  });
+  return headers;
+};
+
 const recordMocks = async (browser, req, res) => {
   try {
     logger.info('Starting mock recording', {
@@ -640,7 +656,7 @@ const recordMocks = async (browser, req, res) => {
           time: new Date().toString(),
           method: route.request().method(),
           request: {
-            headers: await route.request().headers(),
+            headers: excludeHeaders(await route.request().headers()),
             queryString: Array.from(urlObj.searchParams.entries()).map(
               ([name, value]) => ({
                 name,
@@ -657,7 +673,7 @@ const recordMocks = async (browser, req, res) => {
           response: {
             file: fileName,
             status: response.status(),
-            headers: response.headers(),
+            headers: excludeHeaders(response.headers()),
             content: fileName ? null : await response.text(),
           },
           id,

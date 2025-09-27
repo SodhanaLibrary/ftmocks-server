@@ -22,17 +22,13 @@ const loadEnvVariables = (project_env_file) => {
   const result = require('dotenv').config({ path: project_env_file });
 
   // Log the loaded environment variables
-  const loadedEnvVars = {
-    MOCK_DIR: result.parsed.MOCK_DIR,
-    PREFERRED_SERVER_PORTS: result.parsed.PREFERRED_SERVER_PORTS,
-    PLAYWRIGHT_DIR: result.parsed.PLAYWRIGHT_DIR,
-    FALLBACK_DIR: result.parsed.FALLBACK_DIR,
-  };
-
   process.env.MOCK_DIR = result.parsed.MOCK_DIR;
   process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
   process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
   process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
+  process.env.EXCLUDED_HEADERS =
+    result.parsed.EXCLUDED_HEADERS ||
+    `cookie,set-cookie,authorization,www-authenticate`;
 
   if (!path.isAbsolute(process.env.MOCK_DIR)) {
     const originalMockDir = process.env.MOCK_DIR;
