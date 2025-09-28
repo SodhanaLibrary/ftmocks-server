@@ -157,7 +157,11 @@ const processURL = (url, ignoreParams = []) => {
 };
 
 const getDefaultMockData = () => {
-  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
+  const defaultPath = path.join(
+    process.env.MOCK_DIR,
+    'defaultMocks',
+    '_mock_list.json'
+  );
 
   try {
     logger.debug('Loading default mock data', { defaultPath });
@@ -204,7 +208,7 @@ const getDefaultMockData = () => {
 
     return parsedData;
   } catch (error) {
-    logger.error('Error reading or parsing default.json', {
+    logger.error('Error reading or parsing default mocks', {
       defaultPath,
       error: error.message,
       stack: error.stack,
@@ -214,7 +218,11 @@ const getDefaultMockData = () => {
 };
 
 const getDefaultMockDataSummaryList = () => {
-  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
+  const defaultPath = path.join(
+    process.env.MOCK_DIR,
+    'defaultMocks',
+    '_mock_list.json'
+  );
 
   try {
     logger.debug('Loading default mock data summary', { defaultPath });
@@ -228,7 +236,7 @@ const getDefaultMockDataSummaryList = () => {
 
     return parsedData;
   } catch (error) {
-    logger.error('Error reading or parsing default.json summary', {
+    logger.error('Error reading or parsing default mocks summary', {
       defaultPath,
       error: error.message,
       stack: error.stack,
@@ -382,12 +390,11 @@ const loadMockData = () => {
   }
 };
 
-const loadMockDataFromMockListFile = (mockFolder, mockListFile, testName) => {
+const loadMockDataFromMockListFile = (mockFolder, mockListFile) => {
   try {
     logger.debug('Loading mock data from mock list file', {
       mockFolder,
       mockListFile,
-      testName: testName || 'default',
     });
 
     const mocksData = fs.readFileSync(
@@ -397,7 +404,6 @@ const loadMockDataFromMockListFile = (mockFolder, mockListFile, testName) => {
     const mocks = JSON.parse(mocksData);
 
     logger.debug('Parsed mock list', {
-      testName: testName || 'default',
       mockCount: mocks.length,
     });
 
@@ -405,25 +411,19 @@ const loadMockDataFromMockListFile = (mockFolder, mockListFile, testName) => {
     let failedLoads = 0;
 
     mocks.forEach((mock) => {
-      const mockFilePath = path.join(
-        mockFolder,
-        testName ? '' : 'defaultMocks',
-        `mock_${mock.id}.json`
-      );
+      const mockFilePath = path.join(mockFolder, `mock_${mock.id}.json`);
 
       try {
         const fileContent = JSON.parse(fs.readFileSync(mockFilePath, 'utf8'));
         mock.fileContent = fileContent;
         successfulLoads++;
         logger.debug('Successfully loaded mock file', {
-          testName: testName || 'default',
           mockId: mock.id,
           mockFilePath,
         });
       } catch (error) {
         failedLoads++;
         logger.error('Error reading mock file', {
-          testName: testName || 'default',
           mockId: mock.id,
           mockFilePath,
           error: error.message,
@@ -432,7 +432,6 @@ const loadMockDataFromMockListFile = (mockFolder, mockListFile, testName) => {
     });
 
     logger.info('Mock data loaded from list file successfully', {
-      testName: testName || 'default',
       totalMocks: mocks.length,
       successfulLoads,
       failedLoads,
@@ -443,7 +442,6 @@ const loadMockDataFromMockListFile = (mockFolder, mockListFile, testName) => {
     logger.error('Error loading test data from mock list file', {
       mockFolder,
       mockListFile,
-      testName: testName || 'default',
       error: error.message,
       stack: error.stack,
     });

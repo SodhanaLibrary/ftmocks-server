@@ -40,7 +40,7 @@ function extractFileName(filePath) {
 function processHAR(
   harFilePath,
   outputFolder,
-  fileName = 'default.json',
+  fileName = '_mock_list.json',
   testName,
   avoidDuplicates
 ) {
@@ -82,11 +82,7 @@ function processHAR(
 
     if (fs.existsSync(path.join(outputFolder, fileName))) {
       logger.debug('Loading existing responses', { fileName });
-      existResps = loadMockDataFromMockListFile(
-        outputFolder,
-        fileName,
-        testName
-      );
+      existResps = loadMockDataFromMockListFile(outputFolder, fileName);
       logger.debug('Loaded existing responses', {
         existingCount: existResps.length,
       });
@@ -168,24 +164,14 @@ function processHAR(
 
           const responseFileName = `mock_${mockId}.json`;
 
-          if (
-            !fs.existsSync(
-              path.join(outputFolder, !testName ? 'defaultMocks' : '')
-            )
-          ) {
-            fs.mkdirSync(
-              path.join(outputFolder, !testName ? 'defaultMocks' : '')
-            );
+          if (!fs.existsSync(path.join(outputFolder))) {
+            fs.mkdirSync(path.join(outputFolder));
             logger.debug('Created subdirectory', {
-              subdir: !testName ? 'defaultMocks' : '',
+              outputFolder,
             });
           }
 
-          const responseFilePath = path.join(
-            outputFolder,
-            !testName ? 'defaultMocks' : '',
-            responseFileName
-          );
+          const responseFilePath = path.join(outputFolder, responseFileName);
 
           responseInfo.id = mockId;
           responseInfo.ignoreParams = eresp?.fileContent.ignoreParams;
@@ -281,7 +267,11 @@ function createMockFromUserInputForDefaultMocks(body) {
     body.id = mockId;
     const defaultMockData = getDefaultMockData();
     let mock_test_dir = path.join(process.env.MOCK_DIR, 'defaultMocks');
-    let mock_list_file = path.join(process.env.MOCK_DIR, 'default.json');
+    let mock_list_file = path.join(
+      process.env.MOCK_DIR,
+      'defaultMocks',
+      '_mock_list.json'
+    );
     const existResps = getDefaultMockData();
     let mock_file = path.join(mock_test_dir, `mock_${mockId}.json`);
 
@@ -396,8 +386,7 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
 
       const existResps = loadMockDataFromMockListFile(
         mock_test_dir,
-        '_mock_list.json',
-        testName
+        '_mock_list.json'
       );
 
       logger.debug('Loaded existing test responses', {

@@ -542,13 +542,13 @@ const saveIfItIsFile = async (route, testName, id) => {
       const fileExt = fileExtMatch[0];
       logger.debug(`Processing file request: ${urlObj.pathname}`, {
         fileExt,
-        testName,
+        testName: testName || 'defaultMocks',
       });
 
       // Create directory path matching URL structure
       const dirPath = path.join(
         process.env.MOCK_DIR,
-        `test_${nameToFolder(testName)}`,
+        testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
         '_files'
       );
 
@@ -576,7 +576,7 @@ const saveIfItIsFile = async (route, testName, id) => {
     logger.error('Error saving file', {
       error: error.message,
       url: route.request().url(),
-      testName,
+      testName: testName || 'defaultMocks',
     });
     return false;
   }
@@ -687,9 +687,11 @@ const recordMocks = async (browser, req, res) => {
           logger.debug('Checking for duplicates in test', { testName });
           // Check if the mock data is a duplicate of a mock data in the test
           const testMockList = loadMockDataFromMockListFile(
-            path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`),
-            `_mock_list.json`,
-            testName
+            path.join(
+              process.env.MOCK_DIR,
+              testName ? `test_${nameToFolder(testName)}` : 'defaultMocks'
+            ),
+            `_mock_list.json`
           );
           const matchResponse = testMockList.find((mock) =>
             compareMockToMock(mock.fileContent, mockData, true)
@@ -701,7 +703,7 @@ const recordMocks = async (browser, req, res) => {
             });
             const existingMockDataFile = path.join(
               process.env.MOCK_DIR,
-              `test_${nameToFolder(testName)}`,
+              testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
               `mock_${matchResponse.id}.json`
             );
             fs.writeFileSync(
@@ -717,8 +719,11 @@ const recordMocks = async (browser, req, res) => {
           logger.debug('Checking for duplicates with default mocks');
           // Check if the mock data is a duplicate of a mock data in the test
           const defaultMockList = loadMockDataFromMockListFile(
-            process.env.MOCK_DIR,
-            `default.json`
+            path.join(
+              process.env.MOCK_DIR,
+              testName ? `test_${nameToFolder(testName)}` : 'defaultMocks'
+            ),
+            `_mock_list.json`
           );
           const matchResponse = defaultMockList.find((mock) =>
             compareMockToMock(mock.fileContent, mockData, true)
@@ -735,7 +740,7 @@ const recordMocks = async (browser, req, res) => {
         // Save the mock data to the test
         const mockListPath = path.join(
           process.env.MOCK_DIR,
-          `test_${nameToFolder(testName)}`,
+          testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
           '_mock_list.json'
         );
         let mockList = [];
@@ -752,7 +757,7 @@ const recordMocks = async (browser, req, res) => {
         fs.writeFileSync(mockListPath, JSON.stringify(mockList, null, 2));
         const mocDataPath = path.join(
           process.env.MOCK_DIR,
-          `test_${nameToFolder(testName)}`,
+          testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
           `mock_${mockData.id}.json`
         );
         fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
@@ -790,7 +795,7 @@ const recordMocks = async (browser, req, res) => {
     // Handle browser close event
     context.on('close', () => {
       logger.info('Browser context closed for test recording', {
-        testName,
+        testName: testName || 'defaultMocks',
         url,
       });
       process.env.recordMocks = null;

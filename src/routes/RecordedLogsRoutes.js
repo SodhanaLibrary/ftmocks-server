@@ -16,7 +16,7 @@ const getRecordedLogs = async (req, res) => {
 
     res.status(200).json(parsedData);
   } catch (error) {
-    console.error(`Error reading or parsing default.json:`, error);
+    console.error(`Error reading or parsing default mocks`, error);
     res.status(200).json([]);
   }
 };
@@ -28,7 +28,7 @@ const deleteAllLogs = async (req, res) => {
     fs.rmSync(defaultPath, { recursive: true, force: true });
     res.status(200).json([]);
   } catch (error) {
-    console.error(`Error reading or parsing default.json:`, error);
+    console.error(`Error reading or parsing default mocks`, error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -39,7 +39,7 @@ const deleteRecordedLog = async (req, res) => {
   const defaultPath = path.join(process.env.MOCK_DIR, folderName, '_logs.json');
 
   try {
-    // Read and parse the default.json file
+    // Read and parse the default mocks file
     let defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
 
     // Find the index of the mock to be deleted
@@ -51,7 +51,7 @@ const deleteRecordedLog = async (req, res) => {
     // Remove the mock from the array
     defaultData.splice(mockIndex, 1);
 
-    // Write the updated data back to default.json
+    // Write the updated data back to default mocks file
     fs.writeFileSync(defaultPath, JSON.stringify(defaultData, null, 2));
 
     res.status(200).json({ message: 'Log deleted successfully' });

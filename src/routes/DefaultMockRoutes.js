@@ -6,7 +6,11 @@ const { processHAR } = require('../utils/MockGenerator');
 const { nameToFolder } = require('../utils/MockUtils');
 
 const getDefaultMocks = async (req, res) => {
-  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
+  const defaultPath = path.join(
+    process.env.MOCK_DIR,
+    'defaultMocks',
+    '_mock_list.json'
+  );
 
   try {
     logger.info('Getting default mocks', { defaultPath });
@@ -57,7 +61,7 @@ const getDefaultMocks = async (req, res) => {
 
     res.status(200).json(parsedData);
   } catch (error) {
-    logger.error('Error reading or parsing default.json', {
+    logger.error('Error reading or parsing default mocks', {
       defaultPath,
       error: error.message,
       stack: error.stack,
@@ -68,12 +72,16 @@ const getDefaultMocks = async (req, res) => {
 
 const deleteDefaultMock = async (req, res) => {
   const mockId = req.params.id;
-  const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
+  const defaultPath = path.join(
+    process.env.MOCK_DIR,
+    'defaultMocks',
+    '_mock_list.json'
+  );
 
   try {
     logger.info('Deleting default mock', { mockId, defaultPath });
 
-    // Read and parse the default.json file
+    // Read and parse the default mocks file
     let defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
 
     // Find the index of the mock to be deleted
@@ -102,9 +110,9 @@ const deleteDefaultMock = async (req, res) => {
     // Remove the mock from the array
     defaultData.splice(mockIndex, 1);
 
-    // Write the updated data back to default.json
+    // Write the updated data back to default mocks file
     fs.writeFileSync(defaultPath, JSON.stringify(defaultData, null, 2));
-    logger.debug('Updated default.json file', {
+    logger.debug('Updated default mocks file', {
       remainingMocks: defaultData.length,
     });
 
@@ -198,7 +206,11 @@ const uploadDefaultHarMocs = async (req, res) => {
       harFilePath,
     });
 
-    await processHAR(harFilePath, process.env.MOCK_DIR, 'default.json');
+    await processHAR(
+      harFilePath,
+      path.join(process.env.MOCK_DIR, 'defaultMocks'),
+      '_mock_list.json'
+    );
 
     // Clean up the uploaded file
     fs.unlinkSync(harFilePath);
@@ -225,7 +237,11 @@ const moveDefaultmocks = async (req, res) => {
   try {
     logger.info('Moving default mocks to individual tests');
 
-    const defaultPath = path.join(process.env.MOCK_DIR, 'default.json');
+    const defaultPath = path.join(
+      process.env.MOCK_DIR,
+      'defaultMocks',
+      '_mock_list.json'
+    );
 
     if (!fs.existsSync(defaultPath)) {
       logger.warn('Default mocks file does not exist');
