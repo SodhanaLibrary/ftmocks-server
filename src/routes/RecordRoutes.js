@@ -89,79 +89,80 @@ const injectEventRecordingScript = async (page, url) => {
           if (excludeTagNames.includes(tagName)) {
             return selectors;
           }
-          if (element.id) {
-            selectors.push({ type: 'locator', value: `#${element.id}` });
-          }
           if (
             element.getAttribute('data-testid') &&
             isUniqueElement(
-              `[data-testid='${element.getAttribute('data-testid')}']`
+              `${tagName}[data-testid='${element.getAttribute('data-testid')}']`
             )
           ) {
             selectors.push({
               type: 'locator',
-              value: `[data-testid='${element.getAttribute('data-testid')}']`,
+              value: `${tagName}[data-testid='${element.getAttribute('data-testid')}']`,
             });
           }
           if (
             element.getAttribute('data-id') &&
-            isUniqueElement(`[data-id='${element.getAttribute('data-id')}']`)
+            isUniqueElement(
+              `${tagName}[data-id='${element.getAttribute('data-id')}']`
+            )
           ) {
             selectors.push({
               type: 'locator',
-              value: `[data-id='${element.getAttribute('data-id')}']`,
+              value: `${tagName}[data-id='${element.getAttribute('data-id')}']`,
             });
           }
           if (
             element.getAttribute('data-action') &&
             isUniqueElement(
-              `[data-action='${element.getAttribute('data-action')}']`
+              `${tagName}[data-action='${element.getAttribute('data-action')}']`
             )
           ) {
             selectors.push({
               type: 'locator',
-              value: `[data-action='${element.getAttribute('data-action')}']`,
+              value: `${tagName}[data-action='${element.getAttribute('data-action')}']`,
             });
           }
           if (
             element.getAttribute('data-cy') &&
-            isUniqueElement(`[data-cy='${element.getAttribute('data-cy')}']`)
+            isUniqueElement(
+              `${tagName}[data-cy='${element.getAttribute('data-cy')}']`
+            )
           ) {
             selectors.push({
               type: 'locator',
-              value: `[data-cy="${element.getAttribute('data-cy')}"]`,
+              value: `${tagName}[data-cy='${element.getAttribute('data-cy')}']`,
             });
           }
           if (
             element.name &&
             tagName === 'input' &&
             (element.type === 'text' || element.type === 'password') &&
-            isUniqueElement(`[name='${element.name}']`)
+            isUniqueElement(`${tagName}[name='${element.name}']`)
           ) {
             selectors.push({
               type: 'locator',
-              value: `[name="${element.name}"]`,
+              value: `${tagName}[name='${element.name}']`,
             });
           } else if (
             element.name &&
             tagName === 'input' &&
             (element.type === 'checkbox' || element.type === 'radio') &&
             isUniqueElement(
-              `[name='${element.name}'][value='${element.value}']`
+              `${tagName}[name='${element.name}'][value='${element.value}']`
             )
           ) {
             selectors.push({
               type: 'locator',
-              value: `[name="${element.name}"][value="${element.value}"]`,
+              value: `${tagName}[name='${element.name}'][value='${element.value}']`,
             });
           }
           if (
             element.ariaLabel &&
-            isUniqueElement(`[aria-label='${element.ariaLabel}']`)
+            isUniqueElement(`${tagName}[aria-label='${element.ariaLabel}']`)
           ) {
             selectors.push({
               type: 'locator',
-              value: `[aria-label="${element.ariaLabel}"]`,
+              value: `${tagName}[aria-label='${element.ariaLabel}']`,
             });
           }
           if (
@@ -171,7 +172,7 @@ const injectEventRecordingScript = async (page, url) => {
           ) {
             selectors.push({
               type: 'locator',
-              value: `[role='${element.role}'][name='${element.name}']`,
+              value: `${tagName}[role='${element.role}'][name='${element.name}']`,
             });
           }
           if (
@@ -403,9 +404,13 @@ const injectEventRecordingScript = async (page, url) => {
       document.addEventListener('click', (event) => {
         const currentTarget = getParentElementWithEventOrId(event, 'onclick');
         const selectors = getBestSelectors(currentTarget);
+        selectors.push({
+          type: 'locator',
+          value: generateXPathWithNearestParentId(currentTarget),
+        });
         window.saveEventForTest({
           type: 'click',
-          target: generateXPathWithNearestParentId(currentTarget),
+          target: selectors[0].value,
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
