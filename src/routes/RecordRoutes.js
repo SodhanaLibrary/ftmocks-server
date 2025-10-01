@@ -490,9 +490,9 @@ const injectEventRecordingScript = async (page, url) => {
       //     element: getElement(currentTarget),
       //   });
       // });
-      document.addEventListener('popstate', () => {
+      window.addEventListener('popstate', () => {
         window.saveEventForTest({
-          type: 'url',
+          type: 'popstate-url',
           target: window.location.pathname,
           time: new Date().toISOString(),
           value: window.location.href,
@@ -504,7 +504,7 @@ const injectEventRecordingScript = async (page, url) => {
       window.history.pushState = function () {
         originalPushState.apply(this, arguments);
         window.saveEventForTest({
-          type: 'url',
+          type: 'pushstate-url',
           target: window.location.pathname,
           time: new Date().toISOString(),
           value: window.location.href,
@@ -515,7 +515,7 @@ const injectEventRecordingScript = async (page, url) => {
       window.history.replaceState = function () {
         originalReplaceState.apply(this, arguments);
         window.saveEventForTest({
-          type: 'url',
+          type: 'replacestate-url',
           target: window.location.pathname,
           time: new Date().toISOString(),
           value: window.location.href,
@@ -601,7 +601,7 @@ const recordMocks = async (browser, req, res) => {
     logger.info('Starting mock recording', {
       url: req.body.url,
       testName: req.body.testName,
-      pattern: req.body.pattern,
+      patterns: req.body.patterns,
       recordEvents: req.body.recordEvents,
       avoidDuplicatesInTheTest: req.body.avoidDuplicatesInTheTest,
       avoidDuplicatesWithDefaultMocks: req.body.avoidDuplicatesWithDefaultMocks,
@@ -621,21 +621,33 @@ const recordMocks = async (browser, req, res) => {
     page.setDefaultTimeout(60000);
     const url = req.body.url; // Predefined URL
     const testName = req.body.testName;
-    const pattern = req.body.pattern;
+    const patterns = req.body.patterns || [];
     process.env.recordTest = testName;
     process.env.recordMocks = testName;
 
     // Spy on fetch API calls
     await page.route('**', async (route) => {
       try {
-        // Convert pattern string to RegExp
+        // Check if URL matches any of the patterns
         const urlObj = new URL(route.request().url());
-        if (pattern && pattern.length > 0) {
-          const patternRegex = new RegExp(pattern);
-          if (!patternRegex.test(urlObj.pathname)) {
-            logger.debug('Route skipped - pattern mismatch', {
+        if (patterns && patterns.length > 0) {
+          const matchesPattern = patterns.some((pattern) => {
+            try {
+              const patternRegex = new RegExp(pattern);
+              return patternRegex.test(urlObj.pathname);
+            } catch (error) {
+              logger.warn('Invalid regex pattern', {
+                pattern,
+                error: error.message,
+              });
+              return false;
+            }
+          });
+
+          if (!matchesPattern) {
+            logger.debug('Route skipped - no pattern matches', {
               url: urlObj.pathname,
-              pattern,
+              patterns,
             });
             await route.continue();
             return;
