@@ -40,8 +40,11 @@ const {
 const {
   getRecordedEvents,
   deleteRecordedEvent,
+  updateRecordedEvent,
   recordEventData,
   deleteAllEvents,
+  duplicateRecordedEvent,
+  addEmptyEvent,
 } = require('./src/routes/RecordedEventRoutes');
 const {
   getRecordedLogs,
@@ -199,8 +202,17 @@ app.post('/api/v1/recordedEvents', recordEventData);
 // Router for /api/v1/recordedEvents DELETE method
 app.delete('/api/v1/recordedEvents/:id', deleteRecordedEvent);
 
+// Router for /api/v1/recordedEvents DELETE method
+app.put('/api/v1/recordedEvents/:id', updateRecordedEvent);
+
 // Router for /api/v1/deleteAllEvents DELETE method
 app.delete('/api/v1/deleteAllEvents', deleteAllEvents);
+
+// Router for /api/v1/recordedEvents/:id/duplicate POST method
+app.post('/api/v1/recordedEvents/:id/duplicate', duplicateRecordedEvent);
+
+// Router for /api/v1/recordedEvents/:id/emptyEvent POST method
+app.post('/api/v1/recordedEvents/:id/emptyEvent', addEmptyEvent);
 
 app.post('/api/v1/code/save', saveFile);
 

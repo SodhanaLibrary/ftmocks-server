@@ -293,9 +293,204 @@ const recordEventData = async (req, res) => {
   }
 };
 
+const updateRecordedEvent = async (req, res) => {
+  try {
+    const testName = req.query.name || 'recordMocks';
+    const eventsPath = path.join(
+      process.env.MOCK_DIR,
+      testName ? `test_${nameToFolder(testName)}` : 'recordMocks',
+      '_events.json'
+    );
+
+    if (!fs.existsSync(eventsPath)) {
+      logger.warn('Events file does not exist for update', { eventsPath });
+      return res.status(404).json({ error: 'Events file not found' });
+    }
+
+    const eventsData = fs.readFileSync(eventsPath, 'utf8');
+    let events = [];
+    try {
+      events = JSON.parse(eventsData);
+    } catch (parseErr) {
+      logger.error('Failed to parse events file during update', {
+        eventsPath,
+        error: parseErr.message,
+      });
+      return res.status(500).json({ error: 'Failed to parse events file' });
+    }
+
+    const eventId = req.params.id;
+    const eventIndex = events.findIndex((e) => e.id === eventId);
+
+    if (eventIndex === -1) {
+      logger.warn('Event to update not found', { eventId, eventsPath });
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    // Update the event with new data from req.body
+    const updatedEvent = {
+      ...events[eventIndex],
+      ...req.body,
+      id: eventId, // Ensure id is not changed
+    };
+    events[eventIndex] = updatedEvent;
+
+    fs.writeFileSync(eventsPath, JSON.stringify(events, null, 2));
+
+    logger.info('Event updated successfully', {
+      eventId,
+      testName,
+      eventsPath,
+    });
+
+    res.status(200).json(updatedEvent);
+  } catch (error) {
+    logger.error('Error updating recorded event', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const duplicateRecordedEvent = (req, res) => {
+  try {
+    const testName = req.query.name;
+    if (!testName) {
+      return res.status(400).json({ error: 'Test name is required' });
+    }
+
+    const eventsPath = path.join(
+      process.env.MOCK_DIR,
+      testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
+      '_events.json'
+    );
+
+    if (!fs.existsSync(eventsPath)) {
+      logger.warn('Events file does not exist for duplication', { eventsPath });
+      return res.status(404).json({ error: 'Events file not found' });
+    }
+
+    const eventsData = fs.readFileSync(eventsPath, 'utf8');
+    let events = [];
+    try {
+      events = JSON.parse(eventsData);
+    } catch (parseErr) {
+      logger.error('Failed to parse events file during duplication', {
+        eventsPath,
+        error: parseErr.message,
+      });
+      return res.status(500).json({ error: 'Failed to parse events file' });
+    }
+
+    const eventId = req.params.id;
+    const eventIndex = events.findIndex((e) => e.id === eventId);
+
+    if (eventIndex === -1) {
+      logger.warn('Event to duplicate not found', { eventId, eventsPath });
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    // Duplicate the event with a new id
+    const duplicatedEvent = {
+      ...events[eventIndex],
+      id: uuidv4(),
+    };
+    events.splice(eventIndex + 1, 0, duplicatedEvent);
+
+    fs.writeFileSync(eventsPath, JSON.stringify(events, null, 2));
+
+    logger.info('Event duplicated successfully', {
+      originalEventId: eventId,
+      duplicatedEventId: duplicatedEvent.id,
+      testName,
+      eventsPath,
+    });
+
+    res.status(201).json(duplicatedEvent);
+  } catch (error) {
+    logger.error('Error duplicating recorded event', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Adds an empty event to the events file for a given test
+const addEmptyEvent = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    const testName = req.query.name;
+    if (!testName) {
+      return res.status(400).json({ error: 'Test name is required' });
+    }
+
+    const eventsPath = path.join(
+      process.env.MOCK_DIR,
+      testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
+      '_events.json'
+    );
+
+    // Ensure the events file exists, or create it if not
+    if (!fs.existsSync(eventsPath)) {
+      fs.writeFileSync(eventsPath, '[]');
+    }
+
+    const eventsData = fs.readFileSync(eventsPath, 'utf8');
+    let events = [];
+    try {
+      events = JSON.parse(eventsData);
+    } catch (parseErr) {
+      logger.error('Failed to parse events file during addEmptyEvent', {
+        eventsPath,
+        error: parseErr.message,
+      });
+      return res.status(500).json({ error: 'Failed to parse events file' });
+    }
+
+    // Create a new empty event
+    const newEvent = {
+      id: uuidv4(),
+      type: '',
+      target: '',
+      value: '',
+      time: new Date().toISOString(),
+    };
+    // Find the index of the event with the given eventId
+    let insertIndex = events.findIndex((event) => event.id === eventId);
+    if (insertIndex === -1) {
+      // If not found, just push to the end
+      events.push(newEvent);
+    } else {
+      // Insert newEvent right after the found event
+      events.splice(insertIndex + 1, 0, newEvent);
+    }
+
+    fs.writeFileSync(eventsPath, JSON.stringify(events, null, 2));
+
+    logger.info('Empty event added successfully', {
+      newEventId: newEvent.id,
+      testName,
+      eventsPath,
+    });
+
+    res.status(201).json(newEvent);
+  } catch (error) {
+    logger.error('Error adding empty event', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getRecordedEvents,
   deleteRecordedEvent,
+  updateRecordedEvent,
   recordEventData,
   deleteAllEvents,
+  duplicateRecordedEvent,
+  addEmptyEvent,
 };
