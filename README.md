@@ -10,6 +10,16 @@
 - Default mock data for all test cases
 - Mock server for the test case
 
+## Quickstart with playwright
+
+### Initialize a New Mock Project with Playwright and ftmocks-server
+
+To quickly set up a new mock project, install Playwright, and clone & start the ftmocks-server, run:
+
+```bash
+npx ftmocks init-playwright-all
+```
+
 ## Documentation
 
 - Please visit FtMocks(www.ftmocks.com)
