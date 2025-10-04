@@ -29,7 +29,7 @@ function getLastWordFromApiUrl(apiUrl) {
 const getRecordedMocks = async (req, res) => {
   const defaultPath = path.join(
     process.env.MOCK_DIR,
-    'recordMocks',
+    'defaultMocks',
     '_mock_list.json'
   );
 
@@ -56,7 +56,7 @@ const getRecordedMocks = async (req, res) => {
     parsedData = parsedData.map((entry) => {
       const mockFilePath = path.join(
         process.env.MOCK_DIR,
-        'recordMocks',
+        'defaultMocks',
         `mock_${entry.id}.json`
       );
       try {
@@ -96,7 +96,7 @@ const getRecordedMocks = async (req, res) => {
 };
 
 const deleteAllRecordedMocks = async (req, res) => {
-  const defaultPath = path.join(process.env.MOCK_DIR, 'recordMocks');
+  const defaultPath = path.join(process.env.MOCK_DIR, 'defaultMocks');
 
   try {
     logger.info('Deleting all recorded mocks', {
@@ -130,7 +130,7 @@ const deleteRecordedMock = async (req, res) => {
   const mockId = req.params.id;
   const defaultPath = path.join(
     process.env.MOCK_DIR,
-    'recordMocks',
+    'defaultMocks',
     '_mock_list.json'
   );
 
@@ -161,7 +161,7 @@ const deleteRecordedMock = async (req, res) => {
     // Get the file path of the mock to be deleted
     const mockFilePath = path.join(
       process.env.MOCK_DIR,
-      'recordMocks',
+      'defaultMocks',
       `mock_${mockToDelete.id}.json`
     );
 
@@ -206,7 +206,7 @@ const updateRecordedMock = async (req, res) => {
 
     const mockFilePath = path.join(
       process.env.MOCK_DIR,
-      'recordMocks',
+      'defaultMocks',
       `mock_${id}.json`
     );
 
@@ -250,7 +250,7 @@ const updateRecordedMock = async (req, res) => {
 const initiateRecordedMocks = async (req, res) => {
   const defaultPath = path.join(
     process.env.MOCK_DIR,
-    'recordMocks',
+    'defaultMocks',
     '_mock_list.json'
   );
 
@@ -283,7 +283,7 @@ const initiateRecordedMocks = async (req, res) => {
       const entry = parsedData[index];
       const mockFilePath = path.join(
         process.env.MOCK_DIR,
-        'recordMocks',
+        'defaultMocks',
         `mock_${entry.id}.json`
       );
       try {

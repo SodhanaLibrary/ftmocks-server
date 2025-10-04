@@ -45,6 +45,7 @@ const {
   deleteAllEvents,
   duplicateRecordedEvent,
   addEmptyEvent,
+  reorderRecordedEvents,
 } = require('./src/routes/RecordedEventRoutes');
 const {
   getRecordedLogs,
@@ -213,6 +214,9 @@ app.post('/api/v1/recordedEvents/:id/duplicate', duplicateRecordedEvent);
 
 // Router for /api/v1/recordedEvents/:id/emptyEvent POST method
 app.post('/api/v1/recordedEvents/:id/emptyEvent', addEmptyEvent);
+
+// Router for /api/v1/recordedEvents/reorder PUT method
+app.put('/api/v1/reorderRecordedEvents', reorderRecordedEvents);
 
 app.post('/api/v1/code/save', saveFile);
 

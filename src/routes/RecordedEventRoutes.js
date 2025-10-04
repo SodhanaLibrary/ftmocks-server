@@ -7,13 +7,13 @@ const { nameToFolder } = require('../utils/MockUtils');
 const getRecordedEvents = async (req, res) => {
   const eventsPath = path.join(
     process.env.MOCK_DIR,
-    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'recordMocks',
+    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'defaultMocks',
     '_events.json'
   );
 
   try {
     logger.info('Getting recorded events', {
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       eventsPath,
     });
 
@@ -23,7 +23,7 @@ const getRecordedEvents = async (req, res) => {
       const eventsData = fs.readFileSync(eventsPath, 'utf8');
       parsedData = JSON.parse(eventsData);
       logger.info('Successfully retrieved recorded events', {
-        testName: req.query.name || 'recordMocks',
+        testName: req.query.name || 'defaultMocks',
         eventCount: parsedData.length,
         eventsPath,
       });
@@ -36,7 +36,7 @@ const getRecordedEvents = async (req, res) => {
     res.status(200).json(parsedData);
   } catch (error) {
     logger.error('Error reading or parsing events file', {
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       eventsPath,
       error: error.message,
       stack: error.stack,
@@ -48,18 +48,18 @@ const getRecordedEvents = async (req, res) => {
 const deleteAllEvents = async (req, res) => {
   const eventsPath = path.join(
     process.env.MOCK_DIR,
-    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'recordMocks',
+    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'defaultMocks',
     '_events.json'
   );
   const snapsPath = path.join(
     process.env.MOCK_DIR,
-    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'recordMocks',
+    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'defaultMocks',
     '_snaps'
   );
 
   try {
     logger.info('Deleting all recorded events', {
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       eventsPath,
       snapsPath,
     });
@@ -84,7 +84,7 @@ const deleteAllEvents = async (req, res) => {
     }
 
     logger.info('All recorded events deleted successfully', {
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       eventsDeleted: eventsExist,
       snapsDeleted: snapsExist,
     });
@@ -92,7 +92,7 @@ const deleteAllEvents = async (req, res) => {
     res.status(200).json([]);
   } catch (error) {
     logger.error('Error deleting all events', {
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       eventsPath,
       snapsPath,
       error: error.message,
@@ -106,14 +106,14 @@ const deleteRecordedEvent = async (req, res) => {
   const mockId = req.params.id;
   const eventsPath = path.join(
     process.env.MOCK_DIR,
-    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'recordMocks',
+    req.query.name ? `test_${nameToFolder(req.query.name)}` : 'defaultMocks',
     '_events.json'
   );
 
   try {
     logger.info('Deleting recorded event', {
       eventId: mockId,
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       eventsPath,
     });
 
@@ -126,7 +126,7 @@ const deleteRecordedEvent = async (req, res) => {
     if (mockIndex === -1) {
       logger.warn('Event not found for deletion', {
         eventId: mockId,
-        testName: req.query.name || 'recordMocks',
+        testName: req.query.name || 'defaultMocks',
       });
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -136,7 +136,7 @@ const deleteRecordedEvent = async (req, res) => {
       eventId: mockId,
       eventType: eventToDelete.type,
       eventTime: eventToDelete.time,
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
     });
 
     // Remove the mock from the array
@@ -147,7 +147,7 @@ const deleteRecordedEvent = async (req, res) => {
 
     logger.info('Event deleted successfully', {
       eventId: mockId,
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       remainingEvents: eventsData.length,
     });
 
@@ -155,7 +155,7 @@ const deleteRecordedEvent = async (req, res) => {
   } catch (error) {
     logger.error('Error deleting event', {
       eventId: mockId,
-      testName: req.query.name || 'recordMocks',
+      testName: req.query.name || 'defaultMocks',
       eventsPath,
       error: error.message,
       stack: error.stack,
@@ -171,7 +171,7 @@ const recordEventData = async (req, res) => {
 
   try {
     logger.info('Recording event data', {
-      testName: testName || 'recordMocks',
+      testName: testName || 'defaultMocks',
       eventType: mockData.type,
       hasBodyHtml: !!mockData.bodyHtml,
     });
@@ -179,7 +179,7 @@ const recordEventData = async (req, res) => {
     mockData.id = uuidv4();
     const mockDir = path.join(
       process.env.MOCK_DIR,
-      testName ? `test_${nameToFolder(testName)}` : 'recordMocks'
+      testName ? `test_${nameToFolder(testName)}` : 'defaultMocks'
     );
     const mockEventsFilePath = path.join(mockDir, `_events.json`);
     const mockSnapsPath = path.join(mockDir, `_snaps`);
@@ -227,7 +227,7 @@ const recordEventData = async (req, res) => {
         {
           eventType: mockData.type,
           eventTime: mockData.time,
-          testName: testName || 'recordMocks',
+          testName: testName || 'defaultMocks',
         }
       );
       return res.json({
@@ -276,7 +276,7 @@ const recordEventData = async (req, res) => {
     logger.info('Event recorded successfully', {
       eventId: mockData.id,
       eventType: mockData.type,
-      testName: testName || 'recordMocks',
+      testName: testName || 'defaultMocks',
       totalEvents: mockDataSummary.length,
       hasSnapshot: !!mockData.bodyHtml,
     });
@@ -284,7 +284,7 @@ const recordEventData = async (req, res) => {
     res.json(mockData);
   } catch (error) {
     logger.error('Error recording event data', {
-      testName: testName || 'recordMocks',
+      testName: testName || 'defaultMocks',
       eventType: mockData?.type,
       error: error.message,
       stack: error.stack,
@@ -295,10 +295,10 @@ const recordEventData = async (req, res) => {
 
 const updateRecordedEvent = async (req, res) => {
   try {
-    const testName = req.query.name || 'recordMocks';
+    const testName = req.query.name || 'defaultMocks';
     const eventsPath = path.join(
       process.env.MOCK_DIR,
-      testName ? `test_${nameToFolder(testName)}` : 'recordMocks',
+      testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
       '_events.json'
     );
 
@@ -485,6 +485,80 @@ const addEmptyEvent = async (req, res) => {
   }
 };
 
+const reorderRecordedEvents = (req, res) => {
+  try {
+    const testName = req.query.name;
+    const { eventIds } = req.body;
+
+    if (!testName || !Array.isArray(eventIds)) {
+      return res
+        .status(400)
+        .json({ error: 'Missing test name or eventIds array' });
+    }
+
+    const eventsPath = path.join(
+      process.env.MOCK_DIR,
+      testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
+      '_events.json'
+    );
+
+    if (!fs.existsSync(eventsPath)) {
+      return res.status(404).json({ error: 'Events file not found' });
+    }
+
+    const eventsData = fs.readFileSync(eventsPath, 'utf8');
+    let events = [];
+    try {
+      events = JSON.parse(eventsData);
+    } catch (parseErr) {
+      logger.error('Failed to parse events file during reorder', {
+        eventsPath,
+        error: parseErr.message,
+      });
+      return res.status(500).json({ error: 'Failed to parse events file' });
+    }
+
+    // Create a map for quick lookup
+    const eventMap = {};
+    events.forEach((event) => {
+      eventMap[event.id] = event;
+    });
+
+    // Reorder events according to eventIds
+    const reorderedEvents = [];
+    for (const id of eventIds) {
+      if (eventMap[id]) {
+        reorderedEvents.push(eventMap[id]);
+      }
+    }
+
+    // Optionally, append any events that were not included in eventIds (shouldn't happen, but for safety)
+    if (reorderedEvents.length !== events.length) {
+      events.forEach((event) => {
+        if (!eventIds.includes(event.id)) {
+          reorderedEvents.push(event);
+        }
+      });
+    }
+
+    fs.writeFileSync(eventsPath, JSON.stringify(reorderedEvents, null, 2));
+
+    logger.info('Events reordered successfully', {
+      testName,
+      eventsPath,
+      newOrder: eventIds,
+    });
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    logger.error('Error reordering events', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getRecordedEvents,
   deleteRecordedEvent,
@@ -493,4 +567,5 @@ module.exports = {
   deleteAllEvents,
   duplicateRecordedEvent,
   addEmptyEvent,
+  reorderRecordedEvents,
 };
