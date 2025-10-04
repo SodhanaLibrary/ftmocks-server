@@ -31,13 +31,6 @@ const {
   moveDefaultmocks,
 } = require('./src/routes/DefaultMockRoutes');
 const {
-  getRecordedMocks,
-  deleteRecordedMock,
-  deleteAllRecordedMocks,
-  updateRecordedMock,
-  initiateRecordedMocks,
-} = require('./src/routes/RecordedMockRoutes');
-const {
   getRecordedEvents,
   deleteRecordedEvent,
   updateRecordedEvent,
@@ -178,21 +171,6 @@ app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);
 app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
 
 app.get('/api/v1/env/project', getEnvProject);
-
-// Router for /api/v1/defaultmocks GET method
-app.get('/api/v1/recordedMocks', getRecordedMocks);
-
-// Router for /api/v1/defaultmocks GET method
-app.delete('/api/v1/recordedMocks', deleteAllRecordedMocks);
-
-// Router for /api/v1/defaultmocks GET method
-app.post('/api/v1/initiateRecordedMocks', initiateRecordedMocks);
-
-// Router for /api/v1/defaultmocks/:id DELETE method
-app.delete('/api/v1/recordedMocks/:id', deleteRecordedMock);
-
-// Router for /api/v1/defaultmocks/:id PUT method
-app.put('/api/v1/recordedMocks/:id', updateRecordedMock);
 
 // Router for /api/v1/recordedEvents GET method
 app.get('/api/v1/recordedEvents', getRecordedEvents);

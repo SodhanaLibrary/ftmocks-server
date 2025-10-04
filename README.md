@@ -12,8 +12,6 @@
 
 ## Quickstart with playwright
 
-### Initialize a New Mock Project with Playwright and ftmocks-server
-
 To quickly set up a new mock project, install Playwright, and clone & start the ftmocks-server, run:
 
 ```bash
