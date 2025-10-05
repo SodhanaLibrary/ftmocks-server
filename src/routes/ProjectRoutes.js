@@ -45,11 +45,16 @@ const loadEnvVariables = (project_env_file) => {
   } else {
     const defaultData = fs.readFileSync(projectsFile, 'utf8');
     prs = JSON.parse(defaultData);
+    if (!Array.isArray(prs) && typeof prs[0] === 'string') {
+      prs = prs.map((aPr) => ({ env_file: aPr }));
+    }
   }
-  prs = prs.filter((aPr) => aPr !== project_env_file);
+  prs = prs.filter((aPr) => aPr.env_file !== project_env_file);
   prs.reverse();
-  prs.push(project_env_file);
-  prs = [...new Set(prs)]; // Remove any duplicates
+  prs.push({ env_file: project_env_file });
+  prs = [...new Set(prs.map((aPr) => aPr.env_file))].map((env_file) =>
+    prs.find((aPr) => aPr.env_file === env_file)
+  ); // Remove any duplicates
   prs.reverse();
   fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2));
 
@@ -76,8 +81,7 @@ const getRecordedProjects = async (req, res) => {
     let parsedData = JSON.parse(defaultData);
 
     logger.info('Successfully retrieved recorded projects', {
-      projectCount: parsedData.length,
-      projects: parsedData.map((p) => path.basename(p)),
+      projects: parsedData,
     });
 
     res.status(200).json(parsedData);
@@ -261,7 +265,7 @@ const ignoreForAll = async (req, res) => {
 };
 
 const removeProject = async (req, res) => {
-  const project = req.body.project;
+  const project = req.body.env_file;
   const defaultPath = 'projects.json';
 
   try {
@@ -278,11 +282,10 @@ const removeProject = async (req, res) => {
     let parsedData = JSON.parse(defaultData);
 
     logger.info('Successfully retrieved recorded projects', {
-      projectCount: parsedData.length,
-      projects: parsedData.map((p) => path.basename(p)),
+      projects: parsedData,
     });
 
-    const newData = parsedData.filter((p) => p !== project);
+    const newData = parsedData.filter((p) => p.env_file !== project);
 
     fs.writeFileSync(defaultPath, JSON.stringify(newData, null, 2));
 
@@ -311,7 +314,7 @@ const addProject = async (req, res) => {
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
     let parsedData = JSON.parse(defaultData);
 
-    parsedData.unshift(project);
+    parsedData.unshift({ env_file: project });
 
     fs.writeFileSync(defaultPath, JSON.stringify(parsedData, null, 2));
 
@@ -332,7 +335,7 @@ const getLatestProject = () => {
   }
   const defaultData = fs.readFileSync(defaultPath, 'utf8');
   const parsedData = JSON.parse(defaultData);
-  return parsedData?.length > 0 ? parsedData[0] : 'my-project.env';
+  return parsedData?.length > 0 ? parsedData[0].env_file : 'my-project.env';
 };
 
 module.exports = {

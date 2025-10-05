@@ -60,13 +60,6 @@ decipher.setAuthTag(authTagDec);
 let decrypted = decipher.update(ciphertext, undefined, 'utf8');
 decrypted += decipher.final('utf8');
 
-logger.debug('Demo decryption completed', {
-  decryptedDataLength: decrypted.length,
-  decryptionSuccessful: decrypted === data,
-});
-
-console.log(`Decrypted Data: ${decrypted}`);
-
 // ==================================================
 // Helper functions for vault encryption/decryption
 // ==================================================

@@ -6,6 +6,7 @@ const {
   getAbsolutePathWithMockDir,
   getRelativePathWithCurrentDir,
 } = require('../utils/MockUtils');
+const { getLatestProjectUrls } = require('../utils/projectUtils');
 
 const getEnvProject = async (req, res) => {
   try {
@@ -34,6 +35,7 @@ const getEnvProject = async (req, res) => {
         absolutePlaywrightDir,
         absoluteFallbackDir
       ),
+      URLS: getLatestProjectUrls(),
     };
 
     logger.debug('Environment configuration retrieved', {

@@ -8,6 +8,7 @@ const {
   compareMockToMock,
   loadMockDataFromMockListFile,
 } = require('../utils/MockUtils');
+const { addUrlToProject } = require('../utils/projectUtils');
 
 const injectEventRecordingScript = async (page, url) => {
   try {
@@ -629,6 +630,7 @@ const recordMocks = async (browser, req, res) => {
     const patterns = req.body.patterns || [];
     process.env.recordTest = testName;
     process.env.recordMocks = testName;
+    addUrlToProject(url);
 
     // Spy on fetch API calls
     await page.route('**', async (route) => {
