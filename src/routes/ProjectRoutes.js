@@ -39,23 +39,27 @@ const loadEnvVariables = (project_env_file) => {
   }
 
   let prs = [];
+  const urls = [];
   const projectsFile = 'projects.json';
   if (!fs.existsSync(projectsFile)) {
     fs.writeFileSync(projectsFile, '[]');
   } else {
     const defaultData = fs.readFileSync(projectsFile, 'utf8');
     prs = JSON.parse(defaultData);
-    if (!Array.isArray(prs) && typeof prs[0] === 'string') {
+    if (Array.isArray(prs) && typeof prs[0] === 'string') {
       prs = prs.map((aPr) => ({ env_file: aPr }));
     }
   }
-  prs = prs.filter((aPr) => aPr.env_file !== project_env_file);
-  prs.reverse();
-  prs.push({ env_file: project_env_file });
+  let currProject = prs.find((aPr) => aPr.env_file === project_env_file);
+  if (!currProject) {
+    currProject = { env_file: project_env_file, urls: [] };
+  } else {
+    prs = prs.filter((aPr) => aPr.env_file !== project_env_file);
+  }
+  prs.unshift(currProject);
   prs = [...new Set(prs.map((aPr) => aPr.env_file))].map((env_file) =>
     prs.find((aPr) => aPr.env_file === env_file)
   ); // Remove any duplicates
-  prs.reverse();
   fs.writeFileSync(projectsFile, JSON.stringify(prs, null, 2));
 
   logger.info('Environment variables loaded successfully', {

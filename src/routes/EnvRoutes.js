@@ -35,7 +35,7 @@ const getEnvProject = async (req, res) => {
         absolutePlaywrightDir,
         absoluteFallbackDir
       ),
-      URLS: getLatestProjectUrls(),
+      MetaData: getLatestProjectUrls(),
     };
 
     logger.debug('Environment configuration retrieved', {

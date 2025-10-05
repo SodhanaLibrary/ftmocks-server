@@ -630,7 +630,7 @@ const recordMocks = async (browser, req, res) => {
     const patterns = req.body.patterns || [];
     process.env.recordTest = testName;
     process.env.recordMocks = testName;
-    addUrlToProject(url);
+    addUrlToProject({ url, patterns });
 
     // Spy on fetch API calls
     await page.route('**', async (route) => {

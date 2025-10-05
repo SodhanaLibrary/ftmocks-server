@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const addUrlToProject = async (url) => {
+const addUrlToProject = async ({ url, patterns }) => {
   const projectsFile = path.resolve('projects.json');
 
   try {
@@ -15,9 +15,11 @@ const addUrlToProject = async (url) => {
     // Ensure urls array exists
     if (!Array.isArray(projects[0].urls)) {
       projects[0].urls = [];
+      projects[0].patterns = [];
     }
     // Remove the url if it already exists
     projects[0].urls = projects[0].urls.filter((u) => u !== url);
+    projects[0].patterns = patterns;
     // Add the url to the top
     projects[0].urls.unshift(url);
 
@@ -32,7 +34,7 @@ const addUrlToProject = async (url) => {
 const getLatestProjectUrls = () => {
   const projectsFile = path.resolve('projects.json');
   const projects = JSON.parse(fs.readFileSync(projectsFile, 'utf8'));
-  return projects[0].urls;
+  return { urls: projects[0].urls, patterns: projects[0].patterns };
 };
 
 module.exports = {
