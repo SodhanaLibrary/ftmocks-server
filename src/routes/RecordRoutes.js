@@ -9,6 +9,7 @@ const {
   loadMockDataFromMockListFile,
 } = require('../utils/MockUtils');
 const { addUrlToProject } = require('../utils/projectUtils');
+const { saveIfItIsFile } = require('../utils/FileUtils');
 
 const injectEventRecordingScript = async (page, url) => {
   try {
@@ -535,56 +536,6 @@ const injectEventRecordingScript = async (page, url) => {
       error: error.message,
       stack: error.stack,
     });
-  }
-};
-
-const saveIfItIsFile = async (route, testName, id) => {
-  try {
-    const urlObj = new URL(route.request().url());
-
-    // Check if URL contains file extension like .js, .png, .css etc
-    const fileExtMatch = urlObj.pathname.match(/\.[a-zA-Z0-9]+$/);
-    if (fileExtMatch) {
-      const fileExt = fileExtMatch[0];
-      logger.debug(`Processing file request: ${urlObj.pathname}`, {
-        fileExt,
-        testName: testName || 'defaultMocks',
-      });
-
-      // Create directory path matching URL structure
-      const dirPath = path.join(
-        process.env.MOCK_DIR,
-        testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
-        '_files'
-      );
-
-      // Create directories if they don't exist
-      fs.mkdirSync(dirPath, { recursive: true });
-
-      // Save file with original name
-      const fileName = `${id}${fileExt}`;
-      const filePath = path.join(dirPath, fileName);
-
-      const response = await route.fetch();
-      const buffer = await response.body();
-      fs.writeFileSync(filePath, buffer);
-
-      logger.info(`File saved successfully: ${fileName}`, {
-        originalPath: urlObj.pathname,
-        savedPath: filePath,
-        fileSize: buffer.length,
-      });
-
-      return fileName;
-    }
-    return false;
-  } catch (error) {
-    logger.error('Error saving file', {
-      error: error.message,
-      url: route.request().url(),
-      testName: testName || 'defaultMocks',
-    });
-    return false;
   }
 };
 

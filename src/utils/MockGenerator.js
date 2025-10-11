@@ -13,6 +13,7 @@ const {
   nameToFolder,
   compareMockToMock,
 } = require('./MockUtils');
+const { isFileLikeHarEntry } = require('./FileUtils');
 
 function isJsonResponse(entry) {
   // Check if the response has a content type header and it is JSON
@@ -106,12 +107,48 @@ function processHAR(
             status: entry.response.status,
           });
 
+          const isFileLike = isFileLikeHarEntry(entry);
+          let filePath = null;
+          let fileName = null;
+          if (isFileLike) {
+            // Save file-like HAR entry to a "_files" directory for reference
+            const filesDir = path.join(outputFolder, '_files');
+            if (!fs.existsSync(filesDir)) {
+              fs.mkdirSync(filesDir, { recursive: true });
+            }
+            // Use a unique filename: index + original file extension if possible
+            let fileExt = '';
+            try {
+              const urlObj = new URL(url);
+              const pathname = urlObj.pathname;
+              const lastDot = pathname.lastIndexOf('.');
+              if (lastDot !== -1) {
+                fileExt = pathname.substring(lastDot);
+              }
+            } catch (e) {
+              // fallback: no extension
+              fileExt = '';
+            }
+            fileName = `${uuid.v4()}${fileExt || ''}`;
+            filePath = path.join(filesDir, fileName);
+
+            logger.debug('Saved file-like HAR entry to _files', {
+              filePath,
+              url,
+              method,
+              status: entry.response.status,
+            });
+          }
           const responseInfo = {
             url,
             method,
             request: {
               headers: entry.request.headers.reduce((headers, header) => {
-                if (header.name.toLowerCase() !== 'cookie') {
+                if (
+                  !process.env.EXCLUDED_HEADERS.toLowerCase()
+                    .split(',')
+                    .includes(header.name.toLowerCase())
+                ) {
                   headers[header.name] = header.value;
                 }
                 return headers;
@@ -120,15 +157,20 @@ function processHAR(
               postData: entry.request.postData,
             },
             response: {
+              file: fileName,
               status:
                 entry.response.status === 304 ? 200 : entry.response.status,
               headers: entry.response.headers.reduce((headers, header) => {
-                if (header.name.toLowerCase() !== 'set-cookie') {
+                if (
+                  !process.env.EXCLUDED_HEADERS.toLowerCase()
+                    .split(',')
+                    .includes(header.name.toLowerCase())
+                ) {
                   headers[header.name] = header.value;
                 }
                 return headers;
               }, {}),
-              content: entry.response.content.text,
+              content: fileName ? null : entry.response.content.text,
             },
           };
 
@@ -180,6 +222,15 @@ function processHAR(
             responseFilePath,
             JSON.stringify(responseInfo, null, 2)
           );
+          if (fileName) {
+            // Save the file content (decode if base64)
+            let fileContent = entry.response.content.text;
+            if (entry.response.content.encoding === 'base64') {
+              fs.writeFileSync(filePath, Buffer.from(fileContent, 'base64'));
+            } else {
+              fs.writeFileSync(filePath, fileContent, 'utf8');
+            }
+          }
           logger.debug('Created mock file', {
             mockId,
             responseFilePath,
