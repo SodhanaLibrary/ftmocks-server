@@ -2,7 +2,7 @@
 
 ## Overview
 
-**FtMocks** is a Node.js application that will simplify your maintainance of mock data. This project was created to acheive full code coverage for your frontend project.
+**FtMocks** is a Node.js application that will simplify your maintainance of mock data.
 
 ## Features
 
@@ -74,6 +74,10 @@ To start the project, use:
 ```bash
 npm start my-project
 ```
+
+## About ftmocks-utils
+
+Refer to the [ftmocks-utils README](../ftmocks-utils/README.md) for detailed API documentation, usage examples, and advanced configuration. This package is essential for running mock servers and recording/replaying network traffic in your frontend testing and development process.
 
 ### Contributing
 
