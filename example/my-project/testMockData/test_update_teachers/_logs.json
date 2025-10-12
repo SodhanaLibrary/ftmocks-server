@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "type": "debug",
+    "message": "\u001b[32mcalling initiatePlaywrightRoutes fetch\u001b[0m\n",
+    "time": 1760285176285,
+    "source": "ftmocks-utils"
+  }
+]

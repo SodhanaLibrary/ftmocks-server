@@ -10,6 +10,6 @@
   "devDependencies": {
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.9",
-    "ftmocks-utils": "^1.1.2"
+    "ftmocks-utils": "1.3.5"
   }
 }

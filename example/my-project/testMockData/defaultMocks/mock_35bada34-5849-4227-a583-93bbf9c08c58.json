@@ -5,9 +5,7 @@
   "request": {
     "headers": {},
     "queryString": null,
-    "postData": {
-      "mimeType": null
-    }
+    "postData": {}
   },
   "response": {
     "status": 200,
@@ -51,5 +49,6 @@
     ],
     "content": "[{\"id\":1,\"name\":\"Mr. Thomas Anderson\",\"subject\":\"Mathematics\"},{\"id\":2,\"name\":\"Ms. Maria Rodriguez\",\"subject\":\"English\"},{\"id\":3,\"name\":\"Mr. James Miller\",\"subject\":\"Science\"},{\"id\":4,\"name\":\"Mrs. Susan Lee\",\"subject\":\"History\"},{\"id\":5,\"name\":\"Dr. Rachel Scott\",\"subject\":\"Physical Education\"}]"
   },
-  "id": "35bada34-5849-4227-a583-93bbf9c08c58"
+  "id": "35bada34-5849-4227-a583-93bbf9c08c58",
+  "served": true
 }
