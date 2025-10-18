@@ -85,7 +85,7 @@ const deleteTest = async (req, res) => {
     );
 
     if (fs.existsSync(folderPath)) {
-      fs.rmdirSync(folderPath, { recursive: true });
+      fs.rmSync(folderPath, { recursive: true });
       logger.debug('Deleted test folder', { folderPath });
     } else {
       logger.warn('Test folder not found for deletion', { folderPath });

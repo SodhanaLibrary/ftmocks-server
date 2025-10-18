@@ -23,6 +23,11 @@ const injectEventRecordingScript = async (page, url) => {
     await page.exposeFunction('saveEventForTest', (event) => {
       event.id = crypto.randomUUID();
       if (!fs.existsSync(eventsFile)) {
+        // Ensure the directory exists before writing the eventsFile
+        const dir = path.dirname(eventsFile);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
         fs.writeFileSync(eventsFile, JSON.stringify([], null, 2));
       }
       const events = JSON.parse(fs.readFileSync(eventsFile, 'utf8'));
@@ -67,20 +72,6 @@ const injectEventRecordingScript = async (page, url) => {
       const isUniqueElement = (selector) => {
         const elements = document.querySelectorAll(selector);
         return elements.length === 1 || elements.length === 0;
-      };
-
-      const isUniqueText = (text) => {
-        // Escape special characters in text for use in XPath
-        const escapedText = text.replace(/"/g, '\\"');
-        const xpath = `//*[contains(text(), "${escapedText}")]`;
-        const elements = document.evaluate(
-          xpath,
-          document,
-          null,
-          XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-          null
-        );
-        return elements.snapshotLength === 1;
       };
 
       const getBestSelectors = (element) => {
@@ -197,14 +188,17 @@ const injectEventRecordingScript = async (page, url) => {
               value: `${tagName}[href='${element.getAttribute('href')}']`,
             });
           }
+          const escapedText = element.textContent.replace(/"/g, '\\"');
           if (
             element.role &&
             element.textContent &&
-            isUniqueText(element.textContent)
+            isUniqueXpath(
+              `//*[@role='${element.role}' and contains(text(), '${escapedText}')]`
+            )
           ) {
             selectors.push({
               type: 'locator',
-              value: `//*[@role='${element.role}' and contains(text(), '${element.textContent}')]`,
+              value: `//*[@role='${element.role}' and contains(text(), '${escapedText}')]`,
             });
             selectors.push({
               type: 'text',
@@ -214,10 +208,13 @@ const injectEventRecordingScript = async (page, url) => {
               },
             });
           }
-          if (element.textContent && isUniqueText(element.textContent)) {
+          if (
+            element.textContent &&
+            isUniqueXpath(`//${tagName}[contains(text(), '${escapedText}')]`)
+          ) {
             selectors.push({
               type: 'locator',
-              value: `//*[contains(text(), '${element.textContent}')]`,
+              value: `//${tagName}[contains(text(), '${escapedText}')]`,
             });
             selectors.push({
               type: 'text',

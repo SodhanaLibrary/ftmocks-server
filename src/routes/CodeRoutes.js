@@ -48,7 +48,7 @@ const saveFile = async (req, res) => {
 
 const runTest = async (req, res) => {
   try {
-    const { testName, generatedCode, fileName } = req.body;
+    const { testName, generatedCode, fileName, withUI } = req.body;
     const absolutePlaywrightDir = getAbsolutePathWithMockDir(
       process.env.PLAYWRIGHT_DIR || ''
     );
@@ -60,8 +60,6 @@ const runTest = async (req, res) => {
     }
     const filePath = path.join(fullDirectoryPath, fileName);
     fs.writeFileSync(filePath, generatedCode, 'utf8');
-    // Change to the playwright directory before running the test
-    process.chdir(absolutePlaywrightDir);
 
     // Set up streaming response
     res.writeHead(200, {
@@ -74,7 +72,13 @@ const runTest = async (req, res) => {
     const { spawn } = require('child_process');
     const testProcess = spawn(
       'npx',
-      ['playwright', 'test', filePath, '--headed', '--retries=0'],
+      [
+        'playwright',
+        'test',
+        filePath,
+        '--retries=0',
+        withUI ? '--ui' : '--headed',
+      ],
       {
         env: { ...process.env, NODE_ENV: 'dev' },
         cwd: absolutePlaywrightDir,

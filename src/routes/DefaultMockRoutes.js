@@ -98,13 +98,20 @@ const deleteDefaultMock = async (req, res) => {
       'defaultMocks',
       `mock_${mockId}.json`
     );
+    const mockData = JSON.parse(fs.readFileSync(mockFilePath, 'utf8'));
+    if (mockData.response.file) {
+      const filePath = path.join(
+        process.env.MOCK_DIR,
+        'defaultMocks',
+        '_files',
+        mockData.response.file
+      );
+      fs.unlinkSync(filePath);
+      logger.debug('Deleted file', { filePath });
+    }
 
     logger.debug('Found mock to delete', {
       mockId,
-      mockIndex,
-      mockFilePath,
-      mockUrl: defaultData[mockIndex].url,
-      mockMethod: defaultData[mockIndex].method,
     });
 
     // Remove the mock from the array
