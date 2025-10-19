@@ -849,6 +849,21 @@ const getRelativePath = (path1, path2) => {
   return path.relative(path1, path2);
 };
 
+/**
+ * Creates a map from an array of objects using `id` property as key.
+ * @param {Array<object>} arr - The array of objects to map.
+ * @returns {Object} Map of id -> object
+ */
+function createIdMap(arr) {
+  if (!Array.isArray(arr)) return {};
+  return arr.reduce((acc, obj) => {
+    if (obj && obj.id !== undefined && obj.id !== null) {
+      acc[obj.id] = obj;
+    }
+    return acc;
+  }, {});
+}
+
 module.exports = {
   processURL,
   getDefaultMockData,
@@ -870,4 +885,5 @@ module.exports = {
   getRelativePathWithCurrentDir,
   getRelativePath,
   getCompareRankMockToRequest,
+  createIdMap,
 };

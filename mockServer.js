@@ -10,6 +10,7 @@ const {
   nameToFolder,
   compareMockToRequest,
   getCompareRankMockToRequest,
+  createIdMap,
 } = require('./src/utils/MockUtils');
 const { getTestByName } = require('./src/utils/TestUtils');
 
@@ -32,6 +33,7 @@ app.all('*', (req, res) => {
     const mockData = mockDataObj.mocks;
     const testName = mockDataObj.testName;
     const defaultMockData = getDefaultMockData();
+    const testMockIdMap = createIdMap(mockData);
 
     let served = false;
     let matchedMocks =
@@ -43,6 +45,17 @@ app.all('*', (req, res) => {
             served,
           });
           return false;
+        }
+        if (mock.fileContent.waitFor) {
+          const waitForMocks = mock.fileContent.waitFor.filter(
+            (waitForMockId) => {
+              const waitForMock = testMockIdMap[waitForMockId];
+              return waitForMock && !waitForMock.fileContent.served;
+            }
+          );
+          if (waitForMocks.length > 0) {
+            return false;
+          }
         }
         served = mock.fileContent.served;
         const isMatch = compareMockToRequest(mock, req);
