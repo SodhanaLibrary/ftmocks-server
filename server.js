@@ -22,6 +22,7 @@ const {
   getSnapsForTest,
   deleteTestMocks,
   duplicateTest,
+  moveMockToDefaultMocks,
 } = require('./src/routes/TestRoutes');
 const {
   getDefaultMocks,
@@ -163,6 +164,9 @@ app.post('/api/v1/defaultmocks', createMockDataForTest);
 
 // Router for /api/v1/defaultmocks POST method
 app.post('/api/v1/moveDefaultmocks', moveDefaultmocks);
+
+// Router for /api/v1/moveMockToDefaultMocks POST method
+app.post('/api/v1/moveMockToDefaultMocks', moveMockToDefaultMocks);
 
 // Router for /api/v1/defaultmocks/:id DELETE method
 app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);

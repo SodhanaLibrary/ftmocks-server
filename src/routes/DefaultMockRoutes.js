@@ -241,6 +241,7 @@ const uploadDefaultHarMocs = async (req, res) => {
 };
 
 const moveDefaultmocks = async (req, res) => {
+  const mockIds = req.body.mockIds;
   try {
     logger.info('Moving default mocks to individual tests');
 
@@ -256,12 +257,16 @@ const moveDefaultmocks = async (req, res) => {
     }
 
     // Read default mocks
-    const defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
+    let defaultData = JSON.parse(fs.readFileSync(defaultPath, 'utf8'));
     logger.debug('Loaded default mocks', { mockCount: defaultData.length });
 
     if (defaultData.length === 0) {
       logger.info('No default mocks to move');
       return res.status(200).json({ message: 'No default mocks to move' });
+    }
+
+    if (mockIds && mockIds.length > 0) {
+      defaultData = defaultData.filter((mock) => mockIds.includes(mock.id));
     }
 
     // Get all tests from tests.json
@@ -325,6 +330,35 @@ const moveDefaultmocks = async (req, res) => {
 
         if (fs.existsSync(defaultMockFilePath)) {
           const mockData = fs.readFileSync(defaultMockFilePath, 'utf8');
+          const parsedMockData = JSON.parse(mockData);
+          if (parsedMockData.response.file) {
+            const filePath = path.join(
+              process.env.MOCK_DIR,
+              'defaultMocks',
+              '_files',
+              parsedMockData.response.file
+            );
+            if (fs.existsSync(filePath)) {
+              const testFilesDir = path.join(
+                process.env.MOCK_DIR,
+                testDir,
+                '_files'
+              );
+              if (!fs.existsSync(testFilesDir)) {
+                fs.mkdirSync(testFilesDir, { recursive: true });
+              }
+              fs.copyFileSync(
+                filePath,
+                path.join(testFilesDir, parsedMockData.response.file)
+              );
+            } else {
+              logger.warn('File not found for copying', { filePath });
+            }
+          } else {
+            logger.warn('File not found for copying', {
+              filePath: testMockFilePath,
+            });
+          }
           fs.writeFileSync(testMockFilePath, mockData);
           movedCount++;
 

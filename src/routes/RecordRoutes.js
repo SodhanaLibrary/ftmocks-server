@@ -18,6 +18,14 @@ const injectEventRecordingScript = async (page, url) => {
       `test_${nameToFolder(process.env.recordTest)}`,
       `_events.json`
     );
+    if (!fs.existsSync(eventsFile)) {
+      // Ensure the directory exists before writing the eventsFile
+      const dir = path.dirname(eventsFile);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(eventsFile, JSON.stringify([], null, 2));
+    }
 
     // Expose a function to receive click info from the browser
     await page.exposeFunction('saveEventForTest', (event) => {
@@ -59,6 +67,15 @@ const injectEventRecordingScript = async (page, url) => {
       )
     );
     await page.addInitScript(() => {
+      let prevEventSnapshot = null;
+      let currentEventSnapshot = null;
+
+      const filterElementsFromHtml = (html, selector) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const elements = doc.querySelectorAll(selector);
+        console.log(elements);
+      };
+
       const isUniqueXpath = (xpath) => {
         const elements = document.evaluate(
           xpath,
@@ -74,7 +91,125 @@ const injectEventRecordingScript = async (page, url) => {
         return elements.length === 1 || elements.length === 0;
       };
 
-      const getBestSelectors = (element) => {
+      const getUniqueElementSelector = (selector, mainElement) => {
+        const elements = document.querySelectorAll(selector);
+        if (elements.length === 0) {
+          return selector;
+        } else if (elements.length > 0) {
+          const prevElements = filterElementsFromHtml(
+            prevEventSnapshot,
+            selector
+          );
+          const currentElements = elements;
+          if (prevElements.length < currentElements.length) {
+            // Find index of mainElement in prevElements
+            let index = -1;
+            if (prevElements && mainElement) {
+              for (let i = 0; i < prevElements.length; i++) {
+                if (prevElements[i].isEqualNode(mainElement)) {
+                  index = i;
+                  break;
+                }
+              }
+            }
+            return `${selector}:nth-of-type(${index + 1})`;
+          } else {
+            // Find index of mainElement in currentElements
+            let index = -1;
+            if (currentElements && mainElement) {
+              for (let i = 0; i < currentElements.length; i++) {
+                if (currentElements[i].isEqualNode(mainElement)) {
+                  index = i;
+                  break;
+                }
+              }
+            }
+            return `${selector}:nth-of-type(${index + 1})`;
+          }
+        }
+        return selector;
+      };
+
+      // Parses two HTML strings and returns a list of nodes that are different between them
+      const diffHtml = (prevHtml, currentHtml) => {
+        // Parse HTML strings into DOM trees
+        const parser = new DOMParser();
+        const prevDoc = parser.parseFromString(prevHtml, 'text/html');
+        const currDoc = parser.parseFromString(currentHtml, 'text/html');
+
+        // Helper to compare nodes' tagName, attributes, and text content
+        function nodesAreDifferent(nodeA, nodeB) {
+          if (!nodeA || !nodeB) return true;
+          if (nodeA.nodeType !== nodeB.nodeType) return true;
+          if (nodeA.nodeType === Node.TEXT_NODE) {
+            return nodeA.textContent !== nodeB.textContent;
+          }
+          if (nodeA.tagName !== nodeB.tagName) return true;
+          // Compare attributes
+          if (nodeA.attributes && nodeB.attributes) {
+            if (nodeA.attributes.length !== nodeB.attributes.length)
+              return true;
+            for (let i = 0; i < nodeA.attributes.length; i++) {
+              const attrName = nodeA.attributes[i].name;
+              if (
+                nodeB.getAttribute(attrName) !== nodeA.getAttribute(attrName)
+              ) {
+                return true;
+              }
+            }
+          }
+          return false;
+        }
+
+        // Recursively walk the DOM, finding differences (in nodes and subtree structure)
+        function walkDiffs(nodeA, nodeB, path, diffs) {
+          if (!nodeA && nodeB) {
+            diffs.push({ path, type: 'added', node: nodeB });
+            return;
+          }
+          if (nodeA && !nodeB) {
+            diffs.push({ path, type: 'removed', node: nodeA });
+            return;
+          }
+          if (nodesAreDifferent(nodeA, nodeB)) {
+            diffs.push({ path, type: 'changed', nodeA, nodeB });
+          }
+          // Walk children if they exist and are Element nodes
+          if (
+            nodeA &&
+            nodeB &&
+            nodeA.nodeType === Node.ELEMENT_NODE &&
+            nodeB.nodeType === Node.ELEMENT_NODE
+          ) {
+            const childrenA = nodeA.childNodes;
+            const childrenB = nodeB.childNodes;
+            const maxLen = Math.max(childrenA.length, childrenB.length);
+            for (let i = 0; i < maxLen; i++) {
+              walkDiffs(childrenA[i], childrenB[i], path.concat([i]), diffs);
+            }
+          }
+        }
+
+        // Start diff from <body>, as most mutations happen below this level
+        let diffs = [];
+        walkDiffs(prevDoc.body, currDoc.body, [], diffs);
+
+        // Optionally, return only the changed/new/removed nodes (for NodeList-like consumer)
+        const nodeList = [];
+        for (const diff of diffs) {
+          if (diff.type === 'added' || diff.type === 'changed') {
+            if (diff.nodeB) nodeList.push(diff.nodeB);
+            else if (diff.node) nodeList.push(diff.node);
+          }
+        }
+        return nodeList;
+      };
+
+      const getBestSelectors = (element, event) => {
+        if (prevEventSnapshot && currentEventSnapshot) {
+          const diff = diffHtml(prevEventSnapshot, currentEventSnapshot);
+          console.log('diff: ', diff);
+        }
         const selectors = [];
         const excludeTagNames = ['script', 'style', 'link', 'meta', 'svg'];
         try {
@@ -82,110 +217,101 @@ const injectEventRecordingScript = async (page, url) => {
           if (excludeTagNames.includes(tagName)) {
             return selectors;
           }
-          if (
-            element.getAttribute('data-testid') &&
-            isUniqueElement(
-              `${tagName}[data-testid='${element.getAttribute('data-testid')}']`
-            )
-          ) {
+          if (element.getAttribute('data-testid')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-testid='${element.getAttribute('data-testid')}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[data-testid='${element.getAttribute('data-testid')}']`,
+                element
+              ),
             });
           }
-          if (
-            element.getAttribute('data-id') &&
-            isUniqueElement(
-              `${tagName}[data-id='${element.getAttribute('data-id')}']`
-            )
-          ) {
+          if (element.getAttribute('data-id')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-id='${element.getAttribute('data-id')}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[data-id='${element.getAttribute('data-id')}']`,
+                element
+              ),
             });
           }
-          if (
-            element.getAttribute('data-action') &&
-            isUniqueElement(
-              `${tagName}[data-action='${element.getAttribute('data-action')}']`
-            )
-          ) {
+          if (element.getAttribute('data-action')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-action='${element.getAttribute('data-action')}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[data-action='${element.getAttribute('data-action')}']`,
+                element
+              ),
             });
           }
-          if (
-            element.getAttribute('data-cy') &&
-            isUniqueElement(
-              `${tagName}[data-cy='${element.getAttribute('data-cy')}']`
-            )
-          ) {
+          if (element.getAttribute('data-cy')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-cy='${element.getAttribute('data-cy')}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[data-cy='${element.getAttribute('data-cy')}']`,
+                element
+              ),
             });
           }
           if (
             element.name &&
             tagName === 'input' &&
-            (element.type === 'text' || element.type === 'password') &&
-            isUniqueElement(`${tagName}[name='${element.name}']`)
+            (element.type === 'text' || element.type === 'password')
           ) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[name='${element.name}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[name='${element.name}']`,
+                element
+              ),
             });
           } else if (
             element.name &&
             tagName === 'input' &&
-            (element.type === 'checkbox' || element.type === 'radio') &&
-            isUniqueElement(
-              `${tagName}[name='${element.name}'][value='${element.value}']`
-            )
+            (element.type === 'checkbox' || element.type === 'radio')
           ) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[name='${element.name}'][value='${element.value}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[name='${element.name}'][value='${element.value}']`,
+                element
+              ),
             });
           }
-          if (
-            element.ariaLabel &&
-            isUniqueElement(`${tagName}[aria-label='${element.ariaLabel}']`)
-          ) {
+          if (element.ariaLabel) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[aria-label='${element.ariaLabel}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[aria-label='${element.ariaLabel}']`,
+                element
+              ),
             });
           }
-          if (
-            element.role &&
-            element.name &&
-            isUniqueElement(`[role='${element.role}'][name='${element.name}']`)
-          ) {
+          if (element.role && element.name) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[role='${element.role}'][name='${element.name}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[role='${element.role}'][name='${element.name}']`,
+                element
+              ),
             });
           }
-          if (
-            element.getAttribute('src') &&
-            isUniqueElement(`${tagName}[src='${element.getAttribute('src')}']`)
-          ) {
+          if (element.getAttribute('src')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[src='${element.getAttribute('src')}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[src='${element.getAttribute('src')}']`,
+                element
+              ),
             });
           }
-          if (
-            element.getAttribute('href') &&
-            isUniqueElement(
-              `${tagName}[href='${element.getAttribute('href')}']`
-            )
-          ) {
+          if (element.getAttribute('href')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[href='${element.getAttribute('href')}']`,
+              value: getUniqueElementSelector(
+                `${tagName}[href='${element.getAttribute('href')}']`,
+                element
+              ),
             });
           }
           const escapedText = element.textContent.replace(/"/g, '\\"');
@@ -352,7 +478,7 @@ const injectEventRecordingScript = async (page, url) => {
         while (target && target !== document) {
           // Check if the target is a clickable element
           // Check for test attributes and accessibility attributes
-          const selectors = getBestSelectors(target);
+          const selectors = getBestSelectors(target, event);
           if (selectors.length > 0) {
             return target;
           } else if (target.getAttribute('id')) {
@@ -401,8 +527,9 @@ const injectEventRecordingScript = async (page, url) => {
       };
 
       document.addEventListener('click', (event) => {
+        currentEventSnapshot = document.documentElement.innerHTML;
         const currentTarget = getParentElementWithEventOrId(event, 'onclick');
-        const selectors = getBestSelectors(currentTarget);
+        const selectors = getBestSelectors(currentTarget, event);
         selectors.push({
           type: 'locator',
           value: generateXPathWithNearestParentId(currentTarget),
@@ -414,10 +541,13 @@ const injectEventRecordingScript = async (page, url) => {
           value: {
             clientX: event.clientX,
             clientY: event.clientY,
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
           },
           selectors,
           element: getElement(currentTarget),
         });
+        prevEventSnapshot = currentEventSnapshot;
       });
       document.addEventListener('dblclick', (event) => {
         const currentTarget = getParentElementWithEventOrId(
@@ -431,8 +561,10 @@ const injectEventRecordingScript = async (page, url) => {
           value: {
             clientX: event.clientX,
             clientY: event.clientY,
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
           },
-          selectors: getBestSelectors(currentTarget),
+          selectors: getBestSelectors(currentTarget, event),
           element: getElement(currentTarget),
         });
       });
@@ -448,8 +580,10 @@ const injectEventRecordingScript = async (page, url) => {
           value: {
             clientX: event.clientX,
             clientY: event.clientY,
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
           },
-          selectors: getBestSelectors(currentTarget),
+          selectors: getBestSelectors(currentTarget, event),
           element: getElement(currentTarget),
         });
       });
@@ -461,7 +595,36 @@ const injectEventRecordingScript = async (page, url) => {
             target: generateXPathWithNearestParentId(currentTarget),
             time: new Date().toISOString(),
             value: event.target.value,
-            selectors: getBestSelectors(currentTarget),
+            selectors: getBestSelectors(currentTarget, event),
+            element: getElement(currentTarget),
+          });
+        }
+      });
+      document.addEventListener('keypress', (event) => {
+        if (
+          event.key === 'Enter' ||
+          event.key === 'Tab' ||
+          event.key === 'Escape' ||
+          event.key === 'Backspace' ||
+          event.key === 'ArrowUp' ||
+          event.key === 'ArrowDown' ||
+          event.key === 'ArrowLeft' ||
+          event.key === 'ArrowRight'
+        ) {
+          const currentTarget = getParentElementWithEventOrId(event, 'oninput');
+          window.saveEventForTest({
+            type: 'keypress',
+            key: event.key,
+            code: event.code,
+            target: generateXPathWithNearestParentId(currentTarget),
+            time: new Date().toISOString(),
+            value: {
+              clientX: event.clientX,
+              clientY: event.clientY,
+              windowWidth: window.innerWidth,
+              windowHeight: window.innerHeight,
+            },
+            selectors: getBestSelectors(currentTarget, event),
             element: getElement(currentTarget),
           });
         }

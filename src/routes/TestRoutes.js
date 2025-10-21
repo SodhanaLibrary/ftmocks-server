@@ -937,6 +937,114 @@ const duplicateTest = async (req, res) => {
   }
 };
 
+const moveMockToDefaultMocks = async (req, res) => {
+  const mockIds = req.body.mockIds;
+  const testName = req.body.testName;
+  try {
+    logger.info('Moving mock to default mocks', { mockIds, testName });
+
+    const defaultMockListFilePath = path.join(
+      process.env.MOCK_DIR,
+      'defaultMocks',
+      '_mock_list.json'
+    );
+
+    if (!fs.existsSync(defaultMockListFilePath)) {
+      logger.warn('Default mocks file does not exist', {
+        defaultMockListFilePath,
+      });
+      return res.status(404).json({ error: 'Default mocks file not found' });
+    }
+
+    // Read default mocks
+    let defaultMockList = JSON.parse(
+      fs.readFileSync(defaultMockListFilePath, 'utf8')
+    );
+    logger.debug('Loaded default mocks', { mockCount: defaultMockList.length });
+
+    const testMockListPath = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(testName)}`,
+      '_mock_list.json'
+    );
+
+    // Read existing test mock list or create empty array
+    let testMockList = [];
+    if (fs.existsSync(testMockListPath)) {
+      testMockList = JSON.parse(fs.readFileSync(testMockListPath, 'utf8'));
+    }
+
+    // Copy each default mock to the test
+    for (const mockId of mockIds) {
+      const defaultMockFilePath = path.join(
+        process.env.MOCK_DIR,
+        'defaultMocks',
+        `mock_${mockId}.json`
+      );
+      const testMockFilePath = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(testName)}`,
+        `mock_${mockId}.json`
+      );
+
+      if (fs.existsSync(testMockFilePath)) {
+        const mockData = fs.readFileSync(testMockFilePath, 'utf8');
+        const parsedMockData = JSON.parse(mockData);
+        if (parsedMockData.response.file) {
+          const filePath = path.join(
+            process.env.MOCK_DIR,
+            `test_${nameToFolder(testName)}`,
+            '_files',
+            parsedMockData.response.file
+          );
+          if (fs.existsSync(filePath)) {
+            const defaultFilesPath = path.join(
+              process.env.MOCK_DIR,
+              'defaultMocks',
+              '_files'
+            );
+            if (!fs.existsSync(defaultFilesPath)) {
+              fs.mkdirSync(defaultFilesPath, { recursive: true });
+            }
+            fs.copyFileSync(
+              filePath,
+              path.join(defaultFilesPath, parsedMockData.response.file)
+            );
+          } else {
+            logger.warn('File not found for copying', { filePath });
+          }
+        } else {
+          logger.warn('File not found for copying', {
+            filePath: testMockFilePath,
+          });
+        }
+        fs.writeFileSync(defaultMockFilePath, mockData);
+        defaultMockList.push({
+          id: parsedMockData.id,
+          url: parsedMockData.url,
+          method: parsedMockData.method,
+          time: parsedMockData.time,
+        });
+        fs.writeFileSync(
+          defaultMockListFilePath,
+          JSON.stringify(defaultMockList, null, 2)
+        );
+        logger.debug('Copied mock to default mocks', { testName, mockId });
+      }
+    }
+
+    res.status(200).json({
+      message: 'Mock moved to default mocks successfully',
+    });
+  } catch (error) {
+    logger.error('Error moving mock to default mocks', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Failed to move mock to default mocks' });
+  }
+};
+
 module.exports = {
   getTests,
   deleteTest,
@@ -953,4 +1061,5 @@ module.exports = {
   getTestsSummary,
   getSnapsForTest,
   deleteTestMocks,
+  moveMockToDefaultMocks,
 };
