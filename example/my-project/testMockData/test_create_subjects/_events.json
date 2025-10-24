@@ -1,0 +1,276 @@
+[
+  {
+    "id": "d849d595-11d8-45ac-89c7-8ccfcd09ec52",
+    "type": "url",
+    "target": "http://localhost:4050/",
+    "time": "2025-10-24T16:44:06.301Z",
+    "value": "http://localhost:4050/"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Subjects')]",
+    "time": "2025-10-24T16:44:08.289Z",
+    "value": {
+      "clientX": 1125,
+      "clientY": 36,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Subjects')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='header-menu-subjects']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Subjects",
+      "id": "header-menu-subjects",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "a33dcd65-dd6c-4c49-9ee3-c9ba90ea3c58"
+  },
+  {
+    "type": "click",
+    "target": "input[name='name']",
+    "time": "2025-10-24T16:44:10.193Z",
+    "value": {
+      "clientX": 173,
+      "clientY": 228,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-form-name']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "e0552625-53ab-4f83-ae7d-7ace68340f72"
+  },
+  {
+    "type": "input",
+    "target": "//*[@id='subject-form-name']",
+    "time": "2025-10-24T16:44:11.293Z",
+    "value": "Sb.new",
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "S",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "0192c61e-b7e7-4459-8a72-2b724f728576"
+  },
+  {
+    "type": "click",
+    "target": "//*[@id='subject-form-credits']",
+    "time": "2025-10-24T16:44:14.966Z",
+    "value": {
+      "clientX": 328,
+      "clientY": 213,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-form-credits']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-credits",
+      "role": null,
+      "name": "credits",
+      "ariaLabel": null,
+      "value": "",
+      "type": "number",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "ab462c46-864a-4ff4-986d-51b32d026398"
+  },
+  {
+    "type": "input",
+    "target": "//*[@id='subject-form-credits']",
+    "time": "2025-10-24T16:44:15.846Z",
+    "value": "5",
+    "selectors": [],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-credits",
+      "role": null,
+      "name": "credits",
+      "ariaLabel": null,
+      "value": "5",
+      "type": "number",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "0243e4f9-f22d-4bb2-814d-5880b52b8f0b"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Create')]",
+    "time": "2025-10-24T16:44:16.768Z",
+    "value": {
+      "clientX": 563,
+      "clientY": 199,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Create')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-form-submit']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Create",
+      "id": "subject-form-submit",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "fcbb06b4-554b-4b97-93d2-fec73d95d225"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), 'Sb.new')]",
+    "time": "2025-10-24T16:44:19.082Z",
+    "value": {
+      "clientX": 90,
+      "clientY": 677,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), 'Sb.new')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[1]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "Sb.new",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "fd90ae53-9c3d-4041-965d-9e9031dccb39"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), '5')]",
+    "time": "2025-10-24T16:44:21.330Z",
+    "value": {
+      "clientX": 498,
+      "clientY": 676,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), '5')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[2]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "5",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "e1912648-0730-4c36-8a1f-31427880d32a"
+  }
+]

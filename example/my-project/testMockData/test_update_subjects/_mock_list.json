@@ -1,33 +1,26 @@
 [
   {
-    "fileName": "mock_a226b584-a094-4fd9-a8ad-ee15cebabcb2.json",
+    "id": "6ac771c3-9788-4cc6-8fb4-094f6cc7c14e",
+    "url": "/api/teachers",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_a226b584-a094-4fd9-a8ad-ee15cebabcb2.json",
-    "postData": {
-      "mimeType": null
-    },
-    "url": "/api/subjects",
-    "id": "a226b584-a094-4fd9-a8ad-ee15cebabcb2"
+    "time": "Fri Oct 24 2025 22:15:18 GMT+0530 (India Standard Time)"
   },
   {
-    "fileName": "mock_e0e31dc2-b1a0-487a-a2fb-142890a43f00.json",
-    "method": "PUT",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_e0e31dc2-b1a0-487a-a2fb-142890a43f00.json",
-    "postData": {
-      "mimeType": "application/json",
-      "text": "{\"id\":6,\"name\":\"telugu\",\"credits\":\"5\"}"
-    },
+    "id": "8b085fc8-e7d7-4425-a7f7-3d4803e035e3",
+    "url": "/api/subjects",
+    "method": "GET",
+    "time": "Fri Oct 24 2025 22:15:20 GMT+0530 (India Standard Time)"
+  },
+  {
+    "id": "a042d863-90e6-458c-8a76-fd0ef64b89b7",
     "url": "/api/subjects/6",
-    "id": "e0e31dc2-b1a0-487a-a2fb-142890a43f00"
+    "method": "PUT",
+    "time": "Fri Oct 24 2025 22:15:27 GMT+0530 (India Standard Time)"
   },
   {
-    "fileName": "mock_0018972a-2633-4d0f-b57f-4c710d4d3b39.json",
-    "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_update_subjects/mock_0018972a-2633-4d0f-b57f-4c710d4d3b39.json",
-    "postData": {
-      "mimeType": null
-    },
+    "id": "60bb6e83-9c5f-429f-a321-ccce8d124e98",
     "url": "/api/subjects",
-    "id": "0018972a-2633-4d0f-b57f-4c710d4d3b39"
+    "method": "GET",
+    "time": "Fri Oct 24 2025 22:15:27 GMT+0530 (India Standard Time)"
   }
 ]

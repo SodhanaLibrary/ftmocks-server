@@ -1,0 +1,45 @@
+[
+  {
+    "id": "cb6e3dae-3278-4939-8130-bbe061bd687d",
+    "type": "url",
+    "target": "http://localhost:4050/",
+    "time": "2025-10-24T15:24:43.515Z",
+    "value": "http://localhost:4050/"
+  },
+  {
+    "type": "click",
+    "target": "//*[@id='teacher-6-delete-btn']",
+    "time": "2025-10-24T15:24:47.216Z",
+    "value": {
+      "clientX": 1026,
+      "clientY": 677,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Delete')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='teacher-6-delete-btn']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Delete",
+      "id": "teacher-6-delete-btn",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "b411fbf2-8b4a-450d-b8ee-b83a5e3533c9"
+  }
+]

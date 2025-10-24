@@ -1,0 +1,40 @@
+{
+  "url": "/api/students",
+  "time": "Fri Oct 24 2025 20:55:58 GMT+0530 (India Standard Time)",
+  "method": "POST",
+  "request": {
+    "headers": {
+      "accept": "*/*",
+      "content-type": "application/json",
+      "origin": "http://localhost:4050",
+      "referer": "http://localhost:4050/",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"139\", \"Not;A=Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": [],
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"St.New\",\"age\":\"19\",\"grade\":\"A\"}"
+    }
+  },
+  "response": {
+    "file": false,
+    "status": 201,
+    "headers": {
+      "x-powered-by": "Express",
+      "access-control-allow-origin": "*",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "47",
+      "etag": "W/\"2f-yk6S8ePSoAgUf2OSh7P6iyErONY\"",
+      "date": "Fri, 24 Oct 2025 15:25:58 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+    },
+    "content": "{\"id\":6,\"name\":\"St.New\",\"age\":\"19\",\"grade\":\"A\"}"
+  },
+  "id": "734cc447-61f3-4508-aab4-9c68f39bf7b2",
+  "served": true,
+  "ignoreParams": []
+}

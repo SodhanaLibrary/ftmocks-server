@@ -1,42 +1,20 @@
 [
   {
-    "fileName": "mock_4aa8433f-a532-44a4-af42-4f46112711dc.json",
-    "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_teachers/mock_4aa8433f-a532-44a4-af42-4f46112711dc.json",
-    "postData": {
-      "mimeType": null
-    },
+    "id": "83b0107a-3c19-4934-8668-82dbae63edae",
     "url": "/api/teachers",
-    "id": "4aa8433f-a532-44a4-af42-4f46112711dc"
+    "method": "GET",
+    "time": "Fri Oct 24 2025 20:54:43 GMT+0530 (India Standard Time)"
   },
   {
-    "fileName": "mock_43499c64-e3ed-4754-9f0e-002a07000076.json",
-    "method": "DELETE",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_teachers/mock_43499c64-e3ed-4754-9f0e-002a07000076.json",
-    "postData": {
-      "mimeType": null
-    },
+    "id": "c28ac4ff-ca39-4051-a179-c32ba46d00bf",
     "url": "/api/teachers/6",
-    "id": "43499c64-e3ed-4754-9f0e-002a07000076"
+    "method": "DELETE",
+    "time": "Fri Oct 24 2025 20:54:47 GMT+0530 (India Standard Time)"
   },
   {
-    "fileName": "mock_56c2e4fe-8e45-4fa3-aa22-49d1d70e4110.json",
-    "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_teachers/mock_56c2e4fe-8e45-4fa3-aa22-49d1d70e4110.json",
-    "postData": {
-      "mimeType": null
-    },
+    "id": "84787bf6-de43-47f1-b30a-49fc663e13bf",
     "url": "/api/teachers",
-    "id": "56c2e4fe-8e45-4fa3-aa22-49d1d70e4110"
-  },
-  {
-    "fileName": "mock_55655b11-078c-4afb-8d81-53978a452732.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_delete_teachers/mock_55655b11-078c-4afb-8d81-53978a452732.json",
-    "postData": {
-      "mimeType": null
-    },
-    "url": "/api/students",
-    "id": "55655b11-078c-4afb-8d81-53978a452732"
+    "time": "Fri Oct 24 2025 20:54:47 GMT+0530 (India Standard Time)"
   }
 ]

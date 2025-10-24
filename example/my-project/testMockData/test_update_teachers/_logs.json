@@ -2,7 +2,19 @@
   {
     "type": "debug",
     "message": "\u001b[32mcalling initiatePlaywrightRoutes fetch\u001b[0m\n",
-    "time": 1760285176285,
+    "time": 1761321567398,
+    "source": "ftmocks-utils"
+  },
+  {
+    "type": "info",
+    "message": "\u001b[32mserving file\u001b[0m /Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/build/index.html\n",
+    "time": 1761321567468,
+    "source": "ftmocks-utils"
+  },
+  {
+    "type": "info",
+    "message": "\u001b[32mserving file\u001b[0m /Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/build/static/js/main.98c24209.js\n",
+    "time": 1761321567523,
     "source": "ftmocks-utils"
   }
 ]

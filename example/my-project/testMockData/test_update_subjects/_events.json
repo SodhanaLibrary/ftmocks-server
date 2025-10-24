@@ -1,0 +1,328 @@
+[
+  {
+    "id": "c6ee9f5d-4247-4423-a18a-a944080bd0e2",
+    "type": "url",
+    "target": "http://localhost:4050/",
+    "time": "2025-10-24T16:45:17.880Z",
+    "value": "http://localhost:4050/"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Subjects')]",
+    "time": "2025-10-24T16:45:20.179Z",
+    "value": {
+      "clientX": 1138,
+      "clientY": 43,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Subjects')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='header-menu-subjects']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Subjects",
+      "id": "header-menu-subjects",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "368ad96a-ac44-40b6-b3fb-5d35a41ca92d"
+  },
+  {
+    "type": "click",
+    "target": "//*[@id='subject-6-edit-btn']",
+    "time": "2025-10-24T16:45:23.006Z",
+    "value": {
+      "clientX": 731,
+      "clientY": 680,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Edit')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-6-edit-btn']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Edit",
+      "id": "subject-6-edit-btn",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "3d0b4a22-e4fe-4566-a406-6baa8ee1dd6c"
+  },
+  {
+    "type": "click",
+    "target": "input[name='name']",
+    "time": "2025-10-24T16:45:24.165Z",
+    "value": {
+      "clientX": 127,
+      "clientY": 196,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-form-name']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "Sb.new",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "cd99668e-61ea-4e0f-b6ee-dbab7ca3fcde"
+  },
+  {
+    "type": "click",
+    "target": "input[name='name']",
+    "time": "2025-10-24T16:45:24.343Z",
+    "value": {
+      "clientX": 127,
+      "clientY": 196,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-form-name']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "Sb.new",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "e79a18a8-160f-4a9f-ae24-f48a8f7bd61b"
+  },
+  {
+    "type": "dblclick",
+    "target": "//*[@id='subject-form-name']",
+    "time": "2025-10-24T16:45:24.346Z",
+    "value": {
+      "clientX": 127,
+      "clientY": 196,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "Sb.new",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "547d9683-c2d3-466e-8e4c-507a46e6a342"
+  },
+  {
+    "type": "input",
+    "target": "//*[@id='subject-form-name']",
+    "time": "2025-10-24T16:45:25.242Z",
+    "value": "Sb.Update",
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "subject-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "Sb.U",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "3393acdb-13b8-46c9-96c1-475e4f9a481e"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Update')]",
+    "time": "2025-10-24T16:45:27.232Z",
+    "value": {
+      "clientX": 512,
+      "clientY": 172,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Update')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-form-submit']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Update",
+      "id": "subject-form-submit",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "14c2621c-c0dd-4212-9aab-edbb4a23f3bf"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), 'Sb.Update')]",
+    "time": "2025-10-24T16:45:29.285Z",
+    "value": {
+      "clientX": 92,
+      "clientY": 676,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), 'Sb.Update')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[1]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "Sb.Update",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "a857a746-acc8-4d3c-aa20-c9f9c4faa3e2"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), '5')]",
+    "time": "2025-10-24T16:45:31.028Z",
+    "value": {
+      "clientX": 497,
+      "clientY": 677,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), '5')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[2]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "5",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "bb9fd85c-15e1-40db-852e-18c52f6b106e"
+  }
+]

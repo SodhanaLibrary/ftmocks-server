@@ -1,0 +1,347 @@
+[
+  {
+    "id": "883dee9b-ce34-4170-bb43-8e3a80ac24d7",
+    "type": "url",
+    "target": "http://localhost:4050/",
+    "time": "2025-10-24T15:25:39.677Z",
+    "value": "http://localhost:4050/"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Students')]",
+    "time": "2025-10-24T15:25:42.263Z",
+    "value": {
+      "clientX": 1026,
+      "clientY": 38,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Students')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='header-menu-students']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Students",
+      "id": "header-menu-students",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "5b401781-d5ed-4051-8094-0f87e72985e9"
+  },
+  {
+    "type": "click",
+    "target": "input[name='name']",
+    "time": "2025-10-24T15:25:43.618Z",
+    "value": {
+      "clientX": 201,
+      "clientY": 198,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='student-form-name']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "student-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "83aad0d1-b3d2-4422-94c2-4652e201c31c"
+  },
+  {
+    "type": "input",
+    "target": "//*[@id='student-form-name']",
+    "time": "2025-10-24T15:25:45.507Z",
+    "value": "St.New",
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "student-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "S",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "0fabdf8e-7f2f-43c6-a7b7-6b1819d7934e"
+  },
+  {
+    "type": "click",
+    "target": "//*[@id='student-form-age']",
+    "time": "2025-10-24T15:25:48.796Z",
+    "value": {
+      "clientX": 357,
+      "clientY": 210,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//*[@id='student-form-age']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "student-form-age",
+      "role": null,
+      "name": "age",
+      "ariaLabel": null,
+      "value": "",
+      "type": "number",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "ed1e800e-7830-4a17-bac0-52efddd583c7"
+  },
+  {
+    "type": "input",
+    "target": "//*[@id='student-form-age']",
+    "time": "2025-10-24T15:25:54.621Z",
+    "value": "19",
+    "selectors": [],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "student-form-age",
+      "role": null,
+      "name": "age",
+      "ariaLabel": null,
+      "value": "1",
+      "type": "number",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "23ec2e15-50ff-4141-86eb-d7aa2435f4f2"
+  },
+  {
+    "type": "click",
+    "target": "input[name='grade']",
+    "time": "2025-10-24T15:25:56.011Z",
+    "value": {
+      "clientX": 566,
+      "clientY": 208,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='grade']",
+        "nth": 1
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='student-form-grade']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "student-form-grade",
+      "role": null,
+      "name": "grade",
+      "ariaLabel": null,
+      "value": "",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "a67dfee5-642c-4a8e-9a1d-ee5d471a2261"
+  },
+  {
+    "type": "input",
+    "target": "//*[@id='student-form-grade']",
+    "time": "2025-10-24T15:25:57.332Z",
+    "value": "A",
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='grade']",
+        "nth": 1
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "student-form-grade",
+      "role": null,
+      "name": "grade",
+      "ariaLabel": null,
+      "value": "A",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "d6100198-2ebc-4259-b8fc-fb034d6ed9ba"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Create')]",
+    "time": "2025-10-24T15:25:58.470Z",
+    "value": {
+      "clientX": 730,
+      "clientY": 204,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Create')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='student-form-submit']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Create",
+      "id": "student-form-submit",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "a386c559-4ac3-49f0-a410-b702f91f65ea"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), 'St.New')]",
+    "time": "2025-10-24T15:26:04.417Z",
+    "value": {
+      "clientX": 103,
+      "clientY": 678,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), 'St.New')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[1]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "St.New",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "a16f54f1-6479-4c06-a96b-a65d1815737f"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), '19')]",
+    "time": "2025-10-24T15:26:08.080Z",
+    "value": {
+      "clientX": 405,
+      "clientY": 677,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), '19')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[2]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "19",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "7fd9a839-527f-4c0f-9fb3-13a9b181f8e5"
+  }
+]

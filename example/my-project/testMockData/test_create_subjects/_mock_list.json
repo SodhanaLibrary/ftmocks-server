@@ -1,43 +1,26 @@
 [
   {
-    "fileName": "mock_36e967cc-4174-4bac-ac71-ae8337d7de7a.json",
+    "id": "06030918-7df5-4293-8286-9ec7f3fa26e5",
+    "url": "/api/teachers",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_36e967cc-4174-4bac-ac71-ae8337d7de7a.json",
-    "postData": {
-      "mimeType": null
-    },
+    "time": "Fri Oct 24 2025 22:14:06 GMT+0530 (India Standard Time)"
+  },
+  {
+    "id": "012a8ca2-b51b-4c4f-bd0c-0e2672096b71",
     "url": "/api/subjects",
-    "id": "36e967cc-4174-4bac-ac71-ae8337d7de7a"
-  },
-  {
-    "fileName": "mock_3d70f8f8-622b-4403-95d6-35545bf217a5.json",
     "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_3d70f8f8-622b-4403-95d6-35545bf217a5.json",
-    "postData": {
-      "mimeType": null
-    },
-    "url": "/api/students",
-    "id": "3d70f8f8-622b-4403-95d6-35545bf217a5"
+    "time": "Fri Oct 24 2025 22:14:08 GMT+0530 (India Standard Time)"
   },
   {
-    "fileName": "mock_6329325b-8401-4aa6-b0ce-05b849917ed4.json",
+    "id": "a39ab696-73f5-406c-a0f7-41f45c3de184",
+    "url": "/api/subjects",
     "method": "POST",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_6329325b-8401-4aa6-b0ce-05b849917ed4.json",
-    "postData": {
-      "mimeType": "application/json",
-      "text": "{\"name\":\"telugu\",\"credits\":\"4\"}"
-    },
-    "url": "/api/subjects",
-    "id": "6329325b-8401-4aa6-b0ce-05b849917ed4"
+    "time": "Fri Oct 24 2025 22:14:16 GMT+0530 (India Standard Time)"
   },
   {
-    "fileName": "mock_b655eeba-c87a-41f3-bf78-79b1277887ea.json",
-    "method": "GET",
-    "path": "/Users/srinivas.dasari/Documents/CursorWorkSpace/ftmocks-server/example/my-project/testMockData/test_create_subjects/mock_b655eeba-c87a-41f3-bf78-79b1277887ea.json",
-    "postData": {
-      "mimeType": null
-    },
+    "id": "8b5f0422-2834-48d2-b71a-7b7db94b92b5",
     "url": "/api/subjects",
-    "id": "b655eeba-c87a-41f3-bf78-79b1277887ea"
+    "method": "GET",
+    "time": "Fri Oct 24 2025 22:14:16 GMT+0530 (India Standard Time)"
   }
 ]

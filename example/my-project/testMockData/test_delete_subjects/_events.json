@@ -1,0 +1,81 @@
+[
+  {
+    "id": "01c3daf9-a97a-4510-920b-77f9797f982c",
+    "type": "url",
+    "target": "http://localhost:4050/",
+    "time": "2025-10-24T16:46:20.347Z",
+    "value": "http://localhost:4050/"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Subjects')]",
+    "time": "2025-10-24T16:46:22.641Z",
+    "value": {
+      "clientX": 1140,
+      "clientY": 31,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Subjects')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='header-menu-subjects']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Subjects",
+      "id": "header-menu-subjects",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "cdacbf9e-9218-451a-8937-8a54557f926f"
+  },
+  {
+    "type": "click",
+    "target": "//*[@id='subject-6-delete-btn']",
+    "time": "2025-10-24T16:46:25.545Z",
+    "value": {
+      "clientX": 826,
+      "clientY": 676,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Delete')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='subject-6-delete-btn']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Delete",
+      "id": "subject-6-delete-btn",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "1c4d8aad-19f6-4f37-b294-e1f0a344472c"
+  }
+]

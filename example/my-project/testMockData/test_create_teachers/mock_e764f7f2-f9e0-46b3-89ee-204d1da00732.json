@@ -1,0 +1,40 @@
+{
+  "url": "/api/teachers",
+  "time": "Fri Oct 24 2025 20:49:35 GMT+0530 (India Standard Time)",
+  "method": "POST",
+  "request": {
+    "headers": {
+      "accept": "*/*",
+      "content-type": "application/json",
+      "origin": "http://localhost:4050",
+      "referer": "http://localhost:4050/",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"139\", \"Not;A=Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": [],
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"name\":\"Dr.New\",\"subject\":\"Chem\",\"yearsOfExperience\":\"3\"}"
+    }
+  },
+  "response": {
+    "file": false,
+    "status": 201,
+    "headers": {
+      "x-powered-by": "Express",
+      "access-control-allow-origin": "*",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "65",
+      "etag": "W/\"41-SaQlpCDrv3w8zjEh8V1F0R1CvnA\"",
+      "date": "Fri, 24 Oct 2025 15:19:35 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+    },
+    "content": "{\"id\":6,\"name\":\"Dr.New\",\"subject\":\"Chem\",\"yearsOfExperience\":\"3\"}"
+  },
+  "id": "e764f7f2-f9e0-46b3-89ee-204d1da00732",
+  "served": true,
+  "ignoreParams": []
+}
