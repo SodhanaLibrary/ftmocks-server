@@ -205,7 +205,7 @@ const recordEventData = async (req, res) => {
       logger.info('Events file does not exist, creating new file', {
         mockEventsFilePath,
       });
-      await fs.appendFile(mockEventsFilePath, '', () => {
+      await fs.writeFileSync(mockEventsFilePath, '', () => {
         logger.info('Events file created successfully', { mockEventsFilePath });
       });
       mockDataSummary = [];

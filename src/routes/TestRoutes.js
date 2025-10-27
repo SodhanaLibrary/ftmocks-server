@@ -18,7 +18,7 @@ const getTests = async (req, res) => {
       logger.info('Tests file does not exist, creating new file', {
         testsPath: indexPath,
       });
-      await fs.appendFile(indexPath, '[]', () => {
+      await fs.writeFileSync(indexPath, '[]', () => {
         logger.info('Tests file created successfully', {
           testsPath: indexPath,
         });
@@ -141,6 +141,7 @@ const createTest = async (req, res) => {
         process.env.MOCK_DIR,
         `test_${nameToFolder(req.body.name)}`
       );
+
       const mockListFilePath = path.join(folderPath, '_mock_list.json');
 
       logger.debug('Creating test directory and files', {
@@ -148,7 +149,7 @@ const createTest = async (req, res) => {
         mockListFilePath,
       });
 
-      fs.mkdir(folderPath, { recursive: true }, (err) => {
+      fs.mkdirSync(folderPath, { recursive: true }, (err) => {
         if (err) {
           logger.error('Error creating directory', {
             folderPath,
@@ -159,7 +160,7 @@ const createTest = async (req, res) => {
         }
       });
 
-      await fs.appendFile(mockListFilePath, '[]', () => {
+      await fs.writeFileSync(mockListFilePath, '[]', () => {
         logger.debug('Mock list file created successfully', {
           mockListFilePath,
         });
@@ -764,7 +765,7 @@ const getTestsSummary = async (req, res) => {
       logger.info('Tests file does not exist, creating new file', {
         testsPath: indexPath,
       });
-      await fs.appendFile(indexPath, '[]', () => {
+      await fs.writeFileSync(indexPath, '[]', () => {
         logger.info('Tests file created successfully', {
           testsPath: indexPath,
         });

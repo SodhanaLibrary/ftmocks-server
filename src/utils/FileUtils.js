@@ -89,9 +89,9 @@ function isFileLikeHarEntry(entry) {
   return isFileLikeByExt || isFileLikeByMime;
 }
 
-const saveIfItIsFile = async (route, testName, id) => {
+const saveIfItIsFile = async (currentRequest, response, testName, id) => {
   try {
-    const urlObj = new URL(route.request().url());
+    const urlObj = new URL(currentRequest.url());
 
     // Check if URL contains file extension like .js, .png, .css etc
     const fileExtMatch = urlObj.pathname.match(/\.[a-zA-Z0-9]+$/);
@@ -99,7 +99,6 @@ const saveIfItIsFile = async (route, testName, id) => {
     let fileExt = null;
     if (!fileExtMatch) {
       // Try to get extension from content-type header
-      const response = await route.fetch();
       const contentType = response.headers()['content-type'];
       if (contentType) {
         // Map common mime types to extensions
@@ -151,7 +150,6 @@ const saveIfItIsFile = async (route, testName, id) => {
       const fileName = `${id}${fileExt}`;
       const filePath = path.join(dirPath, fileName);
 
-      const response = await route.fetch();
       const buffer = await response.body();
       fs.writeFileSync(filePath, buffer);
 
@@ -167,7 +165,7 @@ const saveIfItIsFile = async (route, testName, id) => {
   } catch (error) {
     logger.error('Error saving file', {
       error: error.message,
-      url: route.request().url(),
+      url: currentRequest.url(),
       testName: testName || 'defaultMocks',
     });
     return false;

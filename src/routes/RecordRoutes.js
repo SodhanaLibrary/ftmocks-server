@@ -70,10 +70,74 @@ const injectEventRecordingScript = async (page, url) => {
       let prevEventSnapshot = null;
       let currentEventSnapshot = null;
 
-      const filterElementsFromHtml = (html, selector) => {
+      const filterElementsFromHtml = (html = '', selector) => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const elements = doc.querySelectorAll(selector);
-        console.log(elements);
+        return elements;
+      };
+
+      const filterXpathElementsFromHtml = (html, xpath) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const elements = doc.evaluate(
+          xpath,
+          doc,
+          null,
+          XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+          null
+        );
+        return elements;
+      };
+
+      const getElementsByRank = (elements, mainElement) => {
+        const ranksAndIndexes = [];
+
+        for (let i = 0; i < elements.length; i++) {
+          // Compare element with mainElement based on attributes and textContent
+          let rank = 1;
+          const e = elements[i];
+          if (e && mainElement) {
+            if (e.attributes && mainElement.attributes) {
+              if (e.attributes.length !== mainElement.attributes.length) {
+                rank =
+                  rank +
+                  Math.abs(e.attributes.length - mainElement.attributes.length);
+              }
+              for (let j = 0; j < e.attributes.length; j++) {
+                const attrName = e.attributes[j].name;
+                if (
+                  e.getAttribute(attrName) &&
+                  mainElement.getAttribute(attrName) &&
+                  e.getAttribute(attrName) !==
+                    mainElement.getAttribute(attrName)
+                ) {
+                  rank = rank + 1;
+                }
+              }
+            }
+
+            if (e.textContent === mainElement.textContent) {
+              rank = rank + 1;
+            }
+            // Compare node depth in the DOM tree
+            const getDepth = (node) => {
+              let depth = 0;
+              let current = node;
+              while (current && current.parentNode) {
+                depth++;
+                current = current.parentNode;
+              }
+              return depth;
+            };
+
+            if (e && mainElement) {
+              const eDepth = getDepth(e);
+              const mainDepth = getDepth(mainElement);
+              rank = rank + Math.abs(eDepth - mainDepth);
+            }
+          }
+          ranksAndIndexes.push({ index: i, rank });
+        }
+        return ranksAndIndexes.sort((a, b) => a.rank - b.rank);
       };
 
       const isUniqueXpath = (xpath) => {
@@ -86,130 +150,54 @@ const injectEventRecordingScript = async (page, url) => {
         );
         return elements.snapshotLength === 1;
       };
+      const getUniqueXpath = (xpath, mainElement) => {
+        const prevElements = filterXpathElementsFromHtml(
+          prevEventSnapshot,
+          xpath
+        );
+        if (prevElements.snapshotLength > 1 && mainElement) {
+          return `(${xpath})[${getElementsByRank(prevElements, mainElement)[0].index + 1}]`;
+        }
+        return xpath;
+      };
       const isUniqueElement = (selector) => {
         const elements = document.querySelectorAll(selector);
         return elements.length === 1 || elements.length === 0;
       };
 
-      const getUniqueElementSelector = (selector, mainElement) => {
-        const elements = document.querySelectorAll(selector);
-        if (elements.length === 0) {
-          return selector;
-        } else if (elements.length > 0) {
-          const prevElements = filterElementsFromHtml(
-            prevEventSnapshot,
-            selector
-          );
-          const currentElements = elements;
-          if (prevElements.length < currentElements.length) {
-            // Find index of mainElement in prevElements
-            let index = -1;
-            if (prevElements && mainElement) {
-              for (let i = 0; i < prevElements.length; i++) {
-                if (prevElements[i].isEqualNode(mainElement)) {
-                  index = i;
-                  break;
-                }
-              }
-            }
-            return `${selector}:nth-of-type(${index + 1})`;
-          } else {
-            // Find index of mainElement in currentElements
-            let index = -1;
-            if (currentElements && mainElement) {
-              for (let i = 0; i < currentElements.length; i++) {
-                if (currentElements[i].isEqualNode(mainElement)) {
-                  index = i;
-                  break;
-                }
-              }
-            }
-            return `${selector}:nth-of-type(${index + 1})`;
-          }
+      const getUniqueElementSelectorNth = (selector, mainElement) => {
+        const prevElements = filterElementsFromHtml(
+          prevEventSnapshot,
+          selector
+        );
+        if (prevElements.length > 1) {
+          return getElementsByRank(prevElements, mainElement)[0].index + 1;
         }
-        return selector;
+        return 1;
       };
 
-      // Parses two HTML strings and returns a list of nodes that are different between them
-      const diffHtml = (prevHtml, currentHtml) => {
-        // Parse HTML strings into DOM trees
-        const parser = new DOMParser();
-        const prevDoc = parser.parseFromString(prevHtml, 'text/html');
-        const currDoc = parser.parseFromString(currentHtml, 'text/html');
-
-        // Helper to compare nodes' tagName, attributes, and text content
-        function nodesAreDifferent(nodeA, nodeB) {
-          if (!nodeA || !nodeB) return true;
-          if (nodeA.nodeType !== nodeB.nodeType) return true;
-          if (nodeA.nodeType === Node.TEXT_NODE) {
-            return nodeA.textContent !== nodeB.textContent;
-          }
-          if (nodeA.tagName !== nodeB.tagName) return true;
-          // Compare attributes
-          if (nodeA.attributes && nodeB.attributes) {
-            if (nodeA.attributes.length !== nodeB.attributes.length)
-              return true;
-            for (let i = 0; i < nodeA.attributes.length; i++) {
-              const attrName = nodeA.attributes[i].name;
-              if (
-                nodeB.getAttribute(attrName) !== nodeA.getAttribute(attrName)
-              ) {
-                return true;
-              }
+      const getSelectorsByConfidence = (selectors) => {
+        return selectors
+          .map((selector) => {
+            if (selector.startsWith('//')) {
+              const prevElements = filterXpathElementsFromHtml(
+                prevEventSnapshot,
+                selector
+              );
+              return { selector, count: prevElements.length };
+            } else {
+              const prevElements = filterElementsFromHtml(
+                prevEventSnapshot,
+                selector
+              );
+              return { selector, count: prevElements.length };
             }
-          }
-          return false;
-        }
-
-        // Recursively walk the DOM, finding differences (in nodes and subtree structure)
-        function walkDiffs(nodeA, nodeB, path, diffs) {
-          if (!nodeA && nodeB) {
-            diffs.push({ path, type: 'added', node: nodeB });
-            return;
-          }
-          if (nodeA && !nodeB) {
-            diffs.push({ path, type: 'removed', node: nodeA });
-            return;
-          }
-          if (nodesAreDifferent(nodeA, nodeB)) {
-            diffs.push({ path, type: 'changed', nodeA, nodeB });
-          }
-          // Walk children if they exist and are Element nodes
-          if (
-            nodeA &&
-            nodeB &&
-            nodeA.nodeType === Node.ELEMENT_NODE &&
-            nodeB.nodeType === Node.ELEMENT_NODE
-          ) {
-            const childrenA = nodeA.childNodes;
-            const childrenB = nodeB.childNodes;
-            const maxLen = Math.max(childrenA.length, childrenB.length);
-            for (let i = 0; i < maxLen; i++) {
-              walkDiffs(childrenA[i], childrenB[i], path.concat([i]), diffs);
-            }
-          }
-        }
-
-        // Start diff from <body>, as most mutations happen below this level
-        let diffs = [];
-        walkDiffs(prevDoc.body, currDoc.body, [], diffs);
-
-        // Optionally, return only the changed/new/removed nodes (for NodeList-like consumer)
-        const nodeList = [];
-        for (const diff of diffs) {
-          if (diff.type === 'added' || diff.type === 'changed') {
-            if (diff.nodeB) nodeList.push(diff.nodeB);
-            else if (diff.node) nodeList.push(diff.node);
-          }
-        }
-        return nodeList;
+          })
+          .sort((selObj1, selObj2) => selObj1.count - selObj2.count)
+          .map((selObj) => selObj.selector);
       };
 
       const getBestSelectors = (element, event) => {
-        if (prevEventSnapshot && currentEventSnapshot) {
-          const diff = diffHtml(prevEventSnapshot, currentEventSnapshot);
-          console.log('diff: ', diff);
-        }
         const selectors = [];
         const excludeTagNames = ['script', 'style', 'link', 'meta', 'svg'];
         try {
@@ -220,7 +208,8 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.getAttribute('data-testid')) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[data-testid='${element.getAttribute('data-testid')}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[data-testid='${element.getAttribute('data-testid')}']`,
                 element
               ),
@@ -229,7 +218,8 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.getAttribute('data-id')) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[data-id='${element.getAttribute('data-id')}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[data-id='${element.getAttribute('data-id')}']`,
                 element
               ),
@@ -238,7 +228,8 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.getAttribute('data-action')) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[data-action='${element.getAttribute('data-action')}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[data-action='${element.getAttribute('data-action')}']`,
                 element
               ),
@@ -247,7 +238,8 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.getAttribute('data-cy')) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[data-cy='${element.getAttribute('data-cy')}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[data-cy='${element.getAttribute('data-cy')}']`,
                 element
               ),
@@ -260,7 +252,8 @@ const injectEventRecordingScript = async (page, url) => {
           ) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[name='${element.name}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[name='${element.name}']`,
                 element
               ),
@@ -272,7 +265,8 @@ const injectEventRecordingScript = async (page, url) => {
           ) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[name='${element.name}'][value='${element.value}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[name='${element.name}'][value='${element.value}']`,
                 element
               ),
@@ -281,7 +275,8 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.ariaLabel) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[aria-label='${element.ariaLabel}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[aria-label='${element.ariaLabel}']`,
                 element
               ),
@@ -290,7 +285,8 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.role && element.name) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[role='${element.role}'][name='${element.name}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[role='${element.role}'][name='${element.name}']`,
                 element
               ),
@@ -299,7 +295,8 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.getAttribute('src')) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[src='${element.getAttribute('src')}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[src='${element.getAttribute('src')}']`,
                 element
               ),
@@ -308,56 +305,39 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.getAttribute('href')) {
             selectors.push({
               type: 'locator',
-              value: getUniqueElementSelector(
+              value: `${tagName}[href='${element.getAttribute('href')}']`,
+              nth: getUniqueElementSelectorNth(
                 `${tagName}[href='${element.getAttribute('href')}']`,
                 element
               ),
             });
           }
           const escapedText = element.textContent.replace(/"/g, '\\"');
-          if (
-            element.role &&
-            element.textContent &&
-            isUniqueXpath(
-              `//*[@role='${element.role}' and contains(text(), '${escapedText}')]`
-            )
-          ) {
+          if (element.role && element.textContent) {
             selectors.push({
               type: 'locator',
-              value: `//*[@role='${element.role}' and contains(text(), '${escapedText}')]`,
-            });
-            selectors.push({
-              type: 'text',
-              value: {
-                role: element.role,
-                textContent: element.textContent,
-              },
+              value: `${tagName}[role='${element.role}'][contains(text(), '${escapedText}')]`,
+              nth: getUniqueElementSelectorNth(
+                `${tagName}[role='${element.role}'][contains(text(), '${escapedText}')]`,
+                element
+              ),
             });
           }
-          if (
-            element.textContent &&
-            isUniqueXpath(`//${tagName}[contains(text(), '${escapedText}')]`)
-          ) {
+          if (element.textContent) {
             selectors.push({
               type: 'locator',
-              value: `//${tagName}[contains(text(), '${escapedText}')]`,
-            });
-            selectors.push({
-              type: 'text',
-              value: {
-                tagName,
-                textContent: element.textContent,
-              },
+              value: getUniqueXpath(
+                `//${tagName}[contains(text(), '${escapedText}')]`,
+                element
+              ),
             });
           }
-          console.log('selectors: ', selectors, element);
-          return selectors;
+          return getSelectorsByConfidence(selectors);
         } catch (error) {
           console.error('Error getting best selectors', {
             error: error.message,
             stack: error.stack,
           });
-          console.log('selectors: ', selectors, element);
           return selectors;
         }
       };
@@ -423,7 +403,6 @@ const injectEventRecordingScript = async (page, url) => {
               otherIdAttributes.forEach((attribute) => {
                 const parentAttributeValue =
                   element.parentElement.getAttribute(attribute);
-                console.log('attribute: ', attribute, parentAttributeValue);
                 if (
                   parentAttributeValue &&
                   isUniqueXpath(`//*[@${attribute}='${parentAttributeValue}']`)
@@ -745,9 +724,11 @@ const recordMocks = async (browser, req, res) => {
 
     // Spy on fetch API calls
     await page.route('**', async (route) => {
+      const currentRequest = route.request();
+      let response = null;
       try {
         // Check if URL matches any of the patterns
-        const urlObj = new URL(route.request().url());
+        const urlObj = new URL(currentRequest.url());
         if (patterns && patterns.length > 0) {
           const matchesPattern = patterns.some((pattern) => {
             try {
@@ -774,139 +755,172 @@ const recordMocks = async (browser, req, res) => {
 
         logger.debug('Processing route', {
           url: urlObj.pathname,
-          method: route.request().method(),
+          method: currentRequest.method(),
         });
 
         const id = crypto.randomUUID();
-        const fileName = await saveIfItIsFile(route, testName, id);
-        const response = await route.fetch();
+        response = await route.fetch();
+        const fileName = await saveIfItIsFile(
+          currentRequest,
+          response,
+          testName,
+          id
+        );
+        try {
+          const mockData = {
+            url: urlObj.pathname + urlObj.search,
+            time: new Date().toString(),
+            method: currentRequest.method(),
+            request: {
+              headers: excludeHeaders(await currentRequest.headers()),
+              queryString: Array.from(urlObj.searchParams.entries()).map(
+                ([name, value]) => ({
+                  name,
+                  value,
+                })
+              ),
+              postData: currentRequest.postData()
+                ? {
+                    mimeType: 'application/json',
+                    text: currentRequest.postData(),
+                  }
+                : null,
+            },
+            response: {
+              file: fileName,
+              status: response.status(),
+              headers: excludeHeaders(response.headers()),
+              content: fileName ? null : await response.text(),
+            },
+            id,
+            served: false,
+            ignoreParams: process.env.DEFAULT_IGNORE_PARAMS
+              ? process.env.DEFAULT_IGNORE_PARAMS.split(',')
+              : [],
+          };
 
-        const mockData = {
-          url: urlObj.pathname + urlObj.search,
-          time: new Date().toString(),
-          method: route.request().method(),
-          request: {
-            headers: excludeHeaders(await route.request().headers()),
-            queryString: Array.from(urlObj.searchParams.entries()).map(
-              ([name, value]) => ({
-                name,
-                value,
-              })
-            ),
-            postData: route.request().postData()
-              ? {
-                  mimeType: 'application/json',
-                  text: route.request().postData(),
-                }
-              : null,
-          },
-          response: {
-            file: fileName,
+          if (req.body.avoidDuplicatesInTheTest) {
+            logger.debug('Checking for duplicates in test', { testName });
+            // Check if the mock data is a duplicate of a mock data in the test
+            const testMockList = loadMockDataFromMockListFile(
+              path.join(
+                process.env.MOCK_DIR,
+                testName ? `test_${nameToFolder(testName)}` : 'defaultMocks'
+              ),
+              `_mock_list.json`
+            );
+            const matchResponse = testMockList.find((mock) =>
+              compareMockToMock(mock.fileContent, mockData, true)
+            );
+            if (matchResponse) {
+              logger.info('Replacing duplicate mock data in the test', {
+                existingId: matchResponse.id,
+                newId: mockData.id,
+              });
+              const existingMockDataFile = path.join(
+                process.env.MOCK_DIR,
+                testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
+                `mock_${matchResponse.id}.json`
+              );
+              fs.writeFileSync(
+                existingMockDataFile,
+                JSON.stringify(mockData, null, 2)
+              );
+              await route.fulfill({
+                status: response.status(),
+                headers: response.headers(),
+                body: await response.body(),
+              });
+              return;
+            }
+          }
+
+          if (req.body.avoidDuplicatesWithDefaultMocks) {
+            logger.debug('Checking for duplicates with default mocks');
+            // Check if the mock data is a duplicate of a mock data in the test
+            const defaultMockList = loadMockDataFromMockListFile(
+              path.join(
+                process.env.MOCK_DIR,
+                testName ? `test_${nameToFolder(testName)}` : 'defaultMocks'
+              ),
+              `_mock_list.json`
+            );
+            const matchResponse = defaultMockList.find((mock) =>
+              compareMockToMock(mock.fileContent, mockData, true)
+            );
+            if (matchResponse) {
+              logger.info('Aborting duplicate mock data with default mocks', {
+                defaultMockId: matchResponse.id,
+              });
+              await route.fulfill({
+                status: response.status(),
+                headers: response.headers(),
+                body: await response.body(),
+              });
+              return;
+            }
+          }
+
+          // Save the mock data to the test
+          const mockListPath = path.join(
+            process.env.MOCK_DIR,
+            testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
+            '_mock_list.json'
+          );
+          let mockList = [];
+          if (fs.existsSync(mockListPath)) {
+            mockList = JSON.parse(fs.readFileSync(mockListPath, 'utf8'));
+          }
+          mockList.push({
+            id: mockData.id,
+            url: mockData.url,
+            method: mockData.method,
+            time: mockData.time,
+          });
+
+          fs.writeFileSync(mockListPath, JSON.stringify(mockList, null, 2));
+          const mocDataPath = path.join(
+            process.env.MOCK_DIR,
+            testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
+            `mock_${mockData.id}.json`
+          );
+          fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
+
+          logger.info('Mock data saved successfully', {
+            mockId: mockData.id,
+            url: mockData.url,
+            method: mockData.method,
+            status: mockData.response.status,
+          });
+        } catch (error) {
+          logger.error('Error saving mock data', {
+            error: error.message,
+            stack: error.stack,
+            url: currentRequest.url(),
+          });
+        } finally {
+          await route.fulfill({
             status: response.status(),
-            headers: excludeHeaders(response.headers()),
-            content: fileName ? null : await response.text(),
-          },
-          id,
-          served: false,
-          ignoreParams: process.env.DEFAULT_IGNORE_PARAMS
-            ? process.env.DEFAULT_IGNORE_PARAMS.split(',')
-            : [],
-        };
-
-        if (req.body.avoidDuplicatesInTheTest) {
-          logger.debug('Checking for duplicates in test', { testName });
-          // Check if the mock data is a duplicate of a mock data in the test
-          const testMockList = loadMockDataFromMockListFile(
-            path.join(
-              process.env.MOCK_DIR,
-              testName ? `test_${nameToFolder(testName)}` : 'defaultMocks'
-            ),
-            `_mock_list.json`
-          );
-          const matchResponse = testMockList.find((mock) =>
-            compareMockToMock(mock.fileContent, mockData, true)
-          );
-          if (matchResponse) {
-            logger.info('Replacing duplicate mock data in the test', {
-              existingId: matchResponse.id,
-              newId: mockData.id,
-            });
-            const existingMockDataFile = path.join(
-              process.env.MOCK_DIR,
-              testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
-              `mock_${matchResponse.id}.json`
-            );
-            fs.writeFileSync(
-              existingMockDataFile,
-              JSON.stringify(mockData, null, 2)
-            );
-            await route.continue();
-            return;
-          }
+            headers: response.headers(),
+            body: await response.body(),
+          });
         }
-
-        if (req.body.avoidDuplicatesWithDefaultMocks) {
-          logger.debug('Checking for duplicates with default mocks');
-          // Check if the mock data is a duplicate of a mock data in the test
-          const defaultMockList = loadMockDataFromMockListFile(
-            path.join(
-              process.env.MOCK_DIR,
-              testName ? `test_${nameToFolder(testName)}` : 'defaultMocks'
-            ),
-            `_mock_list.json`
-          );
-          const matchResponse = defaultMockList.find((mock) =>
-            compareMockToMock(mock.fileContent, mockData, true)
-          );
-          if (matchResponse) {
-            logger.info('Aborting duplicate mock data with default mocks', {
-              defaultMockId: matchResponse.id,
-            });
-            await route.continue();
-            return;
-          }
-        }
-
-        // Save the mock data to the test
-        const mockListPath = path.join(
-          process.env.MOCK_DIR,
-          testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
-          '_mock_list.json'
-        );
-        let mockList = [];
-        if (fs.existsSync(mockListPath)) {
-          mockList = JSON.parse(fs.readFileSync(mockListPath, 'utf8'));
-        }
-        mockList.push({
-          id: mockData.id,
-          url: mockData.url,
-          method: mockData.method,
-          time: mockData.time,
-        });
-
-        fs.writeFileSync(mockListPath, JSON.stringify(mockList, null, 2));
-        const mocDataPath = path.join(
-          process.env.MOCK_DIR,
-          testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
-          `mock_${mockData.id}.json`
-        );
-        fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
-
-        logger.info('Mock data saved successfully', {
-          mockId: mockData.id,
-          url: mockData.url,
-          method: mockData.method,
-          status: mockData.response.status,
-        });
-
-        await route.continue();
       } catch (error) {
         logger.error('Error processing route', {
           error: error.message,
           stack: error.stack,
-          url: route.request().url(),
+          url: currentRequest.url(),
         });
-        await route.continue();
+        if (!response) {
+          await route.continue();
+        } else {
+          await route.fulfill({
+            status: response.status(),
+            headers: response.headers(),
+            body: await response.body(),
+          });
+        }
+        return;
       }
     });
 

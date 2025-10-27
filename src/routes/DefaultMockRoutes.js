@@ -17,7 +17,7 @@ const getDefaultMocks = async (req, res) => {
 
     if (!fs.existsSync(defaultPath)) {
       logger.info('Default file does not exist, creating new file');
-      await fs.appendFile(defaultPath, '[]', () => {
+      await fs.writeFileSync(defaultPath, '[]', () => {
         logger.info('Default file created successfully');
       });
     }
