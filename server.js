@@ -23,6 +23,7 @@ const {
   deleteTestMocks,
   duplicateTest,
   moveMockToDefaultMocks,
+  reorderTests,
 } = require('./src/routes/TestRoutes');
 const {
   getDefaultMocks,
@@ -233,6 +234,9 @@ app.delete('/api/v1/projects', removeProject);
 
 // Router for /api/v1/ignoreForAll POST method
 app.post('/api/v1/ignoreForAll', ignoreForAll);
+
+// Router for /api/v1/reorderTests PUT method
+app.put('/api/v1/reorderTests', reorderTests);
 
 // Router for /api/v1/mockServer GET method
 app.get('/api/v1/mockServer', async (req, res) => {

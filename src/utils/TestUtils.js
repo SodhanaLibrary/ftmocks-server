@@ -24,7 +24,6 @@ const createTest = (name) => {
       const newTest = {
         id: uuidv4(),
         name: name,
-        mockFile: [],
       };
 
       logger.debug('Created new test object', {
@@ -183,7 +182,6 @@ const getMocksDiffFromDefaultMocks = (name) => {
       const newTest = {
         id: uuidv4(),
         name: name,
-        mockFile: [],
       };
 
       logger.debug('Created new test for diff calculation', {

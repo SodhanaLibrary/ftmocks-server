@@ -32,16 +32,6 @@ const encryptedData = Buffer.concat([
   Buffer.from(encrypted, 'hex'), // Encrypted ciphertext
 ]).toString('base64');
 
-logger.debug('Demo encryption completed', {
-  originalDataLength: data.length,
-  encryptedDataLength: encryptedData.length,
-  saltLength: saltBuffer.length,
-  ivLength: iv.length,
-  authTagLength: authTag.length,
-});
-
-console.log(`Encrypted Data: ${encryptedData}`);
-
 // Decrypt the data
 const decoded = Buffer.from(encryptedData, 'base64');
 // Use the saltBuffer length to extract the salt back

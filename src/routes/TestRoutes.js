@@ -31,19 +31,12 @@ const getTests = async (req, res) => {
     logger.debug('Parsed tests data', { testCount: parsedData.length });
 
     // Map the data to a more suitable format for the response
-    const formattedData = parsedData.map((item) => ({
-      id: item.id,
-      name: item.name,
-      mockFile: item.mockFile,
-      mode: item.mode,
-    }));
-
     logger.info('Successfully retrieved tests', {
-      testCount: formattedData.length,
-      testNames: formattedData.map((t) => t.name),
+      testCount: parsedData.length,
+      testNames: parsedData.map((t) => t.name),
     });
 
-    res.status(200).json(formattedData);
+    res.status(200).json(parsedData);
   } catch (error) {
     logger.error('Error reading or parsing tests file', {
       testsPath: indexPath,
@@ -76,7 +69,6 @@ const deleteTest = async (req, res) => {
     logger.debug('Found test to delete', {
       testId,
       testName: testToDelete.name,
-      mockFile: testToDelete.mockFile,
     });
 
     const folderPath = path.join(
@@ -131,63 +123,74 @@ const createTest = async (req, res) => {
       const newTest = {
         id: uuidv4(),
         name: req.body.name,
-        mockFile: [],
+        type: req.body.type,
+        parentId: req.body.parentId,
       };
 
-      tests.push(newTest);
-      fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
+      if (req.body.type !== 'folder') {
+        tests.push(newTest);
+        const folderPath = path.join(
+          process.env.MOCK_DIR,
+          `test_${nameToFolder(req.body.name)}`
+        );
 
-      const folderPath = path.join(
-        process.env.MOCK_DIR,
-        `test_${nameToFolder(req.body.name)}`
-      );
+        const mockListFilePath = path.join(folderPath, '_mock_list.json');
 
-      const mockListFilePath = path.join(folderPath, '_mock_list.json');
-
-      logger.debug('Creating test directory and files', {
-        folderPath,
-        mockListFilePath,
-      });
-
-      fs.mkdirSync(folderPath, { recursive: true }, (err) => {
-        if (err) {
-          logger.error('Error creating directory', {
-            folderPath,
-            error: err.message,
-          });
-        } else {
-          logger.debug('Directory created successfully', { folderPath });
-        }
-      });
-
-      await fs.writeFileSync(mockListFilePath, '[]', () => {
-        logger.debug('Mock list file created successfully', {
+        logger.debug('Creating test directory and files', {
+          folderPath,
           mockListFilePath,
         });
-      });
 
-      logger.info('New test created successfully', {
-        testId: newTest.id,
-        testName: newTest.name,
-        folderPath,
-      });
+        fs.mkdirSync(folderPath, { recursive: true }, (err) => {
+          if (err) {
+            logger.error('Error creating directory', {
+              folderPath,
+              error: err.message,
+            });
+          } else {
+            logger.debug('Directory created successfully', { folderPath });
+          }
+        });
+
+        await fs.writeFileSync(mockListFilePath, '[]', () => {
+          logger.debug('Mock list file created successfully', {
+            mockListFilePath,
+          });
+        });
+
+        logger.info('New test created successfully', {
+          testId: newTest.id,
+          testName: newTest.name,
+          folderPath,
+        });
+      } else {
+        tests.unshift(newTest);
+        logger.info('New folder created successfully', {
+          testId: newTest.id,
+          testName: newTest.name,
+        });
+      }
+      fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
 
       res.status(201).json({
-        message: 'New test created successfully',
+        message: `New ${req.body.type} created successfully`,
         test: newTest,
       });
       return;
     } else {
-      logger.warn('Test already exists', { testName: req.body.name });
-      throw 'Test already exists';
+      logger.warn(`${req.body.type} already exists`, {
+        testName: req.body.name,
+      });
+      throw `${req.body.type} already exists`;
     }
   } catch (error) {
     logger.error('Error creating test', {
       testName: req.body?.name,
+      testType: req.body?.type,
       error: error.message,
       stack: error.stack,
     });
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: `Error creating ${req.body.type}` });
   }
 };
 
@@ -229,7 +232,10 @@ const updateTest = async (req, res) => {
       true
     );
 
-    if (originalTest.name !== updatedTest.name) {
+    if (
+      originalTest.name !== updatedTest.name &&
+      originalTest.type !== 'folder'
+    ) {
       const testFolder = path.join(
         process.env.MOCK_DIR,
         `test_${nameToFolder(originalTest.name)}`
@@ -260,6 +266,7 @@ const updateTest = async (req, res) => {
     }
     testsData[testIndex].name = updatedTest.name;
     testsData[testIndex].mode = updatedTest.mode;
+    testsData[testIndex].parentId = updatedTest.parentId;
     testsData[testIndex].mockFile =
       `test_${nameToFolder(updatedTest.name)}/_mock_list.json`;
 
@@ -1046,6 +1053,63 @@ const moveMockToDefaultMocks = async (req, res) => {
   }
 };
 
+/**
+ * Re-order tests in tests.json by given array of test IDs (newOrder).
+ * Expects JSON body: { newOrder: [...] }
+ */
+const reorderTests = (req, res) => {
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+  let tests = [];
+  try {
+    logger.info('Reordering tests', {
+      newOrder: req.body.newOrder,
+    });
+
+    const { newOrder } = req.body;
+    if (!Array.isArray(newOrder)) {
+      return res.status(400).json({ error: 'Invalid newOrder array' });
+    }
+
+    const testsData = fs.readFileSync(testsPath, 'utf8');
+    tests = JSON.parse(testsData);
+
+    // Create map for quick lookup
+    const testMap = {};
+    tests.forEach((t) => {
+      testMap[t.id] = t;
+    });
+
+    // Rebuild tests array in the new order
+    const reorderedTests = [];
+    newOrder.forEach((id) => {
+      if (testMap[id]) {
+        reorderedTests.push(testMap[id]);
+      }
+    });
+
+    // Optionally, append any remaining tests not in newOrder, to be safe
+    tests.forEach((t) => {
+      if (!newOrder.includes(t.id)) {
+        reorderedTests.push(t);
+      }
+    });
+
+    fs.writeFileSync(testsPath, JSON.stringify(reorderedTests, null, 2));
+
+    logger.info('Tests reordered successfully', {
+      newOrder,
+    });
+
+    res.status(200).json({ message: 'Tests reordered successfully' });
+  } catch (error) {
+    logger.error('Error reordering tests', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Failed to reorder tests' });
+  }
+};
+
 module.exports = {
   getTests,
   deleteTest,
@@ -1063,4 +1127,5 @@ module.exports = {
   getSnapsForTest,
   deleteTestMocks,
   moveMockToDefaultMocks,
+  reorderTests,
 };
