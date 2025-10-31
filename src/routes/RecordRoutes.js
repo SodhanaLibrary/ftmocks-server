@@ -177,24 +177,43 @@ const injectEventRecordingScript = async (page, url) => {
       };
 
       const getSelectorsByConfidence = (selectors) => {
-        return selectors
-          .map((selector) => {
-            if (selector.startsWith('//')) {
-              const prevElements = filterXpathElementsFromHtml(
-                prevEventSnapshot,
-                selector
-              );
-              return { selector, count: prevElements.length };
-            } else {
-              const prevElements = filterElementsFromHtml(
-                prevEventSnapshot,
-                selector
-              );
-              return { selector, count: prevElements.length };
-            }
-          })
+        const selectorCounts = selectors.map((selector) => {
+          if (selector.startsWith('//')) {
+            const prevElements = filterXpathElementsFromHtml(
+              prevEventSnapshot,
+              selector
+            );
+            const nextElements = filterXpathElementsFromHtml(
+              currentEventSnapshot,
+              selector
+            );
+            return {
+              selector,
+              count: prevElements.length + nextElements.length,
+            };
+          } else {
+            const prevElements = filterElementsFromHtml(
+              prevEventSnapshot,
+              selector
+            );
+            const nextElements = filterElementsFromHtml(
+              currentEventSnapshot,
+              selector
+            );
+            return {
+              selector,
+              count: prevElements.length + nextElements.length,
+            };
+          }
+        });
+        const zeroCountSelectors = selectorCounts
+          .filter((selector) => selector.count === 0)
+          .map((selector) => selector.selector);
+        const nonZeroCountSelectors = selectorCounts
+          .filter((selector) => selector.count > 0)
           .sort((selObj1, selObj2) => selObj1.count - selObj2.count)
           .map((selObj) => selObj.selector);
+        return [...nonZeroCountSelectors, ...zeroCountSelectors];
       };
 
       const getBestSelectors = (element, event) => {
@@ -323,12 +342,12 @@ const injectEventRecordingScript = async (page, url) => {
               ),
             });
           }
-          if (element.textContent) {
+          if (event?.target?.textContent?.length > 0) {
             selectors.push({
               type: 'locator',
               value: getUniqueXpath(
-                `//${tagName}[contains(text(), '${escapedText}')]`,
-                element
+                `//*[contains(text(), '${event.target.textContent.replace(/"/g, '\\"')}')]`,
+                event.target
               ),
             });
           }
