@@ -18,6 +18,14 @@ To quickly set up a new mock project, install Playwright, and clone & start the 
 npx ftmocks init-playwright-all
 ```
 
+## Setup quickly
+
+To quickly set up ftmocks-server, run:
+
+```bash
+npx ftmocks setup
+```
+
 ## Documentation
 
 - Please visit FtMocks(www.ftmocks.com)

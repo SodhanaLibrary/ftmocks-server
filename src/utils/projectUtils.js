@@ -23,6 +23,10 @@ const addUrlToProject = async ({ url, patterns }) => {
     // Add the url to the top
     projects[0].urls.unshift(url);
 
+    // Remove duplicate URLs, keep the first occurrence (which is the unshifted one)
+    projects[0].urls = projects[0].urls.filter(
+      (u, idx, arr) => arr.indexOf(u) === idx
+    );
     // Write back to projects.json
     fs.writeFileSync(projectsFile, JSON.stringify(projects, null, 2));
   } catch (err) {

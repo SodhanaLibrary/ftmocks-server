@@ -50,6 +50,27 @@ const injectEventRecordingScript = async (page, url) => {
       fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
     });
 
+    await page.exposeFunction('takeScreenshot', async () => {
+      const screenshot = await page.screenshot({ fullPage: false });
+      const screenshotsDir = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(process.env.recordTest)}`,
+        'screenshots'
+      );
+      if (!fs.existsSync(screenshotsDir)) {
+        fs.mkdirSync(screenshotsDir, { recursive: true });
+      }
+      const screenshotFile = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(process.env.recordTest)}`,
+        'screenshots',
+        `screenshot_${Date.now()}.png`
+      );
+      fs.writeFileSync(screenshotFile, screenshot);
+      logger.info('Screenshot taken and saved', { screenshotFile });
+      return screenshotFile;
+    });
+
     fs.writeFileSync(
       eventsFile,
       JSON.stringify(
@@ -70,6 +91,47 @@ const injectEventRecordingScript = async (page, url) => {
       let prevEventSnapshot = null;
       let currentEventSnapshot = null;
 
+      const getAbsoluteXPath = (element) => {
+        if (element === document.body) return '/html/body';
+        const svgTagNames = [
+          'svg',
+          'path',
+          'rect',
+          'circle',
+          'ellipse',
+          'line',
+          'polygon',
+          'polyline',
+          'text',
+          'tspan',
+        ];
+
+        let xpath = '';
+        for (
+          ;
+          element && element.nodeType === 1;
+          element = element.parentNode
+        ) {
+          let index = 0;
+          let sibling = element;
+          while ((sibling = sibling.previousSibling)) {
+            if (sibling.nodeType === 1 && sibling.nodeName === element.nodeName)
+              index++;
+          }
+          const tagName = element.nodeName.toLowerCase();
+          const position = index ? `[${index + 1}]` : '';
+          xpath =
+            '/' +
+            (svgTagNames.includes(tagName)
+              ? `*[local-name()='${tagName}']`
+              : tagName) +
+            position +
+            xpath;
+        }
+
+        return xpath;
+      };
+
       const filterElementsFromHtml = (html = '', selector) => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         const elements = doc.querySelectorAll(selector);
@@ -77,15 +139,28 @@ const injectEventRecordingScript = async (page, url) => {
       };
 
       const filterXpathElementsFromHtml = (html, xpath) => {
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const elements = doc.evaluate(
-          xpath,
-          doc,
-          null,
-          XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-          null
-        );
-        return elements;
+        try {
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          // The elements variable should be an array, not an XPathResult snapshot. Convert the snapshot to an array of elements.
+          const snapshot = doc.evaluate(
+            xpath,
+            doc,
+            null,
+            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+            null
+          );
+          const elements = [];
+          for (let i = 0; i < snapshot.snapshotLength; i++) {
+            elements.push(snapshot.snapshotItem(i));
+          }
+          return elements;
+        } catch (error) {
+          console.error('Error filtering XPath elements from HTML', {
+            error: error.message,
+            stack: error.stack,
+          });
+          return [];
+        }
       };
 
       const getElementsByRank = (elements, mainElement) => {
@@ -141,14 +216,22 @@ const injectEventRecordingScript = async (page, url) => {
       };
 
       const isUniqueXpath = (xpath) => {
-        const elements = document.evaluate(
-          xpath,
-          document,
-          null,
-          XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-          null
-        );
-        return elements.snapshotLength === 1;
+        try {
+          const elements = document.evaluate(
+            xpath,
+            document,
+            null,
+            XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+            null
+          );
+          return elements.snapshotLength === 1;
+        } catch (error) {
+          console.error('Error checking if XPath is unique', {
+            error: error.message,
+            stack: error.stack,
+          });
+          return true;
+        }
       };
       const getUniqueXpath = (xpath, mainElement) => {
         const prevElements = filterXpathElementsFromHtml(
@@ -159,10 +242,6 @@ const injectEventRecordingScript = async (page, url) => {
           return `(${xpath})[${getElementsByRank(prevElements, mainElement)[0].index + 1}]`;
         }
         return xpath;
-      };
-      const isUniqueElement = (selector) => {
-        const elements = document.querySelectorAll(selector);
-        return elements.length === 1 || elements.length === 0;
       };
 
       const getUniqueElementSelectorNth = (selector, mainElement) => {
@@ -178,30 +257,32 @@ const injectEventRecordingScript = async (page, url) => {
 
       const getSelectorsByConfidence = (selectors) => {
         const selectorCounts = selectors.map((selector) => {
-          if (selector.startsWith('//')) {
+          if (selector.value.startsWith('/')) {
             const prevElements = filterXpathElementsFromHtml(
               prevEventSnapshot,
-              selector
+              selector.value
             );
             const nextElements = filterXpathElementsFromHtml(
               currentEventSnapshot,
-              selector
+              selector.value
             );
             return {
-              selector,
+              selector: selector.value,
+              type: selector.type,
               count: prevElements.length + nextElements.length,
             };
           } else {
             const prevElements = filterElementsFromHtml(
               prevEventSnapshot,
-              selector
+              selector.value
             );
             const nextElements = filterElementsFromHtml(
               currentEventSnapshot,
-              selector
+              selector.value
             );
             return {
-              selector,
+              selector: selector.value,
+              type: selector.type,
               count: prevElements.length + nextElements.length,
             };
           }
@@ -218,7 +299,7 @@ const injectEventRecordingScript = async (page, url) => {
 
       const getBestSelectors = (element, event) => {
         const selectors = [];
-        const excludeTagNames = ['script', 'style', 'link', 'meta', 'svg'];
+        const excludeTagNames = ['script', 'style', 'link', 'meta'];
         try {
           const tagName = element.tagName.toLowerCase();
           if (excludeTagNames.includes(tagName)) {
@@ -351,7 +432,7 @@ const injectEventRecordingScript = async (page, url) => {
               ),
             });
           }
-          return getSelectorsByConfidence(selectors);
+          return selectors;
         } catch (error) {
           console.error('Error getting best selectors', {
             error: error.message,
@@ -404,14 +485,30 @@ const injectEventRecordingScript = async (page, url) => {
               nextSibling = nextSibling.nextElementSibling;
             }
 
+            const svgTagNames = [
+              'svg',
+              'path',
+              'rect',
+              'circle',
+              'ellipse',
+              'line',
+              'polygon',
+              'polyline',
+              'text',
+              'tspan',
+            ];
+            let tempTagName = tagName;
+            if (svgTagNames.includes(tagName)) {
+              tempTagName = `*[local-name()='${tagName}']`;
+            }
             if (index === 1) {
               if (usedNextSibling) {
-                path = `/${tagName}[1]${path}`;
+                path = `/${tempTagName}[1]${path}`;
               } else {
-                path = `/${tagName}${path}`;
+                path = `/${tempTagName}${path}`;
               }
             } else {
-              path = `/${tagName}[${index}]${path}`;
+              path = `/${tempTagName}[${index}]${path}`;
             }
 
             // Check if the current element's parent has an ID
@@ -524,14 +621,22 @@ const injectEventRecordingScript = async (page, url) => {
         };
       };
 
-      document.addEventListener('click', (event) => {
-        currentEventSnapshot = document.documentElement.innerHTML;
-        const currentTarget = getParentElementWithEventOrId(event, 'onclick');
-        const selectors = getBestSelectors(currentTarget, event);
+      const getXpathsIncluded = (selectors, currentTarget, event) => {
         selectors.push({
           type: 'locator',
           value: generateXPathWithNearestParentId(currentTarget),
         });
+        selectors.push({
+          type: 'locator',
+          value: getAbsoluteXPath(event.target),
+        });
+      };
+
+      document.addEventListener('click', (event) => {
+        currentEventSnapshot = document.documentElement.innerHTML;
+        const currentTarget = getParentElementWithEventOrId(event, 'onclick');
+        const selectors = getBestSelectors(currentTarget, event);
+        getXpathsIncluded(selectors, currentTarget, event);
         window.saveEventForTest({
           type: 'click',
           target: selectors[0].value,
@@ -546,15 +651,19 @@ const injectEventRecordingScript = async (page, url) => {
           element: getElement(currentTarget),
         });
         prevEventSnapshot = currentEventSnapshot;
+        // window.takeScreenshot();
       });
       document.addEventListener('dblclick', (event) => {
+        currentEventSnapshot = document.documentElement.innerHTML;
         const currentTarget = getParentElementWithEventOrId(
           event,
           'ondblclick'
         );
+        const selectors = getBestSelectors(currentTarget, event);
+        getXpathsIncluded(selectors, currentTarget, event);
         window.saveEventForTest({
           type: 'dblclick',
-          target: generateXPathWithNearestParentId(currentTarget),
+          target: selectors[0].value,
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
@@ -562,18 +671,21 @@ const injectEventRecordingScript = async (page, url) => {
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
           },
-          selectors: getBestSelectors(currentTarget, event),
+          selectors,
           element: getElement(currentTarget),
         });
       });
       document.addEventListener('contextmenu', (event) => {
+        currentEventSnapshot = document.documentElement.innerHTML;
         const currentTarget = getParentElementWithEventOrId(
           event,
           'oncontextmenu'
         );
+        const selectors = getBestSelectors(currentTarget, event);
+        getXpathsIncluded(selectors, currentTarget, event);
         window.saveEventForTest({
           type: 'contextmenu',
-          target: generateXPathWithNearestParentId(currentTarget),
+          target: selectors[0].value,
           time: new Date().toISOString(),
           value: {
             clientX: event.clientX,
@@ -581,19 +693,22 @@ const injectEventRecordingScript = async (page, url) => {
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
           },
-          selectors: getBestSelectors(currentTarget, event),
+          selectors,
           element: getElement(currentTarget),
         });
       });
       document.addEventListener('input', (event) => {
+        currentEventSnapshot = document.documentElement.innerHTML;
         const currentTarget = getParentElementWithEventOrId(event, 'oninput');
+        const selectors = getBestSelectors(currentTarget, event);
+        getXpathsIncluded(selectors, currentTarget, event);
         if (event.target && event.target.tagName === 'INPUT') {
           window.saveEventForTest({
             type: 'input',
-            target: generateXPathWithNearestParentId(currentTarget),
+            target: selectors[0].value,
             time: new Date().toISOString(),
             value: event.target.value,
-            selectors: getBestSelectors(currentTarget, event),
+            selectors,
             element: getElement(currentTarget),
           });
         }
@@ -609,12 +724,15 @@ const injectEventRecordingScript = async (page, url) => {
           event.key === 'ArrowLeft' ||
           event.key === 'ArrowRight'
         ) {
+          currentEventSnapshot = document.documentElement.innerHTML;
           const currentTarget = getParentElementWithEventOrId(event, 'oninput');
+          const selectors = getBestSelectors(currentTarget, event);
+          getXpathsIncluded(selectors, currentTarget, event);
           window.saveEventForTest({
             type: 'keypress',
             key: event.key,
             code: event.code,
-            target: generateXPathWithNearestParentId(currentTarget),
+            target: selectors[0].value,
             time: new Date().toISOString(),
             value: {
               clientX: event.clientX,
@@ -622,7 +740,7 @@ const injectEventRecordingScript = async (page, url) => {
               windowWidth: window.innerWidth,
               windowHeight: window.innerHeight,
             },
-            selectors: getBestSelectors(currentTarget, event),
+            selectors,
             element: getElement(currentTarget),
           });
         }
