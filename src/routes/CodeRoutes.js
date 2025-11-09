@@ -53,6 +53,25 @@ const runTest = async (req, res) => {
       process.env.PLAYWRIGHT_DIR || ''
     );
 
+    if (
+      fileName !== '__ftmocks-mock-mode-ignore-me.spec.js' &&
+      fs.existsSync(
+        path.join(
+          absolutePlaywrightDir,
+          'tests',
+          '__ftmocks-mock-mode-ignore-me.spec.js'
+        )
+      )
+    ) {
+      fs.rmSync(
+        path.join(
+          absolutePlaywrightDir,
+          'tests',
+          '__ftmocks-mock-mode-ignore-me.spec.js'
+        )
+      );
+    }
+
     // Ensure the directory exists
     const fullDirectoryPath = path.join(absolutePlaywrightDir, 'tests');
     if (!fs.existsSync(fullDirectoryPath)) {
