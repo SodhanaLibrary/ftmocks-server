@@ -17,7 +17,7 @@ const getLatestVersions = async (req, res) => {
 
     logger.debug('Executing git command to get remote package.json');
     const remotePackageJson = execSync(
-      'git show origin/main:package.json'
+      'git fetch origin && git show origin/main:package.json'
     ).toString();
     const remoteVersion = JSON.parse(remotePackageJson).version;
 
