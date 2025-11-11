@@ -427,7 +427,7 @@ const injectEventRecordingScript = async (page, url) => {
             selectors.push({
               type: 'locator',
               value: getUniqueXpath(
-                `//*[contains(text(), '${event.target.textContent.replace(/"/g, '\\"')}')]`,
+                `//*[normalize-space(text())='${event.target.textContent.replace(/"/g, '\\"').trim()}']`,
                 event.target
               ),
             });
