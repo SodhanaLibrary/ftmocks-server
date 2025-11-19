@@ -412,7 +412,10 @@ const injectEventRecordingScript = async (page, url) => {
               ),
             });
           }
-          const escapedText = element.textContent.replace(/"/g, '\\"');
+          const escapedText = element.textContent
+            .replace(/'/g, "\\'")
+            .replace(/\s+/g, ' ')
+            .trim();
           if (element.role && element.textContent) {
             selectors.push({
               type: 'locator',
@@ -427,7 +430,7 @@ const injectEventRecordingScript = async (page, url) => {
             selectors.push({
               type: 'locator',
               value: getUniqueXpath(
-                `//*[normalize-space(text())='${event.target.textContent.replace(/"/g, '\\"').trim()}']`,
+                `//*[normalize-space(text())='${event.target.textContent.replace(/'/g, "\\'").replace(/\s+/g, ' ').trim()}']`,
                 event.target
               ),
             });
@@ -601,7 +604,7 @@ const injectEventRecordingScript = async (page, url) => {
           tagName: target.tagName,
           textContent:
             target.textContent?.length > 0 && target.textContent?.length < 100
-              ? target.textContent
+              ? target.textContent.replace(/\s+/g, ' ').trim()
               : null,
           id: target.id,
           role: target.role,
