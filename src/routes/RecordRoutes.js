@@ -11,7 +11,15 @@ const {
 const { addUrlToProject } = require('../utils/projectUtils');
 const { saveIfItIsFile } = require('../utils/FileUtils');
 
-const injectEventRecordingScript = async (page, url) => {
+const injectEventRecordingScript = async (
+  page,
+  url,
+  options = {
+    recordEvents: true,
+    recordScreenshots: false,
+    recordVideos: false,
+  }
+) => {
   try {
     const eventsFile = path.join(
       process.env.MOCK_DIR,
@@ -27,8 +35,33 @@ const injectEventRecordingScript = async (page, url) => {
       fs.writeFileSync(eventsFile, JSON.stringify([], null, 2));
     }
 
+    const takeScreenshot = async (imgOptions) => {
+      if (!options.recordScreenshots) {
+        return;
+      }
+      const screenshot = await page.screenshot({ fullPage: false });
+      const screenshotsDir = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(process.env.recordTest)}`,
+        'screenshots'
+      );
+      if (!fs.existsSync(screenshotsDir)) {
+        fs.mkdirSync(screenshotsDir, { recursive: true });
+      }
+      const screenshotFile = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(process.env.recordTest)}`,
+        'screenshots',
+        `screenshot_${imgOptions.name}.png`
+      );
+      fs.writeFileSync(screenshotFile, screenshot);
+      return screenshotFile;
+    };
     // Expose a function to receive click info from the browser
-    await page.exposeFunction('saveEventForTest', (event) => {
+    await page.exposeFunction('saveEventForTest', async (event) => {
+      if (!options.recordEvents) {
+        return;
+      }
       event.id = crypto.randomUUID();
       if (!fs.existsSync(eventsFile)) {
         // Ensure the directory exists before writing the eventsFile
@@ -44,31 +77,12 @@ const injectEventRecordingScript = async (page, url) => {
         events[events.length - 1]?.type === 'input'
       ) {
         events[events.length - 1].value = event.value;
+        await takeScreenshot({ name: events[events.length - 1].id });
       } else {
         events.push(event);
+        await takeScreenshot({ name: event.id });
       }
       fs.writeFileSync(eventsFile, JSON.stringify(events, null, 2));
-    });
-
-    await page.exposeFunction('takeScreenshot', async () => {
-      const screenshot = await page.screenshot({ fullPage: false });
-      const screenshotsDir = path.join(
-        process.env.MOCK_DIR,
-        `test_${nameToFolder(process.env.recordTest)}`,
-        'screenshots'
-      );
-      if (!fs.existsSync(screenshotsDir)) {
-        fs.mkdirSync(screenshotsDir, { recursive: true });
-      }
-      const screenshotFile = path.join(
-        process.env.MOCK_DIR,
-        `test_${nameToFolder(process.env.recordTest)}`,
-        'screenshots',
-        `screenshot_${Date.now()}.png`
-      );
-      fs.writeFileSync(screenshotFile, screenshot);
-      logger.info('Screenshot taken and saved', { screenshotFile });
-      return screenshotFile;
     });
 
     fs.writeFileSync(
@@ -419,14 +433,16 @@ const injectEventRecordingScript = async (page, url) => {
           if (element.role && element.textContent) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[role='${element.role}'][contains(text(), '${escapedText}')]`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[role='${element.role}'][contains(text(), '${escapedText}')]`,
+              value: getUniqueXpath(
+                `//${tagName}[@role='${element.role}' and normalize-space(.) = '${escapedText}']`,
                 element
               ),
             });
           }
-          if (event?.target?.textContent?.length > 0) {
+          if (
+            event?.target?.textContent?.length > 0 &&
+            event?.target?.textContent?.length < 200
+          ) {
             selectors.push({
               type: 'locator',
               value: getUniqueXpath(
@@ -603,7 +619,7 @@ const injectEventRecordingScript = async (page, url) => {
         return {
           tagName: target.tagName,
           textContent:
-            target.textContent?.length > 0 && target.textContent?.length < 100
+            target.textContent?.length > 0 && target.textContent?.length < 200
               ? target.textContent.replace(/\s+/g, ' ').trim()
               : null,
           id: target.id,
