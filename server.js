@@ -90,6 +90,11 @@ if (envfileArg) {
   envfile = envfileArg.split('=')[1];
 }
 
+if (!envfile) {
+  console.error('No env file found, using default my-project.env');
+  envfile = 'my-project.env';
+}
+
 if (fs.statSync(envfile).isDirectory()) {
   envfile = path.join(envfile, 'ftmocks.env');
 }
