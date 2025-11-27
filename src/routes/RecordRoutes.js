@@ -322,9 +322,8 @@ const injectEventRecordingScript = async (
           if (element.getAttribute('data-testid')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-testid='${element.getAttribute('data-testid')}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[data-testid='${element.getAttribute('data-testid')}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@data-testid='${element.getAttribute('data-testid')}']`,
                 element
               ),
             });
@@ -332,9 +331,8 @@ const injectEventRecordingScript = async (
           if (element.getAttribute('data-id')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-id='${element.getAttribute('data-id')}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[data-id='${element.getAttribute('data-id')}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@data-id='${element.getAttribute('data-id')}']`,
                 element
               ),
             });
@@ -342,9 +340,8 @@ const injectEventRecordingScript = async (
           if (element.getAttribute('data-action')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-action='${element.getAttribute('data-action')}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[data-action='${element.getAttribute('data-action')}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@data-action='${element.getAttribute('data-action')}']`,
                 element
               ),
             });
@@ -352,9 +349,8 @@ const injectEventRecordingScript = async (
           if (element.getAttribute('data-cy')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[data-cy='${element.getAttribute('data-cy')}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[data-cy='${element.getAttribute('data-cy')}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@data-cy='${element.getAttribute('data-cy')}']`,
                 element
               ),
             });
@@ -366,9 +362,8 @@ const injectEventRecordingScript = async (
           ) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[name='${element.name}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[name='${element.name}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@name='${element.name}']`,
                 element
               ),
             });
@@ -379,9 +374,8 @@ const injectEventRecordingScript = async (
           ) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[name='${element.name}'][value='${element.value}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[name='${element.name}'][value='${element.value}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@name='${element.name}'][@value='${element.value}']`,
                 element
               ),
             });
@@ -389,9 +383,8 @@ const injectEventRecordingScript = async (
           if (element.ariaLabel) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[aria-label='${element.ariaLabel}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[aria-label='${element.ariaLabel}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@aria-label='${element.ariaLabel}']`,
                 element
               ),
             });
@@ -399,9 +392,8 @@ const injectEventRecordingScript = async (
           if (element.role && element.name) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[role='${element.role}'][name='${element.name}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[role='${element.role}'][name='${element.name}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@role='${element.role}'][@name='${element.name}']`,
                 element
               ),
             });
@@ -409,9 +401,8 @@ const injectEventRecordingScript = async (
           if (element.getAttribute('src')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[src='${element.getAttribute('src')}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[src='${element.getAttribute('src')}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@src='${element.getAttribute('src')}']`,
                 element
               ),
             });
@@ -419,9 +410,8 @@ const injectEventRecordingScript = async (
           if (element.getAttribute('href')) {
             selectors.push({
               type: 'locator',
-              value: `${tagName}[href='${element.getAttribute('href')}']`,
-              nth: getUniqueElementSelectorNth(
-                `${tagName}[href='${element.getAttribute('href')}']`,
+              value: getUniqueXpath(
+                `//${tagName}[@href='${element.getAttribute('href')}']`,
                 element
               ),
             });
