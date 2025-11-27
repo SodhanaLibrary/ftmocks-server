@@ -559,6 +559,21 @@ const reorderRecordedEvents = (req, res) => {
   }
 };
 
+const serveScreenshot = (req, res) => {
+  const { file, testName } = req.query;
+  const screenshotsDir = path.join(
+    process.env.MOCK_DIR,
+    testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
+    'screenshots'
+  );
+  const screenshotPath = path.join(screenshotsDir, file);
+  if (fs.existsSync(screenshotPath)) {
+    res.sendFile(screenshotPath);
+  } else {
+    res.status(404).json({ error: 'Screenshot not found' });
+  }
+};
+
 module.exports = {
   getRecordedEvents,
   deleteRecordedEvent,
@@ -568,4 +583,5 @@ module.exports = {
   duplicateRecordedEvent,
   addEmptyEvent,
   reorderRecordedEvents,
+  serveScreenshot,
 };
