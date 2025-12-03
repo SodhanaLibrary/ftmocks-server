@@ -10,6 +10,8 @@
   "devDependencies": {
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.9",
-    "ftmocks-utils": "1.4.8"
+    "ftmocks-utils": "1.5.0",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0"
   }
 }
