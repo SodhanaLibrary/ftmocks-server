@@ -314,8 +314,26 @@ const injectEventRecordingScript = async (
       const getBestSelectors = (element, event) => {
         const selectors = [];
         const excludeTagNames = ['script', 'style', 'link', 'meta'];
+        const getTagName = (element) => {
+          const svgTagNames = [
+            'svg',
+            'path',
+            'rect',
+            'circle',
+            'ellipse',
+            'line',
+            'polygon',
+            'polyline',
+            'text',
+            'tspan',
+          ];
+          if (svgTagNames.includes(element.tagName.toLowerCase())) {
+            return `*[local-name()="${element.tagName.toLowerCase()}"]`;
+          }
+          return element.tagName.toLowerCase();
+        };
         try {
-          const tagName = element.tagName.toLowerCase();
+          const tagName = getTagName(element);
           if (excludeTagNames.includes(tagName)) {
             return selectors;
           }
