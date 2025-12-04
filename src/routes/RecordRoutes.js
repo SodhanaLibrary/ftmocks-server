@@ -328,7 +328,7 @@ const injectEventRecordingScript = async (
             'tspan',
           ];
           if (svgTagNames.includes(element.tagName.toLowerCase())) {
-            return `*[local-name()="${element.tagName.toLowerCase()}"]`;
+            return `*[local-name()='${element.tagName.toLowerCase()}']`;
           }
           return element.tagName.toLowerCase();
         };
