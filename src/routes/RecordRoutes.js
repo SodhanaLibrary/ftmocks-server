@@ -725,12 +725,16 @@ const injectEventRecordingScript = async (
           element: getElement(currentTarget),
         });
       });
-      document.addEventListener('input', (event) => {
+      document.addEventListener('beforeinput', (event) => {
         currentEventSnapshot = document.documentElement.innerHTML;
         const currentTarget = getParentElementWithEventOrId(event, 'oninput');
         const selectors = getBestSelectors(currentTarget, event);
         getXpathsIncluded(selectors, currentTarget, event);
-        if (event.target && event.target.tagName === 'INPUT') {
+        if (
+          event.target &&
+          (event.target.tagName === 'INPUT' ||
+            event.target.tagName === 'TEXTAREA')
+        ) {
           window.saveEventForTest({
             type: 'input',
             target: selectors[0].value,
