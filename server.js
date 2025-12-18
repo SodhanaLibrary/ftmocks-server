@@ -64,6 +64,10 @@ const {
   loadEnvVariables,
   getLatestProject,
 } = require('./src/routes/ProjectRoutes.js');
+const {
+  createPostmanMockDataForTest,
+  uploadDefaultPostmanMocks,
+} = require('./src/routes/PostmanRoutes.js');
 const { saveFile, runTest } = require('./src/routes/CodeRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
@@ -152,6 +156,13 @@ app.post(
   '/api/v1/tests/:id/harMockdata',
   upload.single('harFile'),
   createHarMockDataForTest
+);
+
+// Router for /api/v1/tests/:id/postmanMockdata POST method
+app.post(
+  '/api/v1/tests/:id/postmanMockdata',
+  upload.single('postmanFile'),
+  createPostmanMockDataForTest
 );
 
 // Router for /api/v1/tests/:id/mockdata/:mockId DELETE method
@@ -393,6 +404,12 @@ app.post(
   '/api/v1/defaultHarMocks',
   upload.single('harFile'),
   uploadDefaultHarMocs
+);
+
+app.post(
+  '/api/v1/defaultPostmanMocks',
+  upload.single('postmanFile'),
+  uploadDefaultPostmanMocks
 );
 
 let browser = null;
