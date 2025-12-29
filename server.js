@@ -6,6 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const { chromium } = require('playwright');
 const mockServer = require('./mockServer');
+const { checkAiKeyAvailable, editMockDataWithAI } = require('./src/routes/AiRoutes');
 const {
   getTests,
   deleteTest,
@@ -62,6 +63,7 @@ const {
   removeProject,
   addProject,
   loadEnvVariables,
+  loadFtMocksEnvVariables,
   getLatestProject,
 } = require('./src/routes/ProjectRoutes.js');
 const {
@@ -107,6 +109,7 @@ console.log(`loading env variables from ${envfile}`);
 if (fs.existsSync(envfile)) {
   loadEnvVariables(envfile);
 }
+loadFtMocksEnvVariables();
 console.log(
   `PORT and MOCK_DIR from env variables`,
   process.env.PORT,
@@ -573,6 +576,10 @@ app.delete('/api/v1/record', async (req, res) => {
 app.post('/api/v1/crypto/encrypt', encrypt);
 app.post('/api/v1/crypto/decrypt', decrypt);
 app.get('/api/v1/crypto/listKeys', listKeys);
+
+// AI Routes
+app.get('/api/v1/ai/checkKeyAvailable', checkAiKeyAvailable);
+app.post('/api/v1/ai/editMockData', editMockDataWithAI);
 
 // Add log routes (add this with other route definitions)
 app.use('/api/v1', logRoutes);

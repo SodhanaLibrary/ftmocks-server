@@ -68,6 +68,13 @@ const loadEnvVariables = (project_env_file) => {
   });
 };
 
+const loadFtMocksEnvVariables = () => {
+  if (fs.existsSync('.env')) {
+    const result = require('dotenv').config({ path: '.env' });
+    process.env.OPENAI_API_KEY = result.parsed.OPENAI_API_KEY;
+  }
+};
+
 const getRecordedProjects = async (req, res) => {
   const defaultPath = 'projects.json';
 
@@ -349,5 +356,6 @@ module.exports = {
   removeProject,
   addProject,
   loadEnvVariables,
+  loadFtMocksEnvVariables,
   getLatestProject,
 };

@@ -1,6 +1,6 @@
 {
   "name": "ftmocks-server",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "description": "Mock server for frontend applications ",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.17.2",
-    "nocache": "^3.0.1"
+    "nocache": "^3.0.1",
+    "openai": "^4.104.0"
   },
   "author": "Srinivas Dasari",
   "license": "MIT",
