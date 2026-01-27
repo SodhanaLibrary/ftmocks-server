@@ -6,7 +6,10 @@ const cors = require('cors');
 const multer = require('multer');
 const { chromium } = require('playwright');
 const mockServer = require('./mockServer');
-const { checkAiKeyAvailable, editMockDataWithAI } = require('./src/routes/AiRoutes');
+const {
+  checkAiKeyAvailable,
+  editMockDataWithAI,
+} = require('./src/routes/AiRoutes');
 const {
   getTests,
   deleteTest,
@@ -70,6 +73,10 @@ const {
   createPostmanMockDataForTest,
   uploadDefaultPostmanMocks,
 } = require('./src/routes/PostmanRoutes.js');
+const {
+  createPlaywrightMockDataForTest,
+  uploadDefaultPlaywrightMocks,
+} = require('./src/routes/PlaywrightNetworkRoutes.js');
 const { saveFile, runTest } = require('./src/routes/CodeRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
@@ -166,6 +173,20 @@ app.post(
   '/api/v1/tests/:id/postmanMockdata',
   upload.single('postmanFile'),
   createPostmanMockDataForTest
+);
+
+// Router for /api/v1/tests/:id/playwrightMockdata POST method (Playwright trace file)
+app.post(
+  '/api/v1/tests/:id/playwrightMockdata',
+  upload.single('traceFile'),
+  createPlaywrightMockDataForTest
+);
+
+// Router for /api/v1/defaultMocks/playwrightUpload POST method
+app.post(
+  '/api/v1/defaultMocks/playwrightUpload',
+  upload.single('traceFile'),
+  uploadDefaultPlaywrightMocks
 );
 
 // Router for /api/v1/tests/:id/mockdata/:mockId DELETE method
