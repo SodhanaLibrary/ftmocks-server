@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const logger = require('./Logger');
+const FtJSON = require('./FtJSON.js');
 
 function charDifference(str1, str2) {
   let count1 = {},
@@ -655,7 +656,7 @@ const getCompareRankMockToRequest = (mock, req) => {
     );
     const reqURL = processURL(req.originalUrl, mock.fileContent.ignoreParams);
     const postData = mock.fileContent.request?.postData?.text
-      ? JSON.parse(mock.fileContent.request?.postData?.text)
+      ? FtJSON.parse(mock.fileContent.request?.postData?.text)
       : mock.fileContent.request?.postData;
 
     const result = getSameRequestRank(
