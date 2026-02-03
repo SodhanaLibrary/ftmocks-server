@@ -865,6 +865,15 @@ function createIdMap(arr) {
   }, {});
 }
 
+const getParentFolder = (parents) => {
+  if (!parents || parents.length === 0) {
+    return '';
+  }
+  const folderNames = parents.map((parent) => nameToFolder(parent)).reverse();
+  // Join parent folder names with the file separator
+  return path.join(...folderNames);
+};
+
 module.exports = {
   processURL,
   getDefaultMockData,
@@ -887,4 +896,5 @@ module.exports = {
   getRelativePath,
   getCompareRankMockToRequest,
   createIdMap,
+  getParentFolder,
 };

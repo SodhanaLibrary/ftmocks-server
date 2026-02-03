@@ -1,12 +1,15 @@
 const fs = require('fs');
 const path = require('path');
-const { getAbsolutePathWithMockDir } = require('../utils/MockUtils');
+const {
+  getAbsolutePathWithMockDir,
+  getParentFolder,
+} = require('../utils/MockUtils');
 const { execSync } = require('child_process');
 
 // POST /api/v1/code/save - Save generated code to file
 const saveFile = async (req, res) => {
   try {
-    const { generatedCode, fileName } = req.body;
+    const { generatedCode, fileName, parents } = req.body;
 
     // Validate required fields
     if (!generatedCode || !fileName) {
@@ -21,7 +24,12 @@ const saveFile = async (req, res) => {
     );
 
     // Ensure the directory exists
-    const fullDirectoryPath = path.join(absolutePlaywrightDir, 'tests');
+    const parentFolder = getParentFolder(parents);
+    const fullDirectoryPath = path.join(
+      absolutePlaywrightDir,
+      'tests',
+      parentFolder
+    );
     if (!fs.existsSync(fullDirectoryPath)) {
       fs.mkdirSync(fullDirectoryPath, { recursive: true });
     }
@@ -48,7 +56,7 @@ const saveFile = async (req, res) => {
 
 const runTest = async (req, res) => {
   try {
-    const { testName, generatedCode, fileName, withUI } = req.body;
+    const { testName, generatedCode, fileName, parents, withUI } = req.body;
     const absolutePlaywrightDir = getAbsolutePathWithMockDir(
       process.env.PLAYWRIGHT_DIR || ''
     );
@@ -73,7 +81,12 @@ const runTest = async (req, res) => {
     }
 
     // Ensure the directory exists
-    const fullDirectoryPath = path.join(absolutePlaywrightDir, 'tests');
+    const parentFolder = getParentFolder(parents);
+    const fullDirectoryPath = path.join(
+      absolutePlaywrightDir,
+      'tests',
+      parentFolder
+    );
     if (!fs.existsSync(fullDirectoryPath)) {
       fs.mkdirSync(fullDirectoryPath, { recursive: true });
     }
