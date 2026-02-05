@@ -223,12 +223,22 @@ function processHAR(
             JSON.stringify(responseInfo, null, 2)
           );
           if (fileName) {
-            // Save the file content (decode if base64)
+            // Save the file content (decode if base64 or handle binary)
             let fileContent = entry.response.content.text;
-            if (entry.response.content.encoding === 'base64') {
-              fs.writeFileSync(filePath, Buffer.from(fileContent, 'base64'));
+            if (fileContent) {
+              if (entry.response.content.encoding === 'base64') {
+                // Decode base64 content (common for images in HAR files)
+                fs.writeFileSync(filePath, Buffer.from(fileContent, 'base64'));
+              } else if (isFileLike) {
+                // For binary file types, write as binary buffer to avoid corruption
+                fs.writeFileSync(filePath, Buffer.from(fileContent, 'binary'));
+              } else {
+                // For text files (js, css, etc.)
+                fs.writeFileSync(filePath, fileContent, 'utf8');
+              }
             } else {
               fs.writeFileSync(filePath, fileContent, 'utf8');
+              logger.warn('No content found for file', { filePath, url });
             }
           }
           logger.debug('Created mock file', {
