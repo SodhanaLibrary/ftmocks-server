@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "ftmocks": {
+      "command": "node",
+      "args": ["/path/to/ftmocks-server/mcp-server.js"],
+      "env": {
+        "MOCK_DIR": "/path/to/your/mock/data",
+        "FTMOCKS_WORKSPACE": "/path/to/workspace"
+      }
+    }
+  }
+}

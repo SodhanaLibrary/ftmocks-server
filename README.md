@@ -83,6 +83,35 @@ To start the project, use:
 npm start my-project
 ```
 
+### MCP Server
+
+The ftmocks-server includes an MCP (Model Context Protocol) server that exposes test operations as tools for AI assistants (e.g., Cursor).
+
+**Tools:** `getTests`, `deleteTest`, `updateTest`, `createTest`
+
+**Run standalone:**
+```bash
+npm run mcp
+# or with env file:
+node mcp-server.js --envfile=my-project.env
+```
+
+**Cursor integration:** Add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "ftmocks": {
+      "command": "node",
+      "args": ["/path/to/ftmocks-server/mcp-server.js"],
+      "env": { "MOCK_DIR": "/path/to/your/mock/data" }
+    }
+  }
+}
+```
+
+See `mcp-config.example.json` for a template.
+
 ## About ftmocks-utils
 
 Refer to the [ftmocks-utils](https://github.com/SodhanaLibrary/ftmocks-utils) for detailed API documentation, usage examples, and advanced configuration. This package is essential for wrighting testcases.

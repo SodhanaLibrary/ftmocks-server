@@ -7,7 +7,10 @@ const {
   processHAR,
   createMockFromUserInputForTest,
 } = require('../utils/MockGenerator');
-const { nameToFolder } = require('../utils/MockUtils');
+const {
+  nameToFolder,
+  getAbsolutePathWithMockDir,
+} = require('../utils/MockUtils');
 
 const getTests = async (req, res) => {
   const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
@@ -81,6 +84,37 @@ const deleteTest = async (req, res) => {
       logger.debug('Deleted test folder', { folderPath });
     } else {
       logger.warn('Test folder not found for deletion', { folderPath });
+    }
+
+    // If PLAYWRIGHT_DIR is set, delete the corresponding Playwright spec file
+    if (process.env.PLAYWRIGHT_DIR) {
+      try {
+        const absolutePlaywrightDir = getAbsolutePathWithMockDir(
+          process.env.PLAYWRIGHT_DIR
+        );
+        const testsDir = path.join(absolutePlaywrightDir, 'tests');
+        const specBaseName = `${nameToFolder(testToDelete.name)}.spec.js`;
+
+        const findAndDeleteSpec = (dir) => {
+          if (!fs.existsSync(dir)) return;
+          const entries = fs.readdirSync(dir, { withFileTypes: true });
+          for (const entry of entries) {
+            const fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+              findAndDeleteSpec(fullPath);
+            } else if (entry.name === specBaseName) {
+              fs.rmSync(fullPath);
+              logger.debug('Deleted Playwright spec file', { fullPath });
+            }
+          }
+        };
+        findAndDeleteSpec(testsDir);
+      } catch (pwErr) {
+        logger.warn('Error deleting Playwright spec file', {
+          testName,
+          error: pwErr.message,
+        });
+      }
     }
 
     tests.splice(testIndex, 1);
