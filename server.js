@@ -16,6 +16,9 @@ const {
   updateTest,
   createTest,
   getMockDataForTest,
+  getMockVariants,
+  createMockVariants,
+  updateMockVariants,
   createMockDataForTest,
   deleteMockDataForTest,
   resetMockDataForTest,
@@ -32,6 +35,9 @@ const {
 const {
   getDefaultMocks,
   deleteDefaultMock,
+  getDefaultMockVariants,
+  createDefaultMockVariants,
+  updateDefaultMockVariants,
   updateDefaultMock,
   uploadDefaultHarMocs,
   moveDefaultmocks,
@@ -198,6 +204,15 @@ app.put('/api/v1/tests/:id/reset', resetMockDataForTest);
 // Router for /api/v1/tests/:id/mockdata/:mockId PUT method
 app.put('/api/v1/tests/:id/mockdata/:mockId', updateMockDataForTest);
 
+// Router for /api/v1/tests/:id/mockdata/:mockId/variants GET method
+app.get('/api/v1/tests/:id/mockdata/:mockId/variants', getMockVariants);
+
+// Router for /api/v1/tests/:id/mockdata/:mockId/variants POST method
+app.post('/api/v1/tests/:id/mockdata/:mockId/variants', createMockVariants);
+
+// Router for /api/v1/tests/:id/mockdata/:mockId/variants PUT method
+app.put('/api/v1/tests/:id/mockdata/:mockId/variants', updateMockVariants);
+
 // Router for /api/v1/defaultmocks GET method
 app.get('/api/v1/defaultmocks', getDefaultMocks);
 
@@ -212,6 +227,15 @@ app.post('/api/v1/moveMockToDefaultMocks', moveMockToDefaultMocks);
 
 // Router for /api/v1/defaultmocks/:id DELETE method
 app.delete('/api/v1/defaultmocks/:id', deleteDefaultMock);
+
+// Router for /api/v1/defaultmocks/:id/variants GET method
+app.get('/api/v1/defaultmocks/:id/variants', getDefaultMockVariants);
+
+// Router for /api/v1/defaultmocks/:id/variants POST method
+app.post('/api/v1/defaultmocks/:id/variants', createDefaultMockVariants);
+
+// Router for /api/v1/defaultmocks/:id/variants PUT method
+app.put('/api/v1/defaultmocks/:id/variants', updateDefaultMockVariants);
 
 // Router for /api/v1/defaultmocks/:id PUT method
 app.put('/api/v1/defaultmocks/:id', updateDefaultMock);

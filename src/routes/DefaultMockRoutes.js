@@ -143,6 +143,96 @@ const deleteDefaultMock = async (req, res) => {
   }
 };
 
+const createDefaultMockVariants = async (req, res) => {
+  const { id: mockId } = req.params;
+  const { variants } = req.body;
+
+  try {
+    if (!Array.isArray(variants) || variants.length === 0) {
+      return res.status(400).json({ error: 'variants array is required' });
+    }
+
+    const variantsPath = path.join(
+      process.env.MOCK_DIR,
+      'defaultMocks',
+      `mock_${mockId}_variants.json`
+    );
+
+    const defaultMocksDir = path.join(process.env.MOCK_DIR, 'defaultMocks');
+    if (!fs.existsSync(defaultMocksDir)) {
+      return res.status(404).json({ error: 'Default mocks folder not found' });
+    }
+
+    fs.writeFileSync(variantsPath, JSON.stringify(variants, null, 2));
+    logger.info('Created default mock variants file', { mockId, variantsPath });
+    res.status(201).json(variants);
+  } catch (error) {
+    logger.error('Error creating default mock variants', {
+      mockId,
+      error: error.message,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const updateDefaultMockVariants = async (req, res) => {
+  const { id: mockId } = req.params;
+  const { variants } = req.body;
+
+  try {
+    if (!Array.isArray(variants)) {
+      return res.status(400).json({ error: 'variants array is required' });
+    }
+
+    const variantsPath = path.join(
+      process.env.MOCK_DIR,
+      'defaultMocks',
+      `mock_${mockId}_variants.json`
+    );
+
+    const defaultMocksDir = path.join(process.env.MOCK_DIR, 'defaultMocks');
+    if (!fs.existsSync(defaultMocksDir)) {
+      return res.status(404).json({ error: 'Default mocks folder not found' });
+    }
+
+    fs.writeFileSync(variantsPath, JSON.stringify(variants, null, 2));
+    logger.info('Updated default mock variants file', { mockId, variantsPath });
+    res.status(200).json(variants);
+  } catch (error) {
+    logger.error('Error updating default mock variants', {
+      mockId,
+      error: error.message,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const getDefaultMockVariants = async (req, res) => {
+  const { id: mockId } = req.params;
+
+  try {
+    const variantsPath = path.join(
+      process.env.MOCK_DIR,
+      'defaultMocks',
+      `mock_${mockId}_variants.json`
+    );
+
+    if (!fs.existsSync(variantsPath)) {
+      return res.status(200).json([]);
+    }
+
+    const data = fs.readFileSync(variantsPath, 'utf8');
+    const variants = JSON.parse(data);
+    res.status(200).json(Array.isArray(variants) ? variants : []);
+  } catch (error) {
+    logger.error('Error reading default mock variants', {
+      mockId,
+      error: error.message,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 const updateDefaultMock = async (req, res) => {
   const { id } = req.params;
   const updatedMockData = req.body;
@@ -397,6 +487,9 @@ const moveDefaultmocks = async (req, res) => {
 module.exports = {
   getDefaultMocks,
   deleteDefaultMock,
+  getDefaultMockVariants,
+  createDefaultMockVariants,
+  updateDefaultMockVariants,
   updateDefaultMock,
   uploadDefaultHarMocs,
   moveDefaultmocks,
