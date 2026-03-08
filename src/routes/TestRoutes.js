@@ -50,6 +50,59 @@ const getTests = async (req, res) => {
   }
 };
 
+/**
+ * Returns [parentId, ...all descendant ids] for a folder.
+ */
+function getDescendantIds(tests, parentId) {
+  const ids = [parentId];
+  const children = tests.filter((t) => t.parentId === parentId);
+  for (const child of children) {
+    ids.push(...getDescendantIds(tests, child.id));
+  }
+  return ids;
+}
+
+function deleteMockFolderAndPlaywrightSpec(testItem) {
+  const folderPath = path.join(
+    process.env.MOCK_DIR,
+    `test_${nameToFolder(testItem.name)}`
+  );
+  if (fs.existsSync(folderPath)) {
+    fs.rmSync(folderPath, { recursive: true });
+    logger.debug('Deleted test folder', { folderPath });
+  }
+
+  if (process.env.PLAYWRIGHT_DIR) {
+    try {
+      const absolutePlaywrightDir = getAbsolutePathWithMockDir(
+        process.env.PLAYWRIGHT_DIR
+      );
+      const testsDir = path.join(absolutePlaywrightDir, 'tests');
+      const specBaseName = `${nameToFolder(testItem.name.toLowerCase())}.spec.js`;
+
+      const findAndDeleteSpec = (dir) => {
+        if (!fs.existsSync(dir)) return;
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            findAndDeleteSpec(fullPath);
+          } else if (entry.name === specBaseName) {
+            fs.rmSync(fullPath);
+            logger.debug('Deleted Playwright spec file', { fullPath });
+          }
+        }
+      };
+      findAndDeleteSpec(testsDir);
+    } catch (pwErr) {
+      logger.warn('Error deleting Playwright spec file', {
+        testName: testItem.name,
+        error: pwErr.message,
+      });
+    }
+  }
+}
+
 const deleteTest = async (req, res) => {
   const testId = req.params.id;
   const testName = req.query.name;
@@ -72,61 +125,39 @@ const deleteTest = async (req, res) => {
     logger.debug('Found test to delete', {
       testId,
       testName: testToDelete.name,
+      type: testToDelete.type,
     });
 
-    const folderPath = path.join(
-      process.env.MOCK_DIR,
-      `test_${nameToFolder(testName)}`
-    );
-
-    if (fs.existsSync(folderPath)) {
-      fs.rmSync(folderPath, { recursive: true });
-      logger.debug('Deleted test folder', { folderPath });
-    } else {
-      logger.warn('Test folder not found for deletion', { folderPath });
+    let idsToDelete = [testId];
+    if (testToDelete.type === 'folder') {
+      idsToDelete = getDescendantIds(tests, testId);
+      logger.debug('Deleting folder and descendants', {
+        folderId: testId,
+        descendantIds: idsToDelete,
+      });
     }
 
-    // If PLAYWRIGHT_DIR is set, delete the corresponding Playwright spec file
-    if (process.env.PLAYWRIGHT_DIR) {
-      try {
-        const absolutePlaywrightDir = getAbsolutePathWithMockDir(
-          process.env.PLAYWRIGHT_DIR
-        );
-        const testsDir = path.join(absolutePlaywrightDir, 'tests');
-        const specBaseName = `${nameToFolder(testToDelete.name)}.spec.js`;
-
-        const findAndDeleteSpec = (dir) => {
-          if (!fs.existsSync(dir)) return;
-          const entries = fs.readdirSync(dir, { withFileTypes: true });
-          for (const entry of entries) {
-            const fullPath = path.join(dir, entry.name);
-            if (entry.isDirectory()) {
-              findAndDeleteSpec(fullPath);
-            } else if (entry.name === specBaseName) {
-              fs.rmSync(fullPath);
-              logger.debug('Deleted Playwright spec file', { fullPath });
-            }
-          }
-        };
-        findAndDeleteSpec(testsDir);
-      } catch (pwErr) {
-        logger.warn('Error deleting Playwright spec file', {
-          testName,
-          error: pwErr.message,
-        });
+    const itemsToDelete = tests.filter((t) => idsToDelete.includes(t.id));
+    for (const item of itemsToDelete) {
+      if (item.type === 'testcase' || item.mockFile) {
+        deleteMockFolderAndPlaywrightSpec(item);
       }
     }
 
-    tests.splice(testIndex, 1);
+    tests = tests.filter((t) => !idsToDelete.includes(t.id));
     fs.writeFileSync(testsPath, JSON.stringify(tests, null, 2));
 
     logger.info('Test deleted successfully', {
       testId,
-      testName,
+      testName: testToDelete.name,
+      deletedCount: idsToDelete.length,
       remainingTests: tests.length,
     });
 
-    res.status(200).json({ message: 'Test deleted successfully' });
+    res.status(200).json({
+      message: 'Test deleted successfully',
+      deletedCount: idsToDelete.length,
+    });
   } catch (error) {
     logger.error('Error deleting test', {
       testId,
