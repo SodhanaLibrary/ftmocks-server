@@ -89,6 +89,19 @@ function deleteMockFolderAndPlaywrightSpec(testItem) {
             findAndDeleteSpec(fullPath);
           } else if (entry.name === specBaseName) {
             fs.rmSync(fullPath);
+            // If the parent folder is empty and not testsDir, then delete it
+            const parentDir = path.dirname(fullPath);
+            if (
+              parentDir !== testsDir &&
+              fs.existsSync(parentDir) &&
+              fs.statSync(parentDir).isDirectory()
+            ) {
+              const remainingEntries = fs.readdirSync(parentDir);
+              if (remainingEntries.length === 0) {
+                fs.rmdirSync(parentDir);
+                logger.debug('Deleted empty parent folder', { parentDir });
+              }
+            }
             logger.debug('Deleted Playwright spec file', { fullPath });
           }
         }
