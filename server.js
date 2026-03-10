@@ -86,6 +86,13 @@ const {
 const { saveFile, runTest } = require('./src/routes/CodeRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
+const {
+  getApiSpecs,
+  getApiSpec,
+  uploadApiSpec,
+  updateApiSpec,
+  deleteApiSpec,
+} = require('./src/routes/ApiSpecRoutes.js');
 const logger = require('./src/utils/Logger');
 const logRoutes = require('./src/routes/LogRoutes');
 const { exec } = require('child_process');
@@ -439,6 +446,13 @@ app.delete('/api/v1/mockServer', (req, res) => {
     res.status(500).json({ error: 'Failed to stop mock server' });
   }
 });
+
+// Router for /api/v1/apiSpecs
+app.get('/api/v1/apiSpecs', getApiSpecs);
+app.get('/api/v1/apiSpecs/:name', getApiSpec);
+app.post('/api/v1/apiSpecs', uploadApiSpec);
+app.put('/api/v1/apiSpecs/:name', updateApiSpec);
+app.delete('/api/v1/apiSpecs/:name', deleteApiSpec);
 
 app.get('/api/v1/versions', (req, res) => {
   getLatestVersions(req, res);
