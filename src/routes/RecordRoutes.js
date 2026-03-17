@@ -861,6 +861,19 @@ const excludeHeaders = (headers) => {
   return headers;
 };
 
+/** Build baseURL and httpCredentials from env when set; otherwise {}. */
+const getContextOptionsFromEnv = () => {
+  const baseURL = process.env.BASE_URL;
+  const username = process.env.HTTP_CREDENTIALS_USERNAME;
+  const password = process.env.HTTP_CREDENTIALS_PASSWORD;
+  const hasCredentials = username && password;
+  if (!baseURL && !hasCredentials) return {};
+  const options = {};
+  if (baseURL) options.baseURL = baseURL;
+  if (hasCredentials) options.httpCredentials = { username, password };
+  return options;
+};
+
 const recordMocks = async (browser, req, res) => {
   try {
     logger.info('Starting mock recording', {
@@ -875,6 +888,7 @@ const recordMocks = async (browser, req, res) => {
     // Configure browser context with user data directory
     const browserContext = {
       args: ['--disable-web-security'],
+      ...getContextOptionsFromEnv(),
     };
 
     const context = await browser.newContext(browserContext);
@@ -1137,7 +1151,8 @@ const recordTest = async (browser, req, res) => {
       testName: req.body.testName,
     });
 
-    const context = await browser.newContext();
+    const contextOptions = getContextOptionsFromEnv();
+    const context = await browser.newContext(contextOptions);
     const page = await context.newPage();
 
     logger.info('Browser context and page created for test recording');

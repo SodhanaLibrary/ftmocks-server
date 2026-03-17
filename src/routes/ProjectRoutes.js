@@ -26,6 +26,11 @@ const loadEnvVariables = (project_env_file) => {
   process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
   process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
   process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
+  process.env.BASE_URL = result.parsed.BASE_URL;
+  process.env.HTTP_CREDENTIALS_USERNAME =
+    result.parsed.HTTP_CREDENTIALS_USERNAME;
+  process.env.HTTP_CREDENTIALS_PASSWORD =
+    result.parsed.HTTP_CREDENTIALS_PASSWORD;
   process.env.EXCLUDED_HEADERS =
     result.parsed.EXCLUDED_HEADERS ||
     `cookie,set-cookie,authorization,www-authenticate`;
