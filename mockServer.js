@@ -129,30 +129,28 @@ app.all('*', (req, res) => {
 
     if (foundMock) {
       // Mark test mock as served if it's a test mock
-      if (matchedMocks.length > 0) {
-        foundMock.fileContent.served = true;
-        const tetFilePath = path.join(
-          process.env.MOCK_DIR,
-          `test_${nameToFolder(testName)}`,
-          `mock_${foundMock.id}.json`
-        );
+      foundMock.fileContent.served = true;
+      const tetFilePath = path.join(
+        process.env.MOCK_DIR,
+        `test_${nameToFolder(testName)}`,
+        `mock_${foundMock.id}.json`
+      );
 
-        try {
-          fs.writeFileSync(
-            tetFilePath,
-            JSON.stringify(foundMock.fileContent, null, 2)
-          );
-          logger.debug('Updated mock served status', {
-            mockId: foundMock.id,
-            filePath: tetFilePath,
-          });
-        } catch (error) {
-          logger.error('Error updating mock served status', {
-            mockId: foundMock.id,
-            filePath: tetFilePath,
-            error: error.message,
-          });
-        }
+      try {
+        fs.writeFileSync(
+          tetFilePath,
+          JSON.stringify(foundMock.fileContent, null, 2)
+        );
+        logger.debug('Updated mock served status', {
+          mockId: foundMock.id,
+          filePath: tetFilePath,
+        });
+      } catch (error) {
+        logger.error('Error updating mock served status', {
+          mockId: foundMock.id,
+          filePath: tetFilePath,
+          error: error.message,
+        });
       }
 
       const responseData = foundMock.fileContent;
