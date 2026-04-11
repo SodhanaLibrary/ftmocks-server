@@ -298,22 +298,24 @@ const updateTest = async (req, res) => {
     }
 
     const originalTest = testsData[testIndex];
+    const nextName =
+      updatedTest.name !== undefined ? updatedTest.name : originalTest.name;
+    const nextMode =
+      updatedTest.mode !== undefined ? updatedTest.mode : originalTest.mode;
+
     logger.debug(
       'Found test to update',
       {
         testId,
         originalName: originalTest.name,
         originalMode: originalTest.mode,
-        newName: updatedTest.name,
-        mode: updatedTest.mode,
+        newName: nextName,
+        mode: nextMode,
       },
       true
     );
 
-    if (
-      originalTest.name !== updatedTest.name &&
-      originalTest.type !== 'folder'
-    ) {
+    if (originalTest.name !== nextName && originalTest.type !== 'folder') {
       const testFolder = path.join(
         process.env.MOCK_DIR,
         `test_${nameToFolder(originalTest.name)}`
@@ -322,7 +324,7 @@ const updateTest = async (req, res) => {
       if (fs.existsSync(testFolder)) {
         const newTestFolder = path.join(
           process.env.MOCK_DIR,
-          `test_${nameToFolder(updatedTest.name)}`
+          `test_${nameToFolder(nextName)}`
         );
 
         fs.renameSync(testFolder, newTestFolder, (err) => {
@@ -342,18 +344,20 @@ const updateTest = async (req, res) => {
         });
       }
     }
-    testsData[testIndex].name = updatedTest.name;
-    testsData[testIndex].mode = updatedTest.mode;
-    testsData[testIndex].parentId = updatedTest.parentId;
+    testsData[testIndex].name = nextName;
+    testsData[testIndex].mode = nextMode;
+    if (Object.prototype.hasOwnProperty.call(updatedTest, 'parentId')) {
+      testsData[testIndex].parentId = updatedTest.parentId;
+    }
     testsData[testIndex].mockFile =
-      `test_${nameToFolder(updatedTest.name)}/_mock_list.json`;
+      `test_${nameToFolder(nextName)}/_mock_list.json`;
 
     fs.writeFileSync(testsPath, JSON.stringify(testsData, null, 2));
 
     logger.info('Test updated successfully', {
       testId,
       originalName: originalTest.name,
-      newName: updatedTest.name,
+      newName: nextName,
     });
 
     res.status(200).json({ message: 'Test updated successfully' });

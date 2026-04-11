@@ -596,6 +596,58 @@ const isSameResponse = (req1, req2) => {
   }
 };
 
+/** @param {Record<string, string>|undefined|null} headers */
+function getHeaderValueCaseInsensitive(headers, headerName) {
+  if (!headers || !headerName) {
+    return undefined;
+  }
+  const lower = headerName.toLowerCase();
+  for (const key of Object.keys(headers)) {
+    if (key.toLowerCase() === lower) {
+      return headers[key];
+    }
+  }
+  return undefined;
+}
+
+function parseMatchHeadersEnv() {
+  const raw = process.env.MATCH_HEADERS;
+  if (!raw || typeof raw !== 'string') {
+    return [];
+  }
+  return raw
+    .split(',')
+    .map((h) => h.trim())
+    .filter(Boolean);
+}
+
+/**
+ * When MATCH_HEADERS is set, each listed header must match between the mock
+ * recording and the incoming request (case-insensitive name, value compared as strings).
+ */
+function incomingHeadersMatchMock(mock, incomingHeaders) {
+  const names = parseMatchHeadersEnv();
+  if (names.length === 0) {
+    return true;
+  }
+  const mockHeaders = mock.fileContent.request?.headers || {};
+  const incoming = incomingHeaders || {};
+  for (const name of names) {
+    const mockVal = getHeaderValueCaseInsensitive(mockHeaders, name);
+    const reqVal = getHeaderValueCaseInsensitive(incoming, name);
+    if (String(mockVal ?? '') !== String(reqVal ?? '')) {
+      logger.debug('Header mismatch for MATCH_HEADERS', {
+        header: name,
+        mockVal,
+        reqVal,
+        mockId: mock?.id,
+      });
+      return false;
+    }
+  }
+  return true;
+}
+
 const compareMockToRequest = (mock, req) => {
   try {
     logger.debug('Comparing mock to request', {
@@ -623,13 +675,24 @@ const compareMockToRequest = (mock, req) => {
       }
     );
 
+    if (!result) {
+      logger.debug('Mock to request comparison result', {
+        result,
+        mockURL,
+        reqURL,
+      });
+      return false;
+    }
+
+    const headersOk = incomingHeadersMatchMock(mock, req.headers);
     logger.debug('Mock to request comparison result', {
-      result,
+      result: headersOk,
       mockURL,
       reqURL,
+      matchHeaders: parseMatchHeadersEnv(),
     });
 
-    return result;
+    return headersOk;
   } catch (error) {
     logger.error('Error comparing mock to request', {
       mockId: mock?.id,
@@ -659,7 +722,7 @@ const getCompareRankMockToRequest = (mock, req) => {
       ? FtJSON.parse(mock.fileContent.request?.postData?.text)
       : mock.fileContent.request?.postData;
 
-    const result = getSameRequestRank(
+    let result = getSameRequestRank(
       { url: mockURL, method: mock.fileContent.method, postData },
       {
         method: req.method,
@@ -667,6 +730,10 @@ const getCompareRankMockToRequest = (mock, req) => {
         url: reqURL,
       }
     );
+
+    if (result > 0 && !incomingHeadersMatchMock(mock, req.headers)) {
+      result = 0;
+    }
 
     logger.debug('Mock to request comparison result', {
       result,
