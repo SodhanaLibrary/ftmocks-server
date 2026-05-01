@@ -36,7 +36,7 @@ const decrypt = async (req, res) => {
 
 const listKeys = async (req, res) => {
   try {
-    const vaultPath = path.join(__dirname, '../utils/vault.json');
+    const vaultPath = path.join(process.env.MOCK_DIR, 'vault.json');
 
     if (!fs.existsSync(vaultPath)) {
       return res.status(200).json({ keys: [] });

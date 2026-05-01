@@ -8,8 +8,15 @@ const { nameToFolder } = require('./MockUtils');
  * @returns {boolean} True if the path appears to be a file, false otherwise.
  */
 function getFileExtensions(urlPath) {
-  // Match a dot followed by at least one alphanumeric character at the end
-  return new URL(urlPath).pathname.match(/\.[a-zA-Z0-9]+$/);
+  try {
+    const pathname =
+      typeof urlPath === 'string' && urlPath.startsWith('http')
+        ? new URL(urlPath).pathname
+        : urlPath;
+    return String(pathname).match(/\.[a-zA-Z0-9]+$/);
+  } catch {
+    return null;
+  }
 }
 
 /**

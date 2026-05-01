@@ -8,6 +8,14 @@ window.FTMOCKS_CONFIG = {
     // Intercept Fetch API
     const originalFetch = window.fetch;
     const recordedTracks = [];
+
+    function getFetchContentType(headers) {
+        if (!headers) return null;
+        if (typeof headers.get === 'function') {
+            return headers.get('Content-Type') || headers.get('content-type') || null;
+        }
+        return headers['Content-Type'] || headers['content-type'] || null;
+    }
   
     const addTrack = track => {
         track.id = recordedTracks.length ? recordedTracks[recordedTracks.length - 1].id + 1 : 1;
@@ -43,7 +51,7 @@ window.FTMOCKS_CONFIG = {
                         headers: headers,
                         queryString: queryString,
                         postData: {
-                            mimeType: headers['Content-Type'] || null,
+                            mimeType: getFetchContentType(headers),
                             text: body
                         }
                     },
@@ -252,7 +260,7 @@ window.FTMOCKS_CONFIG = {
     };
   
     const clearTracks = () => {
-        recordedTracks = [];
+        recordedTracks.length = 0;
     };
   
     const getAllTracks = () => {
@@ -278,7 +286,7 @@ window.FTMOCKS_CONFIG = {
                 window.onload = handleDocumentLoad(limit);
             } else if (e === 'change') {
                 document.addEventListener('input', handleChange(limit));
-            } else {
+            } else if (mouseEvents[e]) {
                 document.addEventListener(e, mouseEvents[e]);
             }
         });

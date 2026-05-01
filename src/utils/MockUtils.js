@@ -51,7 +51,7 @@ const areJsonEqual = (jsonObj1, jsonObj2) => {
         (key) => jsonObj1[key] !== null
       );
       const keys2 = Object.keys(jsonObj2).filter(
-        (key) => jsonObj1[key] !== null
+        (key) => jsonObj2[key] !== null
       );
 
       // Check if the number of keys is different
@@ -526,7 +526,9 @@ const getSameRequestRank = (req1, req2) => {
   const url2 = new URL(`http://domain.com${req2.url}`);
   if (url1.pathname !== url2.pathname) {
     rank = 0;
-  } else if (url1.method?.toLowerCase() !== url2.method?.toLowerCase()) {
+  } else if (
+    (req1.method || '').toLowerCase() !== (req2.method || '').toLowerCase()
+  ) {
     rank = 0;
   } else {
     // Compare query strings

@@ -4,7 +4,29 @@ const {
   getAbsolutePathWithMockDir,
   getParentFolder,
 } = require('../utils/MockUtils');
-const { execSync } = require('child_process');
+
+/**
+ * Resolves a path under PLAYWRIGHT_DIR/tests using only the basename of fileName
+ * and ensures the result stays inside tests/.
+ */
+function resolveSafePlaywrightSpecPath(absolutePlaywrightDir, parents, fileName) {
+  const testsRoot = path.resolve(absolutePlaywrightDir, 'tests');
+  const parentFolder = getParentFolder(parents);
+  const baseDir = path.resolve(testsRoot, parentFolder);
+  if (baseDir !== testsRoot && !baseDir.startsWith(testsRoot + path.sep)) {
+    throw new Error('Resolved directory escapes tests folder');
+  }
+  const rawName = String(fileName || '');
+  const safeName = path.basename(rawName);
+  if (!safeName || safeName === '.' || safeName === '..') {
+    throw new Error('Invalid file name');
+  }
+  const filePath = path.resolve(baseDir, safeName);
+  if (filePath !== baseDir && !filePath.startsWith(baseDir + path.sep)) {
+    throw new Error('Invalid file path');
+  }
+  return { filePath, fullDirectoryPath: baseDir };
+}
 
 // POST /api/v1/code/save - Save generated code to file
 const saveFile = async (req, res) => {
@@ -23,21 +45,22 @@ const saveFile = async (req, res) => {
       process.env.PLAYWRIGHT_DIR || ''
     );
 
-    // Ensure the directory exists
-    const parentFolder = getParentFolder(parents);
-    const fullDirectoryPath = path.join(
-      absolutePlaywrightDir,
-      'tests',
-      parentFolder
-    );
+    let filePath;
+    let fullDirectoryPath;
+    try {
+      ({ filePath, fullDirectoryPath } = resolveSafePlaywrightSpecPath(
+        absolutePlaywrightDir,
+        parents,
+        fileName
+      ));
+    } catch (e) {
+      return res.status(400).json({ error: e.message || 'Invalid path' });
+    }
+
     if (!fs.existsSync(fullDirectoryPath)) {
       fs.mkdirSync(fullDirectoryPath, { recursive: true });
     }
 
-    // Create the full file path
-    const filePath = path.join(fullDirectoryPath, fileName);
-
-    // Write the file
     fs.writeFileSync(filePath, generatedCode, 'utf8');
 
     res.json({
@@ -80,17 +103,21 @@ const runTest = async (req, res) => {
       );
     }
 
-    // Ensure the directory exists
-    const parentFolder = getParentFolder(parents);
-    const fullDirectoryPath = path.join(
-      absolutePlaywrightDir,
-      'tests',
-      parentFolder
-    );
+    let filePath;
+    let fullDirectoryPath;
+    try {
+      ({ filePath, fullDirectoryPath } = resolveSafePlaywrightSpecPath(
+        absolutePlaywrightDir,
+        parents,
+        fileName
+      ));
+    } catch (e) {
+      return res.status(400).json({ error: e.message || 'Invalid path' });
+    }
+
     if (!fs.existsSync(fullDirectoryPath)) {
       fs.mkdirSync(fullDirectoryPath, { recursive: true });
     }
-    const filePath = path.join(fullDirectoryPath, fileName);
     fs.writeFileSync(filePath, generatedCode, 'utf8');
 
     // Set up streaming response
@@ -144,7 +171,15 @@ const runTest = async (req, res) => {
     });
   } catch (error) {
     console.error('Error running test:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error' });
+    } else {
+      try {
+        res.write(`\nError: ${error.message}\n`);
+      } finally {
+        res.end();
+      }
+    }
   }
 };
 

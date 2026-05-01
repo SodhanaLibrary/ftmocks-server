@@ -3,56 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('./Logger');
 
-// Data to encrypt
-const data = 'My secret message';
-const password = 'my_secure_password';
-
-// Use a static salt (for demonstration) – make sure its length is what you expect.
-// Here we choose a salt string that we will convert to a Buffer.
-const STATIC_SALT = 'salt_for_encryption'; // adjust to desired length (here 20 characters)
-const saltBuffer = Buffer.from(STATIC_SALT, 'utf8');
-
-// Derive a key using PBKDF2 (both sides must use the same salt)
-const key = crypto.pbkdf2Sync(password, saltBuffer, 100000, 32, 'sha256');
-
-// Generate a random IV (initialization vector; 12 bytes for GCM)
-const iv = crypto.randomBytes(12);
-
-// Encrypt the data using AES-256-GCM
-const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-let encrypted = cipher.update(data, 'utf8', 'hex');
-encrypted += cipher.final('hex');
-const authTag = cipher.getAuthTag();
-
-// Combine salt, IV, authTag, and encrypted data into one Buffer
-const encryptedData = Buffer.concat([
-  saltBuffer, // salt used (Buffer)
-  iv, // IV (12 bytes)
-  authTag, // Auth tag (16 bytes)
-  Buffer.from(encrypted, 'hex'), // Encrypted ciphertext
-]).toString('base64');
-
-// Decrypt the data
-const decoded = Buffer.from(encryptedData, 'base64');
-// Use the saltBuffer length to extract the salt back
-const saltLength = saltBuffer.length;
-const saltDec = decoded.slice(0, saltLength);
-const ivDec = decoded.slice(saltLength, saltLength + 12);
-const authTagDec = decoded.slice(saltLength + 12, saltLength + 12 + 16);
-const ciphertext = decoded.slice(saltLength + 12 + 16);
-
-// Derive the key again using the same salt for decryption
-const keyDec = crypto.pbkdf2Sync(password, saltDec, 100000, 32, 'sha256');
-
-// Decrypt using AES-256-GCM
-const decipher = crypto.createDecipheriv('aes-256-gcm', keyDec, ivDec);
-decipher.setAuthTag(authTagDec);
-let decrypted = decipher.update(ciphertext, undefined, 'utf8');
-decrypted += decipher.final('utf8');
-
-// ==================================================
-// Helper functions for vault encryption/decryption
-// ==================================================
+// Default salt for PBKDF2 (override with CRYPTO_SALT in production).
+const STATIC_SALT = 'salt_for_encryption';
 
 const encryptVal = (keyName, value, password) => {
   try {
@@ -242,13 +194,6 @@ const decryptVal = (keyName, password) => {
     return null;
   }
 };
-
-// // Example usage of the vault functions
-// if (encryptVal('exampleKey', 'My vault secret', password)) {
-//   console.log('Value encrypted and saved successfully.');
-//   const vaultDecrypted = decryptVal('exampleKey', password);
-//   console.log(`Vault decrypted value: ${vaultDecrypted}`);
-// }
 
 module.exports = {
   encryptVal,

@@ -21,10 +21,9 @@ const getTests = async (req, res) => {
       logger.info('Tests file does not exist, creating new file', {
         testsPath: indexPath,
       });
-      await fs.writeFileSync(indexPath, '[]', () => {
-        logger.info('Tests file created successfully', {
-          testsPath: indexPath,
-        });
+      fs.writeFileSync(indexPath, '[]');
+      logger.info('Tests file created successfully', {
+        testsPath: indexPath,
       });
     }
 
@@ -219,21 +218,12 @@ const createTest = async (req, res) => {
           mockListFilePath,
         });
 
-        fs.mkdirSync(folderPath, { recursive: true }, (err) => {
-          if (err) {
-            logger.error('Error creating directory', {
-              folderPath,
-              error: err.message,
-            });
-          } else {
-            logger.debug('Directory created successfully', { folderPath });
-          }
-        });
+        fs.mkdirSync(folderPath, { recursive: true });
+        logger.debug('Directory created successfully', { folderPath });
 
-        await fs.writeFileSync(mockListFilePath, '[]', () => {
-          logger.debug('Mock list file created successfully', {
-            mockListFilePath,
-          });
+        fs.writeFileSync(mockListFilePath, '[]');
+        logger.debug('Mock list file created successfully', {
+          mockListFilePath,
         });
 
         logger.info('New test created successfully', {
@@ -939,10 +929,9 @@ const getTestsSummary = async (req, res) => {
       logger.info('Tests file does not exist, creating new file', {
         testsPath: indexPath,
       });
-      await fs.writeFileSync(indexPath, '[]', () => {
-        logger.info('Tests file created successfully', {
-          testsPath: indexPath,
-        });
+      fs.writeFileSync(indexPath, '[]');
+      logger.info('Tests file created successfully', {
+        testsPath: indexPath,
       });
     }
 

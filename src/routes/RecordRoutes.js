@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const os = require('os');
 const { execSync } = require('child_process');
 const logger = require('../utils/Logger');

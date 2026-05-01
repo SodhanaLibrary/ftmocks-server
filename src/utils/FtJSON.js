@@ -4,7 +4,7 @@ class FtJSON {
       return JSON.parse(text, reviver);
     } catch (error) {
       console.error('FtJSON parse error:', error, reference);
-      return text;
+      throw error;
     }
   }
 
