@@ -365,7 +365,7 @@ const moveDefaultmocks = async (req, res) => {
 
     if (fs.existsSync(testsPath)) {
       const testsData = fs.readFileSync(testsPath, 'utf8');
-      tests = JSON.parse(testsData);
+      tests = JSON.parse(testsData).filter((test) => test.type !== 'folder');
       logger.debug('Loaded tests from tests.json', { testCount: tests.length });
     } else {
       logger.warn('tests.json file does not exist');
