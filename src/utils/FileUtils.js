@@ -2,22 +2,6 @@ const logger = require('./Logger');
 const path = require('path');
 const fs = require('fs');
 const { nameToFolder } = require('./MockUtils');
-/**
- * Checks if a given URL path looks like a file (e.g., ends with .js, .png, .css, etc).
- * @param {string} urlPath - The URL path to check (e.g., "/assets/logo.png").
- * @returns {boolean} True if the path appears to be a file, false otherwise.
- */
-function getFileExtensions(urlPath) {
-  try {
-    const pathname =
-      typeof urlPath === 'string' && urlPath.startsWith('http')
-        ? new URL(urlPath).pathname
-        : urlPath;
-    return String(pathname).match(/\.[a-zA-Z0-9]+$/);
-  } catch {
-    return null;
-  }
-}
 
 /**
  * Checks if a HAR entry is a file-like resource (e.g., images, scripts, stylesheets).
@@ -180,7 +164,6 @@ const saveIfItIsFile = async (currentRequest, response, testName, id) => {
 };
 
 module.exports = {
-  getFileExtensions,
   isFileLikeHarEntry,
   saveIfItIsFile,
 };

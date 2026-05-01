@@ -270,14 +270,6 @@ window.FTMOCKS_CONFIG = {
         observer.observe(body, { childList: true, subtree: true });
     };
   
-    const clearTracks = () => {
-        recordedTracks.length = 0;
-    };
-  
-    const getAllTracks = () => {
-        return recordedTracks;
-    };
-  
     const initTracks = (initInfo = {events: ['click', 'change', 'url', 'dblclick', 'contextmenu'], limit: 100}) => {
         const {events, limit} = initInfo;
         const mouseEvents = {

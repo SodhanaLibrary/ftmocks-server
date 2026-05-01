@@ -218,34 +218,6 @@ const getDefaultMockData = () => {
   }
 };
 
-const getDefaultMockDataSummaryList = () => {
-  const defaultPath = path.join(
-    process.env.MOCK_DIR,
-    'defaultMocks',
-    '_mock_list.json'
-  );
-
-  try {
-    logger.debug('Loading default mock data summary', { defaultPath });
-
-    const defaultData = fs.readFileSync(defaultPath, 'utf8');
-    let parsedData = JSON.parse(defaultData);
-
-    logger.info('Default mock data summary loaded', {
-      mockCount: parsedData.length,
-    });
-
-    return parsedData;
-  } catch (error) {
-    logger.error('Error reading or parsing default mocks summary', {
-      defaultPath,
-      error: error.message,
-      stack: error.stack,
-    });
-    return [];
-  }
-};
-
 const loadMockDataByTestName = (testName) => {
   try {
     logger.info('Loading mock data by test name', { testName });
@@ -958,7 +930,6 @@ const getParentFolder = (parents) => {
 module.exports = {
   processURL,
   getDefaultMockData,
-  getDefaultMockDataSummaryList,
   loadMockDataFromMockListFile,
   loadMockData,
   loadMockDataByTestName,
