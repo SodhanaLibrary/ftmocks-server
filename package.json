@@ -6,7 +6,6 @@
   "scripts": {
     "test": "test",
     "start": "node server.js",
-    "mcp": "node mcp-server.js",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,scss,md}\""
   },
   "repository": {
