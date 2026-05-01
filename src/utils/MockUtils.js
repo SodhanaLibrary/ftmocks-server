@@ -664,9 +664,21 @@ const compareMockToRequest = (mock, req) => {
       mock.fileContent.ignoreParams
     );
     const reqURL = processURL(req.originalUrl, mock.fileContent.ignoreParams);
-    const postData = mock.fileContent.request?.postData?.text
-      ? JSON.parse(mock.fileContent.request?.postData?.text)
-      : mock.fileContent.request?.postData;
+
+    const rawPostData = mock.fileContent.request?.postData;
+    let postData = rawPostData;
+    const postDataText = rawPostData?.text;
+    if (postDataText) {
+      try {
+        postData = JSON.parse(postDataText);
+      } catch (parseErr) {
+        logger.warn('Invalid JSON in mock postData.text', {
+          mockId: mock?.id,
+          error: parseErr.message,
+        });
+        return false;
+      }
+    }
 
     const result = isSameRequest(
       { url: mockURL, method: mock.fileContent.method, postData },

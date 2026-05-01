@@ -154,6 +154,17 @@ window.FTMOCKS_CONFIG = {
     window.XMLHttpRequest = MockXHR;
   
   
+    /** XPath 1.0 literal for @id=... when id may contain quotes */
+    const xpathLiteralForId = (s) => {
+        const str = String(s);
+        const parts = str.split("'");
+        let expr = "'" + parts[0] + "'";
+        for (let i = 1; i < parts.length; i++) {
+            expr = 'concat(' + expr + ", \"'\", '" + parts[i] + "')";
+        }
+        return expr;
+    };
+
     const generateXPathWithNearestParentId = (element) => {
         let path = '';
         let nearestParentId = null;
@@ -191,7 +202,7 @@ window.FTMOCKS_CONFIG = {
         }
   
         if (nearestParentId) {
-            path = `//*[@id='${nearestParentId}']${path}`;
+            path = '//*[@id=' + xpathLiteralForId(nearestParentId) + ']' + path;
             return path;
         }
         return null; // No parent with an ID found

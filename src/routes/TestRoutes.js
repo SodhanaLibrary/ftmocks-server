@@ -1,7 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const fs = require('fs');
-const { execSync } = require('child_process');
 const logger = require('../utils/Logger');
 const {
   processHAR,
@@ -486,14 +485,14 @@ const deleteMockDataForTest = async (req, res) => {
       testName,
     });
 
-    const tetFilePath = path.join(
+    const mockListFilePath = path.join(
       process.env.MOCK_DIR,
       `test_${nameToFolder(testName)}`,
       `_mock_list.json`
     );
 
     // Read and parse the mock data file
-    let mockData = JSON.parse(fs.readFileSync(tetFilePath, 'utf8'));
+    let mockData = JSON.parse(fs.readFileSync(mockListFilePath, 'utf8'));
 
     logger.debug('Loaded mock list for deletion', {
       testName,
@@ -514,7 +513,7 @@ const deleteMockDataForTest = async (req, res) => {
     }
 
     // Write the updated mock data back to the file
-    fs.writeFileSync(tetFilePath, JSON.stringify(mockData, null, 2));
+    fs.writeFileSync(mockListFilePath, JSON.stringify(mockData, null, 2));
 
     // Delete the mock file associated with the mockId
     const mockFileName = `mock_${mockId}.json`;

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const uuid = require('uuid');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const logger = require('../utils/Logger');
 const {
   processURL,
@@ -19,18 +19,16 @@ const extractZipFile = (zipFilePath, extractDir) => {
     fs.mkdirSync(extractDir, { recursive: true });
   }
 
-  // Use unzip command (available on most systems)
+  const execOpts = { stdio: 'pipe' };
+
+  // Use unzip command (available on most systems); execFile avoids shell injection.
   try {
-    execSync(`unzip -o "${zipFilePath}" -d "${extractDir}"`, {
-      stdio: 'pipe',
-    });
+    execFileSync('unzip', ['-o', zipFilePath, '-d', extractDir], execOpts);
     logger.debug('Extracted zip file', { zipFilePath, extractDir }, true);
   } catch (error) {
     // Try using tar for .zip files on systems where unzip might not work
     try {
-      execSync(`tar -xf "${zipFilePath}" -C "${extractDir}"`, {
-        stdio: 'pipe',
-      });
+      execFileSync('tar', ['-xf', zipFilePath, '-C', extractDir], execOpts);
       logger.debug(
         'Extracted zip file using tar',
         { zipFilePath, extractDir },
