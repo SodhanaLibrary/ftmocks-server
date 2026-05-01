@@ -1,3 +1,5 @@
+const path = require('path');
+const fs = require('fs');
 const { encryptVal, decryptVal } = require('../utils/Crypto');
 
 const encrypt = async (req, res) => {

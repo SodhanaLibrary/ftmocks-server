@@ -22,7 +22,11 @@ const getRecordedLogs = async (req, res) => {
 };
 
 const deleteAllLogs = async (req, res) => {
-  const folderName = `test_${nameToFolder(req.params.name)}`;
+  const testName = req.params.name || req.query.name;
+  if (!testName) {
+    return res.status(400).json({ error: 'Test name is required (query: ?name=)' });
+  }
+  const folderName = `test_${nameToFolder(testName)}`;
   const defaultPath = path.join(process.env.MOCK_DIR, folderName, '_logs.json');
   try {
     fs.rmSync(defaultPath, { recursive: true, force: true });
@@ -34,8 +38,14 @@ const deleteAllLogs = async (req, res) => {
 };
 
 const deleteRecordedLog = async (req, res) => {
-  const folderName = `test_${nameToFolder(req.params.name)}`;
-  const mockId = req.params.id;
+  const testName = req.params.name || req.query.name;
+  const mockId = req.params.id || req.query.id;
+  if (!testName || !mockId) {
+    return res
+      .status(400)
+      .json({ error: 'Test name and log id are required (query: ?name=&id=)' });
+  }
+  const folderName = `test_${nameToFolder(testName)}`;
   const defaultPath = path.join(process.env.MOCK_DIR, folderName, '_logs.json');
 
   try {
@@ -62,7 +72,11 @@ const deleteRecordedLog = async (req, res) => {
 };
 
 const recordLogData = async (req, res) => {
-  const folderName = `test_${nameToFolder(req.params.name)}`;
+  const testName = req.params.name || req.query.name;
+  if (!testName) {
+    return res.status(400).json({ error: 'Test name is required (query: ?name=)' });
+  }
+  const folderName = `test_${nameToFolder(testName)}`;
   const mockData = req.body;
   let mockDataSummary = [];
 
