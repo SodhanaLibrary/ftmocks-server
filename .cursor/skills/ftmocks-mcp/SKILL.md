@@ -3,7 +3,8 @@ name: ftmocks-mcp
 description: >-
   Drives FtMocks via its MCP server (HTTP API wrappers). Use when the user works
   with ftmocks-server, FtMocks mocks/tests, or asks to create tests, sync mocks,
-  switch projects, upload HAR/Postman/trace, or automate FtMocks from Cursor.
+  switch projects, run a test on the mock server (switch project + start mock server),
+  upload HAR/Postman/trace, or automate FtMocks from Cursor.
 disable-model-invocation: true
 ---
 
@@ -14,6 +15,12 @@ disable-model-invocation: true
 Use MCP **tools** (prefix `ftmocks_`) registered by `mcp/tools.js` to call the same REST API as `server.js`. Do not invent URLs; map user intent to an existing tool name and arguments.
 
 **Hard prerequisite:** `ftmocks-server` must be running (`npm start <envfile>` or equivalent) and reachable at the base URL configured for the MCP process.
+
+## Switch project before other tools
+
+The FtMocks API keeps **one active project** in process (mock dir, ports, paths from that env). Before calling **any** other `ftmocks_*` tool that should apply to a specific repo or `ftmocks.env`, **first** call **`ftmocks_switch_project`** with **`{ "env_file": "<absolute path to that ftmocks.env>" }`**. Resolve the path from the user, open workspace, or `ftmocks_get_projects` if you need to list known env files.
+
+Do this **before** `get_tests`, creating tests, mock CRUD, uploads, code run, mock server start/stop, etc. The only exceptions are tools that are intentionally global (e.g. listing projects) and you are not about to act on a particular project’s data.
 
 ## Configure the MCP client
 
@@ -31,14 +38,14 @@ Use MCP **tools** (prefix `ftmocks_`) registered by `mcp/tools.js` to call the s
 
 ## API quirks to remember
 
-| Topic | Detail |
-|--------|--------|
-| Mock list / CRUD on `/tests/:id/mockdata` | Handlers use **`name` query** = test display name; path `id` must still match the route. |
-| Duplicate test | `ftmocks_duplicate_test` needs **`name`** = source test’s current display name (used when copying folders). |
-| Multipart uploads (HAR, Postman, trace) | Tools take **`fileBase64`** and optional **`fileName`**; server fields are `harFile`, `postmanFile`, `traceFile`. |
-| Code run | `ftmocks_code_run_test` may return **long text** (Playwright output). |
-| Screenshots | `ftmocks_get_screenshot_file` returns **base64** text in the tool result. |
-| Browser/recording tools | Start Playwright/browser on the **machine running FtMocks**, not the user’s laptop unless they are the same host. |
+| Topic                                     | Detail                                                                                                            |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Mock list / CRUD on `/tests/:id/mockdata` | Handlers use **`name` query** = test display name; path `id` must still match the route.                          |
+| Duplicate test                            | `ftmocks_duplicate_test` needs **`name`** = source test’s current display name (used when copying folders).       |
+| Multipart uploads (HAR, Postman, trace)   | Tools take **`fileBase64`** and optional **`fileName`**; server fields are `harFile`, `postmanFile`, `traceFile`. |
+| Code run                                  | `ftmocks_code_run_test` may return **long text** (Playwright output).                                             |
+| Screenshots                               | `ftmocks_get_screenshot_file` returns **base64** text in the tool result.                                         |
+| Browser/recording tools                   | Start Playwright/browser on the **machine running FtMocks**, not the user’s laptop unless they are the same host. |
 
 ## Not exposed via MCP
 
