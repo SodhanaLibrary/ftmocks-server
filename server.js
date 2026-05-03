@@ -96,6 +96,7 @@ const {
 const logger = require('./src/utils/Logger');
 const logRoutes = require('./src/routes/LogRoutes');
 const { exec } = require('child_process');
+const { runPlaywrightCodegenWithMocks } = require('./src/playwrightCodegenWithMocks');
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -600,6 +601,53 @@ app.post('/api/v1/record/playwright', async (req, res) => {
     });
   } catch (err) {
     console.error('Error in /api/v1/record/playwright:', err);
+    return res.status(500).send({
+      error: 'Internal server error',
+    });
+  }
+});
+
+// Playwright codegen with the same network mock recording as POST /api/v1/record/mocks
+app.post('/api/v1/record/playwright/mocks', async (req, res) => {
+  try {
+    try {
+      if (browser) {
+        console.log('Browser session is already running. closing now');
+        browser.close();
+      }
+    } catch (error) {
+      logger.error('Error closing browser:', error);
+    } finally {
+      browser = null;
+    }
+    if (
+      req.body.startMockServer &&
+      process.env.PREFERRED_SERVER_PORTS?.length > 0
+    ) {
+      if (mockServerInstance) {
+        mockServerInstance.close();
+      }
+      updateMockServerTest(
+        req.body.testName,
+        JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]
+      );
+      mockServerInstance = mockServer.listen(
+        JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0],
+        () => {
+          console.log(
+            `Mock server listening at http://localhost:${JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]}`
+          );
+        }
+      );
+    }
+
+    await runPlaywrightCodegenWithMocks(req.body);
+    return res.send({
+      status: 'success',
+      message: 'Playwright codegen with mock recording finished',
+    });
+  } catch (err) {
+    console.error('Error in /api/v1/record/playwright/mocks:', err);
     return res.status(500).send({
       error: 'Internal server error',
     });
