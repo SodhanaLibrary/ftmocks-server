@@ -14,20 +14,24 @@ const getEnvProject = async (req, res) => {
     const absoluteFallbackDir = getAbsolutePathWithMockDir(
       process.env.FALLBACK_DIR
     );
+    process.env.RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR = getRelativePath(
+      absolutePlaywrightDir,
+      process.env.MOCK_DIR
+    );
+    process.env.RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR = getRelativePath(
+      absolutePlaywrightDir,
+      absoluteFallbackDir
+    );
     const envConfig = {
       MOCK_DIR: process.env.MOCK_DIR,
       PORT: process.env.PORT,
       PREFERRED_SERVER_PORTS: process.env.PREFERRED_SERVER_PORTS,
       PLAYWRIGHT_DIR: process.env.PLAYWRIGHT_DIR,
       FALLBACK_DIR: process.env.FALLBACK_DIR,
-      RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR: getRelativePath(
-        absolutePlaywrightDir,
-        process.env.MOCK_DIR
-      ),
-      RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR: getRelativePath(
-        absolutePlaywrightDir,
-        absoluteFallbackDir
-      ),
+      RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR:
+        process.env.RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR,
+      RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR:
+        process.env.RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR,
       MetaData: getLatestProjectUrls(),
     };
 

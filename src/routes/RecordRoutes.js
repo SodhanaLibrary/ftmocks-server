@@ -976,4 +976,5 @@ const recordTest = async (browser, req, res) => {
 module.exports = {
   recordMocks,
   recordTest,
+  injectEventRecordingScript,
 };
