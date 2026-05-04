@@ -26,6 +26,7 @@ const getEnvProject = async (req, res) => {
       MOCK_DIR: process.env.MOCK_DIR,
       PORT: process.env.PORT,
       PREFERRED_SERVER_PORTS: process.env.PREFERRED_SERVER_PORTS,
+      MATCH_HEADERS: process.env.MATCH_HEADERS ?? '',
       PLAYWRIGHT_DIR: process.env.PLAYWRIGHT_DIR,
       FALLBACK_DIR: process.env.FALLBACK_DIR,
       RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR:
@@ -39,9 +40,11 @@ const getEnvProject = async (req, res) => {
       MOCK_DIR: envConfig.MOCK_DIR,
       PORT: envConfig.PORT,
       PREFERRED_SERVER_PORTS: envConfig.PREFERRED_SERVER_PORTS,
+      MATCH_HEADERS: envConfig.MATCH_HEADERS,
       hasMockDir: !!envConfig.MOCK_DIR,
       hasPort: !!envConfig.PORT,
       hasPreferredPorts: !!envConfig.PREFERRED_SERVER_PORTS,
+      hasMatchHeaders: !!envConfig.MATCH_HEADERS,
     });
 
     res.status(200).json(envConfig);
