@@ -183,6 +183,7 @@ function resolveCodegenSaveDir(body, outputPath) {
   return path.dirname(outputPath);
 }
 
+/** @returns {string | null} Absolute path to the saved spec file, or null if none. */
 function logCodegenOutputFile(outputPath, body = {}) {
   try {
     if (!fs.existsSync(outputPath)) {
@@ -191,7 +192,7 @@ function logCodegenOutputFile(outputPath, body = {}) {
         { outputFile: outputPath },
         true
       );
-      return;
+      return null;
     }
     const generated = fs.readFileSync(outputPath, 'utf8');
     if (!generated.trim()) {
@@ -202,7 +203,7 @@ function logCodegenOutputFile(outputPath, body = {}) {
         },
         true
       );
-      return;
+      return null;
     }
 
     let savedPath = outputPath;
@@ -236,6 +237,7 @@ function logCodegenOutputFile(outputPath, body = {}) {
       },
       true
     );
+    return path.resolve(savedPath);
   } catch (err) {
     logger.warn(
       'Could not read Playwright codegen output file',
@@ -245,6 +247,7 @@ function logCodegenOutputFile(outputPath, body = {}) {
       },
       true
     );
+    return null;
   }
 }
 
@@ -316,8 +319,10 @@ function waitForCodegenSessionEnd(context, browser) {
  *   - codegenSaveDir: directory for `${nameToFolder(testName).toLowerCase()}.spec.js` (default: PLAYWRIGHT_DIR/tests if set, else Playwright output dirname)
  *   - parents: optional string[] (same as POST /api/v1/code/save) — nested folders under codegen save dir for the final .spec.js
  *   - codegenStripInitialGoto: if true, remove the first `await page.goto(...)` after injecting initiatePlaywrightRoutes (default false — goto is kept)
+ * @returns {Promise<{ testFilePath: string | null }>} Absolute path to the final .spec.js when one was written; otherwise null.
  */
 async function runPlaywrightCodegenWithMocks(body) {
+  let testFilePath = null;
   const url = body.url || '';
   const testName = body.testName;
   const patterns = body.patterns || [];
@@ -417,8 +422,9 @@ async function runPlaywrightCodegenWithMocks(body) {
       await browser.close().catch(() => {});
     }
     rewriteCodegenOutputWithFtmocks(codegenOutputPath, body);
-    logCodegenOutputFile(codegenOutputPath, body);
+    testFilePath = logCodegenOutputFile(codegenOutputPath, body);
   }
+  return { testFilePath };
 }
 
 module.exports = {

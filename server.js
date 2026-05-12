@@ -643,10 +643,11 @@ app.post('/api/v1/record/playwright/mocks', async (req, res) => {
       );
     }
 
-    await runPlaywrightCodegenWithMocks(req.body);
+    const { testFilePath } = await runPlaywrightCodegenWithMocks(req.body);
     return res.send({
       status: 'success',
       message: 'Playwright codegen with mock recording finished',
+      testFilePath,
     });
   } catch (err) {
     console.error('Error in /api/v1/record/playwright/mocks:', err);
