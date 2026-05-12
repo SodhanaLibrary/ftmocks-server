@@ -3,7 +3,11 @@ const path = require('path');
 const os = require('os');
 const { chromium } = require('playwright');
 const logger = require('./utils/Logger');
-const { nameToFolder, getAbsolutePathWithMockDir } = require('./utils/MockUtils');
+const {
+  nameToFolder,
+  getAbsolutePathWithMockDir,
+  getParentFolder,
+} = require('./utils/MockUtils');
 const { addUrlToProject } = require('./utils/projectUtils');
 const {
   attachNetworkMockRecording,
@@ -205,7 +209,14 @@ function logCodegenOutputFile(outputPath, body = {}) {
     const testName = body.testName;
     if (testName) {
       const saveFileName = `${nameToFolder(testName).toLowerCase()}.spec.js`;
-      const saveDir = resolveCodegenSaveDir(body, outputPath);
+      const baseSaveDir = resolveCodegenSaveDir(body, outputPath);
+      const parentRel =
+        body.parents && body.parents.length
+          ? getParentFolder(body.parents)
+          : '';
+      const saveDir = parentRel
+        ? path.join(baseSaveDir, parentRel)
+        : baseSaveDir;
       fs.mkdirSync(saveDir, { recursive: true });
       const targetPath = path.join(saveDir, saveFileName);
       if (path.resolve(targetPath) !== path.resolve(outputPath)) {
@@ -303,6 +314,7 @@ function waitForCodegenSessionEnd(context, browser) {
  *   - codegenMockDir / mockDir (default ./ftmocks or RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR)
  *   - codegenFallbackDir / fallbackDir (default public or RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR)
  *   - codegenSaveDir: directory for `${nameToFolder(testName).toLowerCase()}.spec.js` (default: PLAYWRIGHT_DIR/tests if set, else Playwright output dirname)
+ *   - parents: optional string[] (same as POST /api/v1/code/save) — nested folders under codegen save dir for the final .spec.js
  *   - codegenStripInitialGoto: if true, remove the first `await page.goto(...)` after injecting initiatePlaywrightRoutes (default false — goto is kept)
  */
 async function runPlaywrightCodegenWithMocks(body) {
