@@ -83,7 +83,7 @@ const {
   createPlaywrightMockDataForTest,
   uploadDefaultPlaywrightMocks,
 } = require('./src/routes/PlaywrightNetworkRoutes.js');
-const { saveFile, runTest } = require('./src/routes/CodeRoutes.js');
+const { saveFile, runTest, getTestSpecCode } = require('./src/routes/CodeRoutes.js');
 const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
 const {
@@ -280,6 +280,8 @@ app.put('/api/v1/reorderRecordedEvents', reorderRecordedEvents);
 app.post('/api/v1/code/save', saveFile);
 
 app.post('/api/v1/code/runTest', runTest);
+
+app.get('/api/v1/code/spec', getTestSpecCode);
 
 // Router for /api/v1/recordedLogs GET method
 app.get('/api/v1/recordedLogs', getRecordedLogs);

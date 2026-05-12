@@ -718,7 +718,7 @@ const getCompareRankMockToRequest = (mock, req) => {
     );
 
     if (result > 0 && !incomingHeadersMatchMock(mock, req.headers)) {
-      result = 0;
+      result = result / 4;
     }
 
     logger.debug('Mock to request comparison result', {

@@ -3,7 +3,23 @@ const path = require('path');
 const {
   getAbsolutePathWithMockDir,
   getParentFolder,
+  nameToFolder,
 } = require('../utils/MockUtils');
+
+function findPlaywrightSpecInTree(dir, specBaseName) {
+  if (!fs.existsSync(dir)) return null;
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const found = findPlaywrightSpecInTree(fullPath, specBaseName);
+      if (found) return found;
+    } else if (entry.name === specBaseName) {
+      return fullPath;
+    }
+  }
+  return null;
+}
 
 /**
  * Resolves a path under PLAYWRIGHT_DIR/tests using only the basename of fileName
@@ -183,7 +199,66 @@ const runTest = async (req, res) => {
   }
 };
 
+// GET /api/v1/code/spec?name=...
+// Reads `${nameToFolder(name).toLowerCase()}.spec.js` from PLAYWRIGHT_DIR/tests (recursive).
+const getTestSpecCode = async (req, res) => {
+  try {
+    let rawName = req.query.name;
+    if (Array.isArray(rawName)) {
+      rawName = rawName[0];
+    }
+    let testName =
+      typeof rawName === 'string' ? rawName.trim() : '';
+    if (!testName) {
+      return res
+        .status(400)
+        .json({ error: 'Missing or invalid query parameter: name' });
+    }
+    try {
+      testName = decodeURIComponent(testName);
+    } catch {
+      /* use trimmed literal */
+    }
+
+    const pwDir = process.env.PLAYWRIGHT_DIR || '';
+    if (!pwDir) {
+      return res.status(503).json({
+        error:
+          'PLAYWRIGHT_DIR is not configured; cannot resolve Playwright spec path',
+      });
+    }
+
+    const absolutePlaywrightDir = getAbsolutePathWithMockDir(pwDir);
+    const testsRoot = path.join(absolutePlaywrightDir, 'tests');
+    const specBaseName = `${nameToFolder(testName).toLowerCase()}.spec.js`;
+
+    const filePath = findPlaywrightSpecInTree(testsRoot, specBaseName);
+    if (!filePath || !fs.existsSync(filePath)) {
+      return res.status(404).json({
+        error: 'Playwright spec not found',
+        specFileName: specBaseName,
+        testsRoot,
+      });
+    }
+
+    const content = fs.readFileSync(filePath, 'utf8');
+    res.status(200).json({
+      fileName: specBaseName,
+      filePath,
+      relativePath: path.relative(absolutePlaywrightDir, filePath),
+      content,
+    });
+  } catch (error) {
+    console.error('Error reading Playwright spec:', error);
+    res.status(500).json({
+      error: 'Failed to read Playwright spec',
+      details: error.message,
+    });
+  }
+};
+
 module.exports = {
   saveFile,
   runTest,
+  getTestSpecCode,
 };
