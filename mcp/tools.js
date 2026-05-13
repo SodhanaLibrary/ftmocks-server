@@ -105,29 +105,10 @@ function registerFtMocksTools(mcpServer) {
   );
 
   mcpServer.registerTool(
-    'ftmocks_duplicate_test',
-    {
-      description: 'POST /api/v1/tests/:id/duplicate?name=',
-      inputSchema: { id: z.string().min(1), name: z.string().min(1) },
-    },
-    async ({ id, name }) => {
-      const out = await fetchJson(
-        'POST',
-        `/api/v1/tests/${encodeURIComponent(id)}/duplicate`,
-        {
-          query: { name },
-        }
-      );
-      if (out.error) return out.error;
-      return handleApiResponse(out.res, `POST ${out.url}`);
-    }
-  );
-
-  mcpServer.registerTool(
     'ftmocks_record_playwright_mocks',
     {
       description:
-        'POST /api/v1/record/playwright/mocks — Playwright codegen with network mock recording (same body as record/mocks: url, patterns, testName, mock server flags, recordEvents, parents, etc.). Response includes testFilePath (absolute path to the generated .spec.js, or null if none).',
+        'POST /api/v1/record/playwright/mocks — Playwright codegen with network mock recording (same body as record/mocks: url, patterns, testName, mock server flags, recordEvents, optional parents, optional testCases+selectedTest to derive parents when parents omitted, etc.). Response includes testFilePath (absolute path to the generated .spec.js, or null if none).',
       inputSchema: {
         url: z.string(),
         patterns: z.array(z.string()),
@@ -137,7 +118,23 @@ function registerFtMocksTools(mcpServer) {
         recordEvents: z.boolean(),
         testName: z.string().min(1),
         avoidDuplicatesInTheTest: z.boolean(),
-        parents: z.array(z.string()),
+        parents: z.array(z.string()).optional(),
+        testCases: z
+          .array(
+            z.object({
+              id: z.union([z.string(), z.number()]),
+              parentId: z.union([z.string(), z.number(), z.null()]).optional(),
+              name: z.string(),
+            })
+          )
+          .optional(),
+        selectedTest: z
+          .object({
+            id: z.union([z.string(), z.number()]).optional(),
+            parentId: z.union([z.string(), z.number(), z.null()]).optional(),
+            name: z.string().optional(),
+          })
+          .optional(),
       },
     },
     async (body) => {

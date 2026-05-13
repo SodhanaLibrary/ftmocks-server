@@ -7,6 +7,7 @@ const {
   nameToFolder,
   getAbsolutePathWithMockDir,
   getParentFolder,
+  getParentNamesFromTestTree,
 } = require('./utils/MockUtils');
 const { addUrlToProject } = require('./utils/projectUtils');
 const {
@@ -211,9 +212,16 @@ function logCodegenOutputFile(outputPath, body = {}) {
     if (testName) {
       const saveFileName = `${nameToFolder(testName).toLowerCase()}.spec.js`;
       const baseSaveDir = resolveCodegenSaveDir(body, outputPath);
+      let parentsList = body.parents;
+      if (!parentsList || parentsList.length === 0) {
+        parentsList = getParentNamesFromTestTree(
+          body.testCases,
+          body.selectedTest
+        );
+      }
       const parentRel =
-        body.parents && body.parents.length
-          ? getParentFolder(body.parents)
+        parentsList && parentsList.length
+          ? getParentFolder(parentsList)
           : '';
       const saveDir = parentRel
         ? path.join(baseSaveDir, parentRel)
@@ -317,7 +325,8 @@ function waitForCodegenSessionEnd(context, browser) {
  *   - codegenMockDir / mockDir (default ./ftmocks or RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR)
  *   - codegenFallbackDir / fallbackDir (default public or RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR)
  *   - codegenSaveDir: directory for `${nameToFolder(testName).toLowerCase()}.spec.js` (default: PLAYWRIGHT_DIR/tests if set, else Playwright output dirname)
- *   - parents: optional string[] (same as POST /api/v1/code/save) — nested folders under codegen save dir for the final .spec.js
+ *   - parents: optional string[] (same as POST /api/v1/code/save) — nested folders under codegen save dir for the final .spec.js; if null/empty, derived from testCases + selectedTest (same walk as RecordMockOrTest.getParentFolder)
+ *   - testCases, selectedTest: optional — used to derive parents when parents is omitted ({ id, parentId?, name } entries)
  *   - codegenStripInitialGoto: if true, remove the first `await page.goto(...)` after injecting initiatePlaywrightRoutes (default false — goto is kept)
  * @returns {Promise<{ testFilePath: string | null }>} Absolute path to the final .spec.js when one was written; otherwise null.
  */

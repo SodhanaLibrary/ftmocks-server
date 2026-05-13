@@ -918,6 +918,28 @@ function createIdMap(arr) {
   }, {});
 }
 
+/**
+ * Walk selectedTest.parentId through testCases (same order as ftmocks-tool RecordMockOrTest.getParentFolder).
+ * @param {Array<{id: unknown, parentId?: unknown, name: string}>} testCases
+ * @param {{ parentId?: unknown }} selectedTest
+ * @returns {string[]}
+ */
+function getParentNamesFromTestTree(testCases, selectedTest) {
+  if (!Array.isArray(testCases) || !selectedTest) return [];
+  const parents = [];
+  let currentParentId = selectedTest.parentId;
+  while (currentParentId) {
+    const parentIdForLookup = currentParentId;
+    const parentFolder = testCases.find(
+      (testCase) => testCase.id === parentIdForLookup
+    );
+    if (!parentFolder) break;
+    parents.push(parentFolder.name);
+    currentParentId = parentFolder.parentId;
+  }
+  return parents;
+}
+
 const getParentFolder = (parents) => {
   if (!parents || parents.length === 0) {
     return '';
@@ -949,4 +971,5 @@ module.exports = {
   getCompareRankMockToRequest,
   createIdMap,
   getParentFolder,
+  getParentNamesFromTestTree,
 };
