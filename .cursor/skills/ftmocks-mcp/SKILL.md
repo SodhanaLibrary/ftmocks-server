@@ -14,13 +14,17 @@ disable-model-invocation: true
 
 Use MCP **tools** (prefix `ftmocks_`) registered by `mcp/tools.js` to call the same REST API as `server.js`. Do not invent URLs; map user intent to an existing tool name and arguments.
 
-**Hard prerequisite:** `ftmocks-server` must be running (`npm start <envfile>` or equivalent) and reachable at the base URL configured for the MCP process.
+**Setup tools** (`ftmocks_init`, `ftmocks_init_playwright`) run locally and mirror `npx ftmocks init` / `init-playwright`. Pass **`project_dir`** (absolute workspace root) so files are created in the user’s repo, not the MCP server’s cwd. These do **not** require FtMocks HTTP to be running.
+
+**Hard prerequisite (API tools only):** `ftmocks-server` must be running (`npm start <envfile>` or equivalent) and reachable at the base URL configured for the MCP process.
 
 ## Switch project before other tools
 
 The FtMocks API keeps **one active project** in process (mock dir, ports, paths from that env). Before calling **any** other `ftmocks_*` tool that should apply to a specific repo or `ftmocks.env`, **first** call **`ftmocks_switch_project`** with **`{ "env_file": "<absolute path to that ftmocks.env>" }`**. Resolve the path from the user, open workspace, or `ftmocks_get_projects` if you need to list known env files.
 
 Do this **before** `get_tests`, creating tests, mock CRUD, uploads, code run, mock server start/stop, etc. The only exceptions are tools that are intentionally global (e.g. listing projects) and you are not about to act on a particular project’s data.
+
+To add an env file to `projects.json` without loading it: **`ftmocks_create_project`** with **`{ "project": "<path to ftmocks.env>" }`** (POST body field name is `project`, not `env_file`).
 
 ## Configure the MCP client
 
@@ -30,7 +34,9 @@ Do this **before** `get_tests`, creating tests, mock CRUD, uploads, code run, mo
 
 ## Agent workflow (recommended)
 
-1. Confirm FtMocks is up (or tell the user to start it) before calling tools.
+**New project with Playwright:** call `ftmocks_init_playwright` with `project_dir` set to the workspace root, then start `ftmocks-server` and use API tools as needed.
+
+1. Confirm FtMocks is up (or tell the user to start it) before calling **API** tools.
 2. **Discover state:** `ftmocks_get_tests` (and optionally `ftmocks_get_tests_summary`) before creating or moving items.
 3. **Create a folder or test:** `ftmocks_create_test` — use `type: "folder"` for folders; other types create a test with a mock directory under `MOCK_DIR`.
 4. **Mocks:** many routes need **both** `id` (path, UUID from tests list) **and** `name` (query, exact display name). Wrong or missing `name` breaks mock routes.

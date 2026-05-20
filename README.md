@@ -134,7 +134,18 @@ Adjust paths and port to match your setup:
 
 ### Tools overview
 
-Tools are registered in `mcp/tools.js` and named with an `ftmocks_` prefix. Each tool corresponds to one or more `/api/v1/…` routes, including:
+Tools are registered in `mcp/tools.js` and named with an `ftmocks_` prefix.
+
+**Local setup (no running server required):**
+
+| Tool | CLI equivalent |
+|------|----------------|
+| `ftmocks_init` | `npx ftmocks init` |
+| `ftmocks_init_playwright` | `npx ftmocks init-playwright` |
+
+Optional argument `project_dir` (absolute path) sets where `ftmocks/` and `playwright/` are created; defaults to the MCP process working directory.
+
+**HTTP API** — each tool below corresponds to one or more `/api/v1/…` routes, including:
 
 | Area | Examples |
 |------|-----------|
@@ -157,7 +168,8 @@ The built-in **FtMocks request logger** (`/api/v1/logs` via `LogRoutes`) and **r
 | File | Role |
 |------|------|
 | `mcp/index.js` | MCP stdio entry; wires `registerFtMocksTools` |
-| `mcp/tools.js` | Tool definitions and HTTP mapping |
+| `mcp/tools.js` | Tool definitions (HTTP mapping + setup tools) |
+| `mcp/init.js` | `init` / `init-playwright` scaffolding |
 | `mcp/http.js` | Shared `fetch`, multipart/base64 helpers, response formatting |
 
 ## About ftmocks-utils

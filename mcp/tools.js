@@ -1,12 +1,69 @@
 /**
- * Registers MCP tools that mirror ftmocks-server HTTP routes (server.js).
+ * Registers MCP tools: HTTP API wrappers (server.js) and local project setup (npx ftmocks).
  */
 const { z } = require('zod');
 const { handleApiResponse, fetchJson } = require('./http.js');
+const {
+  resolveProjectRoot,
+  init,
+  initPlaywright,
+  formatResult,
+  formatError,
+} = require('./init.js');
 
 const emptySchema = z.object({});
 
+const projectDirSchema = {
+  project_dir: z
+    .string()
+    .optional()
+    .describe(
+      'Absolute path to the project root where ftmocks/ and playwright/ are created. Defaults to the MCP process cwd.'
+    ),
+};
+
+function registerFtMocksSetupTools(mcpServer) {
+  mcpServer.registerTool(
+    'ftmocks_init',
+    {
+      description:
+        'Initialize an FtMocks project (ftmocks/, ftmocks.env, defaultMocks/). Same as `npx ftmocks init`. Does not require ftmocks-server to be running.',
+      inputSchema: projectDirSchema,
+    },
+    async ({ project_dir }) => {
+      const log = [];
+      try {
+        const root = resolveProjectRoot(project_dir);
+        const { envPath, ftmocksDir } = init(root, log);
+        return formatResult(log, { project_dir: root, ftmocksDir, envPath });
+      } catch (err) {
+        return formatError(err);
+      }
+    }
+  );
+
+  mcpServer.registerTool(
+    'ftmocks_init_playwright',
+    {
+      description:
+        'Initialize FtMocks plus a Playwright project (chromium, ftmocks-utils, pixelmatch, pngjs). Same as `npx ftmocks init-playwright`. Does not require ftmocks-server to be running.',
+      inputSchema: projectDirSchema,
+    },
+    async ({ project_dir }) => {
+      const log = [];
+      try {
+        const root = resolveProjectRoot(project_dir);
+        const { envPath, playwrightDir } = initPlaywright(root, log);
+        return formatResult(log, { project_dir: root, envPath, playwrightDir });
+      } catch (err) {
+        return formatError(err);
+      }
+    }
+  );
+}
+
 function registerFtMocksTools(mcpServer) {
+  registerFtMocksSetupTools(mcpServer);
   mcpServer.registerTool(
     'ftmocks_switch_project',
     {
@@ -29,6 +86,22 @@ function registerFtMocksTools(mcpServer) {
       const out = await fetchJson('GET', '/api/v1/projects');
       if (out.error) return out.error;
       return handleApiResponse(out.res, `GET ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
+    'ftmocks_create_project',
+    {
+      description:
+        'POST /api/v1/projects — add a project to projects.json. Body { project } is the path to the ftmocks.env file.',
+      inputSchema: { project: z.string().min(1) },
+    },
+    async ({ project }) => {
+      const out = await fetchJson('POST', '/api/v1/projects', {
+        body: { project },
+      });
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `POST ${out.url}`);
     }
   );
 
@@ -147,4 +220,4 @@ function registerFtMocksTools(mcpServer) {
   );
 }
 
-module.exports = { registerFtMocksTools };
+module.exports = { registerFtMocksTools, registerFtMocksSetupTools };
