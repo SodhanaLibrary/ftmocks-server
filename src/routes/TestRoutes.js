@@ -830,7 +830,7 @@ const updateTestMocks = async (req, res) => {
     const newMockSummary = updatedMocks.map((mock) => ({
       fileName: `mock_${mock.id}.json`,
       method: mock.method,
-      postData: mock.request.postData,
+      postData: mock.request?.postData ?? null,
       url: mock.url,
       id: mock.id,
     }));

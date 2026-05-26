@@ -178,6 +178,104 @@ function registerFtMocksTools(mcpServer) {
   );
 
   mcpServer.registerTool(
+    'ftmocks_create_mock_data',
+    {
+      description:
+        'POST /api/v1/tests/:id/mockdata?name=… — add one mock to a test. Requires test id (path) and exact display name (query). Body is a single mock object (url, method, request, response, etc.); server assigns id.',
+      inputSchema: {
+        id: z.string().min(1).describe('Test id from ftmocks_get_tests'),
+        name: z
+          .string()
+          .min(1)
+          .describe('Exact test display name (query param)'),
+        mockData: z
+          .object({
+            url: z.string().min(1),
+            method: z.string().min(1),
+            request: z
+              .object({
+                headers: z.record(z.string()).optional(),
+                queryString: z.array(z.unknown()).optional(),
+                postData: z.unknown().nullable().optional(),
+              })
+              .passthrough(),
+            response: z
+              .object({
+                status: z.number().optional(),
+                headers: z.record(z.string()).optional(),
+                content: z.string().optional(),
+                file: z.union([z.boolean(), z.string()]).optional(),
+              })
+              .passthrough(),
+            time: z.string().optional(),
+            served: z.boolean().optional(),
+            ignoreParams: z.array(z.string()).optional(),
+            isDuplicate: z.boolean().optional(),
+            waitForPrevious: z.boolean().optional(),
+          })
+          .passthrough(),
+      },
+    },
+    async ({ id, name, mockData }) => {
+      const out = await fetchJson(
+        'POST',
+        `/api/v1/tests/${encodeURIComponent(id)}/mockdata`,
+        { query: { name }, body: mockData }
+      );
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `POST ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
+    'ftmocks_start_mock_server',
+    {
+      description:
+        'POST /api/v1/mockServer — start the auxiliary mock HTTP server for a test. Body { testName, port }. Use exact test display name from ftmocks_get_tests.',
+      inputSchema: {
+        testName: z
+          .string()
+          .min(1)
+          .describe('Exact test display name to serve mocks for'),
+        port: z
+          .number()
+          .int()
+          .positive()
+          .describe('TCP port for the mock server (e.g. 6080)'),
+      },
+    },
+    async ({ testName, port }) => {
+      const out = await fetchJson('POST', '/api/v1/mockServer', {
+        body: { testName, port },
+      });
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `POST ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
+    'ftmocks_stop_mock_server',
+    {
+      description:
+        'DELETE /api/v1/mockServer — stop the auxiliary mock HTTP server on the given port. Body { port }.',
+      inputSchema: {
+        port: z
+          .number()
+          .int()
+          .positive()
+          .describe('TCP port of the running mock server (e.g. 6080)'),
+      },
+    },
+    async ({ port }) => {
+      const out = await fetchJson('DELETE', '/api/v1/mockServer', {
+        body: { port },
+      });
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `DELETE ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
     'ftmocks_record_playwright_mocks',
     {
       description:

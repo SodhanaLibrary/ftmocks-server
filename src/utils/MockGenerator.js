@@ -38,6 +38,23 @@ function extractFileName(filePath) {
   return baseName;
 }
 
+function getPostDataFromMockBody(body) {
+  return body?.request?.postData ?? null;
+}
+
+function ensureMockRequestShape(body) {
+  if (!body.request) {
+    body.request = {
+      headers: {},
+      queryString: [],
+      postData: null,
+    };
+  } else if (body.request.postData === undefined) {
+    body.request.postData = null;
+  }
+  return body;
+}
+
 function processHAR(
   harFilePath,
   outputFolder,
@@ -319,6 +336,8 @@ function processHAR(
 
 function createMockFromUserInputForDefaultMocks(body) {
   try {
+    ensureMockRequestShape(body);
+
     logger.info('Creating mock from user input for default mocks', {
       url: body.url,
       method: body.method,
@@ -365,7 +384,7 @@ function createMockFromUserInputForDefaultMocks(body) {
     const responseSummaryRecord = {
       fileName: `mock_${mockId}.json`,
       method: body.method,
-      postData: body.request.postData,
+      postData: getPostDataFromMockBody(body),
       url: body.url,
       id: mockId,
     };
@@ -408,6 +427,8 @@ function createMockFromUserInputForDefaultMocks(body) {
 
 async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
   try {
+    ensureMockRequestShape(body);
+
     logger.info('Creating mock from user input for test', {
       testName: testName || 'default',
       url: body.url,
@@ -483,7 +504,7 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
       const responseSummaryRecord = {
         fileName: `mock_${mockId}.json`,
         method: body.method,
-        postData: body.request.postData,
+        postData: getPostDataFromMockBody(body),
         url: body.url,
         id: mockId,
       };
