@@ -316,11 +316,9 @@ function waitForCodegenSessionEnd(context, browser) {
 }
 
 /**
- * Run Playwright codegen (inspector) on a context that also records network mocks
- * the same way as POST /api/v1/record/mocks.
+ * Run Playwright codegen (inspector) with optional network mock and event recording.
  *
- * The same request body as POST /api/v1/record/mocks (e.g. recordEvents) applies.
- * @param {object} body — request body (url, testName, patterns, mock options, recordEvents default true, optional codegen options).
+ * @param {object} body — request body (url, testName, patterns, mock options, optional codegen options).
  *   Codegen file is rewritten for ftmocks unless body.transformCodegen === false:
  *   - codegenMockDir / mockDir (default ./ftmocks or RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR)
  *   - codegenFallbackDir / fallbackDir (default public or RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR)
@@ -328,9 +326,15 @@ function waitForCodegenSessionEnd(context, browser) {
  *   - parents: optional string[] (same as POST /api/v1/code/save) — nested folders under codegen save dir for the final .spec.js; if null/empty, derived from testCases + selectedTest (same walk as RecordMockOrTest.getParentFolder)
  *   - testCases, selectedTest: optional — used to derive parents when parents is omitted ({ id, parentId?, name } entries)
  *   - codegenStripInitialGoto: if true, remove the first `await page.goto(...)` after injecting initiatePlaywrightRoutes (default false — goto is kept)
+ * @param {{ recordMocks?: boolean, recordEvents?: boolean }} [options]
  * @returns {Promise<{ testFilePath: string | null }>} Absolute path to the final .spec.js when one was written; otherwise null.
  */
-async function runPlaywrightCodegenWithMocks(body) {
+async function runPlaywrightCodegen(body, options = {}) {
+  const recordMocks = options.recordMocks === true;
+  const recordEvents =
+    options.recordEvents !== undefined
+      ? options.recordEvents
+      : body.recordEvents !== false;
   let testFilePath = null;
   const url = body.url || '';
   const testName = body.testName;
@@ -349,8 +353,10 @@ async function runPlaywrightCodegenWithMocks(body) {
     fs.mkdirSync(tracesDir, { recursive: true });
   }
 
-  process.env.recordTest = testName;
-  process.env.recordMocks = testName;
+  if (recordMocks) {
+    process.env.recordTest = testName;
+    process.env.recordMocks = testName;
+  }
   addUrlToProject({ url, patterns });
 
   const launchOptions = {
@@ -379,12 +385,14 @@ async function runPlaywrightCodegenWithMocks(body) {
     context.setDefaultTimeout(timeout);
     context.setDefaultNavigationTimeout(timeout);
 
-    await attachNetworkMockRecording(context, {
-      testName,
-      patterns,
-      avoidDuplicatesInTheTest: body.avoidDuplicatesInTheTest,
-      avoidDuplicatesWithDefaultMocks: body.avoidDuplicatesWithDefaultMocks,
-    });
+    if (recordMocks) {
+      await attachNetworkMockRecording(context, {
+        testName,
+        patterns,
+        avoidDuplicatesInTheTest: body.avoidDuplicatesInTheTest,
+        avoidDuplicatesWithDefaultMocks: body.avoidDuplicatesWithDefaultMocks,
+      });
+    }
 
     const launchOptionsForRecorder = { headless: false, tracesDir };
     const contextOptionsForRecorder = { ...contextOptions };
@@ -409,7 +417,7 @@ async function runPlaywrightCodegenWithMocks(body) {
 
     const targetUrl = normalizeCodegenUrl(url);
 
-    if (body.recordEvents !== false) {
+    if (recordEvents) {
       logger.info('Playwright codegen: event recording enabled');
       await injectEventRecordingScript(page, targetUrl || url || '', {
         recordEvents: true,
@@ -425,8 +433,10 @@ async function runPlaywrightCodegenWithMocks(body) {
 
     await waitForCodegenSessionEnd(context, browser);
   } finally {
-    process.env.recordMocks = null;
-    process.env.recordTest = null;
+    if (recordMocks) {
+      process.env.recordMocks = null;
+      process.env.recordTest = null;
+    }
     if (browser.isConnected()) {
       await browser.close().catch(() => {});
     }
@@ -436,7 +446,19 @@ async function runPlaywrightCodegenWithMocks(body) {
   return { testFilePath };
 }
 
+/**
+ * Run Playwright codegen with network mock and event recording (POST /api/v1/record/playwright/mocks).
+ * Same request body as POST /api/v1/record/mocks (recordEvents defaults true).
+ */
+async function runPlaywrightCodegenWithMocks(body) {
+  return runPlaywrightCodegen(body, {
+    recordMocks: true,
+    recordEvents: body.recordEvents !== false,
+  });
+}
+
 module.exports = {
+  runPlaywrightCodegen,
   runPlaywrightCodegenWithMocks,
   transformPlaywrightCodegenForFtmocks,
 };

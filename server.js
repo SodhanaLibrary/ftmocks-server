@@ -95,8 +95,10 @@ const {
 } = require('./src/routes/ApiSpecRoutes.js');
 const logger = require('./src/utils/Logger');
 const logRoutes = require('./src/routes/LogRoutes');
-const { exec } = require('child_process');
-const { runPlaywrightCodegenWithMocks } = require('./src/playwrightCodegenWithMocks');
+const {
+  runPlaywrightCodegen,
+  runPlaywrightCodegenWithMocks,
+} = require('./src/playwrightCodegenWithMocks');
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -553,10 +555,9 @@ app.get('/api/v1/record/status', async (req, res) => {
   }
 });
 
+// Playwright codegen without network mock or event recording (same body/options as /playwright/mocks)
 app.post('/api/v1/record/playwright', async (req, res) => {
   try {
-    const { url = '' } = req.body;
-
     try {
       if (browser) {
         console.log('Browser session is already running. closing now');
@@ -588,18 +589,14 @@ app.post('/api/v1/record/playwright', async (req, res) => {
       );
     }
 
-    const command = `npx playwright codegen ${url}`;
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing playwright codegen: ${error}`);
-        return res.status(500).send({
-          error: 'Failed to execute playwright codegen',
-        });
-      }
-      return res.send({
-        status: 'success',
-        message: 'Playwright codegen started successfully',
-      });
+    const { testFilePath } = await runPlaywrightCodegen(req.body, {
+      recordMocks: false,
+      recordEvents: false,
+    });
+    return res.send({
+      status: 'success',
+      message: 'Playwright codegen finished',
+      testFilePath,
     });
   } catch (err) {
     console.error('Error in /api/v1/record/playwright:', err);

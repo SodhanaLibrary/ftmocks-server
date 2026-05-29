@@ -275,38 +275,56 @@ function registerFtMocksTools(mcpServer) {
     }
   );
 
+  const playwrightCodegenInputSchema = {
+    url: z.string(),
+    patterns: z.array(z.string()),
+    avoidDuplicatesWithDefaultMocks: z.boolean(),
+    stopMockServer: z.boolean(),
+    startMockServer: z.boolean(),
+    recordEvents: z.boolean(),
+    testName: z.string().min(1),
+    avoidDuplicatesInTheTest: z.boolean(),
+    parents: z.array(z.string()).optional(),
+    testCases: z
+      .array(
+        z.object({
+          id: z.union([z.string(), z.number()]),
+          parentId: z.union([z.string(), z.number(), z.null()]).optional(),
+          name: z.string(),
+        })
+      )
+      .optional(),
+    selectedTest: z
+      .object({
+        id: z.union([z.string(), z.number()]).optional(),
+        parentId: z.union([z.string(), z.number(), z.null()]).optional(),
+        name: z.string().optional(),
+      })
+      .optional(),
+  };
+
+  mcpServer.registerTool(
+    'ftmocks_record_playwright',
+    {
+      description:
+        'POST /api/v1/record/playwright — Playwright codegen without network mock or event recording (same body and codegen options as record/playwright/mocks: url, patterns, testName, mock server flags, optional parents, optional testCases+selectedTest, etc.). Response includes testFilePath (absolute path to the generated .spec.js, or null if none).',
+      inputSchema: playwrightCodegenInputSchema,
+    },
+    async (body) => {
+      const out = await fetchJson('POST', '/api/v1/record/playwright', {
+        body,
+      });
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `POST ${out.url}`);
+    }
+  );
+
   mcpServer.registerTool(
     'ftmocks_record_playwright_mocks',
     {
       description:
         'POST /api/v1/record/playwright/mocks — Playwright codegen with network mock recording (same body as record/mocks: url, patterns, testName, mock server flags, recordEvents, optional parents, optional testCases+selectedTest to derive parents when parents omitted, etc.). Response includes testFilePath (absolute path to the generated .spec.js, or null if none).',
-      inputSchema: {
-        url: z.string(),
-        patterns: z.array(z.string()),
-        avoidDuplicatesWithDefaultMocks: z.boolean(),
-        stopMockServer: z.boolean(),
-        startMockServer: z.boolean(),
-        recordEvents: z.boolean(),
-        testName: z.string().min(1),
-        avoidDuplicatesInTheTest: z.boolean(),
-        parents: z.array(z.string()).optional(),
-        testCases: z
-          .array(
-            z.object({
-              id: z.union([z.string(), z.number()]),
-              parentId: z.union([z.string(), z.number(), z.null()]).optional(),
-              name: z.string(),
-            })
-          )
-          .optional(),
-        selectedTest: z
-          .object({
-            id: z.union([z.string(), z.number()]).optional(),
-            parentId: z.union([z.string(), z.number(), z.null()]).optional(),
-            name: z.string().optional(),
-          })
-          .optional(),
-      },
+      inputSchema: playwrightCodegenInputSchema,
     },
     async (body) => {
       const out = await fetchJson('POST', '/api/v1/record/playwright/mocks', {
