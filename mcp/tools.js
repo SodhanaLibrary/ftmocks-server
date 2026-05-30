@@ -116,6 +116,48 @@ function registerFtMocksTools(mcpServer) {
   );
 
   mcpServer.registerTool(
+    'ftmocks_get_mock_summary',
+    {
+      description:
+        'GET /api/v1/tests/:id/mockSummary — read _mock_list.json for a test (id, url, method, time per mock; not full mock payloads). Use test id from ftmocks_get_tests.',
+      inputSchema: {
+        id: z.string().min(1).describe('Test id from ftmocks_get_tests'),
+      },
+    },
+    async ({ id }) => {
+      const out = await fetchJson(
+        'GET',
+        `/api/v1/tests/${encodeURIComponent(id)}/mockSummary`
+      );
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `GET ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
+    'ftmocks_get_mock_data',
+    {
+      description:
+        'GET /api/v1/tests/:id/mockdata/:mockId — full mock payload (url, method, request, response, etc.) for one mock. Use test id from ftmocks_get_tests and mock id from ftmocks_get_mock_summary.',
+      inputSchema: {
+        id: z.string().min(1).describe('Test id from ftmocks_get_tests'),
+        mockId: z
+          .string()
+          .min(1)
+          .describe('Mock id from ftmocks_get_mock_summary'),
+      },
+    },
+    async ({ id, mockId }) => {
+      const out = await fetchJson(
+        'GET',
+        `/api/v1/tests/${encodeURIComponent(id)}/mockdata/${encodeURIComponent(mockId)}`
+      );
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `GET ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
     'ftmocks_create_test',
     {
       description: 'POST /api/v1/tests',

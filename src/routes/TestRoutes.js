@@ -441,6 +441,56 @@ const getMockDataForTest = async (req, res) => {
   }
 };
 
+const getMockSummaryForTest = async (req, res) => {
+  const testId = req.params.id;
+  const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+
+  try {
+    logger.info('Getting mock summary for test', { testId });
+
+    const testsData = fs.readFileSync(testsPath, 'utf8');
+    const tests = JSON.parse(testsData);
+    const test = tests.find((t) => t.id === testId);
+
+    if (!test) {
+      logger.warn('Test not found for mock summary', { testId });
+      return res.status(404).json({ error: 'Test not found' });
+    }
+
+    const mockListFilePath = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(test.name)}`,
+      '_mock_list.json'
+    );
+
+    if (!fs.existsSync(mockListFilePath)) {
+      logger.warn('Mock list file not found', {
+        testId,
+        testName: test.name,
+        mockListFilePath,
+      });
+      return res.status(200).json([]);
+    }
+
+    const mockList = JSON.parse(fs.readFileSync(mockListFilePath, 'utf8'));
+
+    logger.info('Successfully retrieved mock summary for test', {
+      testId,
+      testName: test.name,
+      mockCount: mockList.length,
+    });
+
+    res.status(200).json(mockList);
+  } catch (error) {
+    logger.error('Error reading mock summary', {
+      testId,
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Failed to retrieve mock summary' });
+  }
+};
+
 const createMockDataForTest = async (req, res) => {
   const testName = req.query.name;
   const mockData = req.body;
@@ -743,6 +793,53 @@ const updateMockVariants = async (req, res) => {
       error: error.message,
     });
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const getMockDataByIdForTest = async (req, res) => {
+  const testId = req.params.id;
+  const mockId = req.params.mockId;
+
+  try {
+    logger.info('Getting mock data by id for test', { testId, mockId });
+
+    const testsPath = path.join(process.env.MOCK_DIR, 'tests.json');
+    const tests = JSON.parse(fs.readFileSync(testsPath, 'utf8'));
+    const test = tests.find((t) => t.id === testId);
+
+    if (!test) {
+      logger.warn('Test not found', { testId });
+      return res.status(404).json({ error: 'Test not found' });
+    }
+
+    const mockFilePath = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(test.name)}`,
+      `mock_${mockId}.json`
+    );
+
+    if (!fs.existsSync(mockFilePath)) {
+      logger.warn('Mock file not found', { testId, mockId, mockFilePath });
+      return res.status(404).json({ error: 'Mock not found' });
+    }
+
+    const mockData = JSON.parse(fs.readFileSync(mockFilePath, 'utf8'));
+
+    logger.info('Successfully retrieved mock data by id', {
+      testId,
+      testName: test.name,
+      mockId,
+    });
+
+    res.status(200).json(mockData);
+  } catch (error) {
+    logger.error('Error reading mock data by id', {
+      testId,
+      mockId,
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Failed to retrieve mock data' });
   }
 };
 
@@ -1272,6 +1369,8 @@ module.exports = {
   createTest,
   updateTestMocks,
   getMockDataForTest,
+  getMockDataByIdForTest,
+  getMockSummaryForTest,
   createMockDataForTest,
   deleteMockDataForTest,
   createHarMockDataForTest,

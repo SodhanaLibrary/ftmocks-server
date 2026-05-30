@@ -16,6 +16,8 @@ const {
   updateTest,
   createTest,
   getMockDataForTest,
+  getMockDataByIdForTest,
+  getMockSummaryForTest,
   getMockVariants,
   createMockVariants,
   updateMockVariants,
@@ -168,6 +170,9 @@ app.post('/api/v1/tests/:id/duplicate', duplicateTest);
 // Router for /api/v1/tests/:id/mockdata GET method
 app.get('/api/v1/tests/:id/mockdata', getMockDataForTest);
 
+// Router for /api/v1/tests/:id/mockSummary GET method
+app.get('/api/v1/tests/:id/mockSummary', getMockSummaryForTest);
+
 // Router for /api/v1/tests/:id/mockdata POST method
 app.post('/api/v1/tests/:id/mockdata', createMockDataForTest);
 
@@ -204,6 +209,9 @@ app.post(
   upload.single('traceFile'),
   uploadDefaultPlaywrightMocks
 );
+
+// Router for /api/v1/tests/:id/mockdata/:mockId GET method
+app.get('/api/v1/tests/:id/mockdata/:mockId', getMockDataByIdForTest);
 
 // Router for /api/v1/tests/:id/mockdata/:mockId DELETE method
 app.delete('/api/v1/tests/:id/mockdata/:mockId', deleteMockDataForTest);
