@@ -2,7 +2,7 @@
  * Registers MCP tools: HTTP API wrappers (server.js) and local project setup (npx ftmocks).
  */
 const { z } = require('zod');
-const { handleApiResponse, fetchJson } = require('./http.js');
+const { handleApiResponse, fetchJson, fetchMultipart } = require('./http.js');
 const {
   resolveProjectRoot,
   init,
@@ -216,6 +216,77 @@ function registerFtMocksTools(mcpServer) {
       );
       if (out.error) return out.error;
       return handleApiResponse(out.res, `PUT ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
+    'ftmocks_upload_har_mockdata',
+    {
+      description:
+        'POST /api/v1/tests/:id/harMockdata — upload a HAR file and generate mock data for a test. Multipart fields: testName, avoidDuplicates, harFile. Updates the test mockFile in tests.json.',
+      inputSchema: {
+        id: z.string().min(1).describe('Test id from ftmocks_get_tests'),
+        testName: z
+          .string()
+          .min(1)
+          .describe(
+            'Folder/name for generated mocks (server uses nameToFolder on this value)'
+          ),
+        avoidDuplicates: z
+          .boolean()
+          .optional()
+          .describe('Skip duplicate URLs when processing HAR (default true)'),
+        harFilePath: z
+          .string()
+          .min(1)
+          .optional()
+          .describe('Absolute path to a .har file on disk'),
+        harFileBase64: z
+          .string()
+          .min(1)
+          .optional()
+          .describe('Base64-encoded HAR content (use when file is not on disk)'),
+        harFileName: z
+          .string()
+          .min(1)
+          .optional()
+          .describe(
+            'Original filename for the HAR upload (required with harFileBase64; optional with harFilePath)'
+          ),
+      },
+    },
+    async ({
+      id,
+      testName,
+      avoidDuplicates = true,
+      harFilePath,
+      harFileBase64,
+      harFileName,
+    }) => {
+      if (!harFilePath && !harFileBase64) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: 'Provide harFilePath or harFileBase64 (with harFileName).',
+            },
+          ],
+          isError: true,
+        };
+      }
+      const out = await fetchMultipart(
+        'POST',
+        `/api/v1/tests/${encodeURIComponent(id)}/harMockdata`,
+        {
+          fields: { testName, avoidDuplicates },
+          fileField: 'harFile',
+          filePath: harFilePath,
+          fileBase64: harFileBase64,
+          fileName: harFileName,
+        }
+      );
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `POST ${out.url}`);
     }
   );
 

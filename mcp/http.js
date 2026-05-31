@@ -1,3 +1,6 @@
+const fs = require('fs');
+const pathMod = require('path');
+
 function getBaseUrl() {
   const raw =
     process.env.FTMOCKS_API_BASE_URL ||
@@ -81,7 +84,11 @@ async function fetchJson(method, path, { query, body } = {}) {
   }
 }
 
-async function fetchMultipart(method, path, { query, fields, fileField, fileBase64, fileName }) {
+async function fetchMultipart(
+  method,
+  path,
+  { query, fields, fileField, filePath, fileBase64, fileName }
+) {
   const url = buildUrl(path, query);
   const form = new FormData();
   if (fields && typeof fields === 'object') {
@@ -90,10 +97,27 @@ async function fetchMultipart(method, path, { query, fields, fileField, fileBase
       form.append(k, typeof v === 'boolean' ? String(v) : String(v));
     }
   }
-  if (fileBase64 && fileField) {
-    const buf = Buffer.from(fileBase64, 'base64');
-    const blob = new Blob([buf]);
-    form.append(fileField, blob, fileName || 'upload.bin');
+  if (fileField) {
+    let buf;
+    let uploadName = fileName || 'upload.bin';
+    if (filePath) {
+      if (!fs.existsSync(filePath)) {
+        return {
+          error: {
+            content: [{ type: 'text', text: `File not found: ${filePath}` }],
+            isError: true,
+          },
+        };
+      }
+      buf = fs.readFileSync(filePath);
+      if (!fileName) uploadName = pathMod.basename(filePath);
+    } else if (fileBase64) {
+      buf = Buffer.from(fileBase64, 'base64');
+    }
+    if (buf) {
+      const blob = new Blob([buf]);
+      form.append(fileField, blob, uploadName);
+    }
   }
   try {
     const res = await fetch(url, { method, body: form });
