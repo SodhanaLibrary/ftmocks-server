@@ -63,6 +63,7 @@ function init(projectRoot, log) {
   const defaultMocksDir = path.join(ftmocksDir, 'defaultMocks');
   createFolder(defaultMocksDir, log);
   createFile(path.join(defaultMocksDir, '_mock_list.json'), '[]', log);
+  createFile(path.join(defaultMocksDir, '_served.json'), '[]', log);
   createFile(
     path.join(ftmocksDir, 'ftmocks.env'),
     `MOCK_DIR=./

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('./Logger');
 const FtJSON = require('./FtJSON.js');
+const { attachServedToMocks } = require('./ServedUtils');
 
 function charDifference(str1, str2) {
   let count1 = {},
@@ -207,6 +208,11 @@ const getDefaultMockData = () => {
       failedLoads,
     });
 
+    attachServedToMocks(
+      parsedData,
+      path.join(process.env.MOCK_DIR, 'defaultMocks')
+    );
+
     return parsedData;
   } catch (error) {
     logger.error('Error reading or parsing default mocks', {
@@ -272,6 +278,11 @@ const loadMockDataByTestName = (testName) => {
       successfulLoads,
       failedLoads,
     });
+
+    attachServedToMocks(
+      mocks,
+      path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`)
+    );
 
     return { mocks, testName };
   } catch (error) {
@@ -353,6 +364,11 @@ const loadMockData = () => {
       failedLoads,
     });
 
+    attachServedToMocks(
+      mocks,
+      path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`)
+    );
+
     return { mocks, testName };
   } catch (error) {
     logger.error('Error loading test data', {
@@ -409,6 +425,8 @@ const loadMockDataFromMockListFile = (mockFolder, mockListFile) => {
       successfulLoads,
       failedLoads,
     });
+
+    attachServedToMocks(mocks, mockFolder);
 
     return mocks;
   } catch (error) {

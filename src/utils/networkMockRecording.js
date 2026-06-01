@@ -7,6 +7,7 @@ const {
   compareMockToMock,
   loadMockDataFromMockListFile,
 } = require('./MockUtils');
+const { stripServedFromMock } = require('./ServedUtils');
 const { saveIfItIsFile } = require('./FileUtils');
 
 const excludeHeaders = (headers) => {
@@ -124,7 +125,6 @@ async function attachNetworkMockRecording(context, recordingOptions) {
             content: fileName ? null : await response.text(),
           },
           id,
-          served: false,
           ignoreParams: process.env.DEFAULT_IGNORE_PARAMS
             ? process.env.DEFAULT_IGNORE_PARAMS.split(',')
             : [],
@@ -212,7 +212,7 @@ async function attachNetworkMockRecording(context, recordingOptions) {
           testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
           `mock_${mockData.id}.json`
         );
-        fs.writeFileSync(mocDataPath, JSON.stringify(mockData, null, 2));
+        fs.writeFileSync(mocDataPath, JSON.stringify(stripServedFromMock(mockData), null, 2));
 
         logger.info('Mock data saved successfully', {
           mockId: mockData.id,

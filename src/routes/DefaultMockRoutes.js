@@ -4,13 +4,18 @@ const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/Logger');
 const { processHAR } = require('../utils/MockGenerator');
 const { nameToFolder } = require('../utils/MockUtils');
+const {
+  attachServedToMockRecords,
+  resetServed,
+  removeServed,
+  stripServedFromMock,
+  handleServedUpdate,
+  loadServedIds,
+} = require('../utils/ServedUtils');
 
 const getDefaultMocks = async (req, res) => {
-  const defaultPath = path.join(
-    process.env.MOCK_DIR,
-    'defaultMocks',
-    '_mock_list.json'
-  );
+  const defaultFolder = path.join(process.env.MOCK_DIR, 'defaultMocks');
+  const defaultPath = path.join(defaultFolder, '_mock_list.json');
 
   try {
     logger.info('Getting default mocks', { defaultPath });
@@ -28,11 +33,7 @@ const getDefaultMocks = async (req, res) => {
 
     // Read and attach mock data for each entry in parsedData
     parsedData = parsedData.map((entry) => {
-      const mockFilePath = path.join(
-        process.env.MOCK_DIR,
-        'defaultMocks',
-        `mock_${entry.id}.json`
-      );
+      const mockFilePath = path.join(defaultFolder, `mock_${entry.id}.json`);
       try {
         const mockData = fs.readFileSync(mockFilePath, 'utf8');
         logger.debug('Successfully loaded mock data', {
@@ -41,7 +42,7 @@ const getDefaultMocks = async (req, res) => {
         });
         return {
           ...entry,
-          mockData: JSON.parse(mockData),
+          mockData: stripServedFromMock(JSON.parse(mockData)),
         };
       } catch (error) {
         logger.error('Error reading mock data', {
@@ -51,6 +52,20 @@ const getDefaultMocks = async (req, res) => {
         });
         return entry; // Return the original entry if there's an error
       }
+    });
+
+    parsedData = parsedData.map((entry) => {
+      if (!entry.mockData) {
+        return entry;
+      }
+      const [mockWithServed] = attachServedToMockRecords(
+        [entry.mockData],
+        defaultFolder
+      );
+      return {
+        ...entry,
+        mockData: mockWithServed,
+      };
     });
 
     logger.info('Successfully retrieved default mocks', {
@@ -129,6 +144,8 @@ const deleteDefaultMock = async (req, res) => {
     } else {
       logger.warn('Mock file not found for deletion', { mockFilePath });
     }
+
+    removeServed(path.join(process.env.MOCK_DIR, 'defaultMocks'), mockId);
 
     logger.info('Mock deleted successfully', { mockId });
     res.status(200).json({ message: 'Mock deleted successfully' });
@@ -242,11 +259,8 @@ const updateDefaultMock = async (req, res) => {
       updateFields: Object.keys(updatedMockData),
     });
 
-    const mockFilePath = path.join(
-      process.env.MOCK_DIR,
-      'defaultMocks',
-      `mock_${id}.json`
-    );
+    const defaultFolder = path.join(process.env.MOCK_DIR, 'defaultMocks');
+    const mockFilePath = path.join(defaultFolder, `mock_${id}.json`);
 
     // Check if the mock file exists before updating
     if (!fs.existsSync(mockFilePath)) {
@@ -265,16 +279,21 @@ const updateDefaultMock = async (req, res) => {
       existingMethod: existingMockData.method,
     });
 
-    updatedMockData.id = id;
-    fs.writeFileSync(mockFilePath, JSON.stringify(updatedMockData, null, 2));
+    if ('served' in updatedMockData) {
+      handleServedUpdate(defaultFolder, id, updatedMockData.served);
+    }
+
+    const mockPayload = stripServedFromMock({ ...updatedMockData, id });
+    fs.writeFileSync(mockFilePath, JSON.stringify(mockPayload, null, 2));
 
     logger.info('Mock updated successfully', {
       mockId: id,
-      newUrl: updatedMockData.url,
-      newMethod: updatedMockData.method,
+      newUrl: mockPayload.url,
+      newMethod: mockPayload.method,
     });
 
-    res.json(updatedMockData);
+    const served = loadServedIds(defaultFolder).has(id);
+    res.json({ ...mockPayload, served });
   } catch (error) {
     logger.error('Error updating mock data', {
       mockId: id,
@@ -483,6 +502,21 @@ const moveDefaultmocks = async (req, res) => {
   }
 };
 
+const resetDefaultMockServed = async (req, res) => {
+  try {
+    const defaultFolder = path.join(process.env.MOCK_DIR, 'defaultMocks');
+    resetServed(defaultFolder);
+    logger.info('Default mock served status reset');
+    res.status(200).json({ message: 'Default mock served status reset' });
+  } catch (error) {
+    logger.error('Error resetting default mock served status', {
+      error: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   getDefaultMocks,
   deleteDefaultMock,
@@ -492,4 +526,5 @@ module.exports = {
   updateDefaultMock,
   uploadDefaultHarMocs,
   moveDefaultmocks,
+  resetDefaultMockServed,
 };

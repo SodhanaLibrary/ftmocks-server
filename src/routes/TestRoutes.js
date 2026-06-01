@@ -10,6 +10,15 @@ const {
   nameToFolder,
   getAbsolutePathWithMockDir,
 } = require('../utils/MockUtils');
+const {
+  attachServedToMockRecords,
+  resetServed,
+  removeServed,
+  stripServedFromMock,
+  handleServedUpdate,
+  ensureServedFile,
+  loadServedIds,
+} = require('../utils/ServedUtils');
 
 const getTests = async (req, res) => {
   const indexPath = path.join(process.env.MOCK_DIR, 'tests.json');
@@ -221,6 +230,7 @@ const createTest = async (req, res) => {
         logger.debug('Directory created successfully', { folderPath });
 
         fs.writeFileSync(mockListFilePath, '[]');
+        ensureServedFile(folderPath);
         logger.debug('Mock list file created successfully', {
           mockListFilePath,
         });
@@ -362,11 +372,11 @@ const updateTest = async (req, res) => {
 };
 
 const util_getMockDataForTest = (testName) => {
-  const testDataPath = path.join(
+  const testFolder = path.join(
     process.env.MOCK_DIR,
-    `test_${nameToFolder(testName)}`,
-    '_mock_list.json'
+    `test_${nameToFolder(testName)}`
   );
+  const testDataPath = path.join(testFolder, '_mock_list.json');
 
   logger.debug('Getting mock data for test', { testName, testDataPath });
 
@@ -382,11 +392,7 @@ const util_getMockDataForTest = (testName) => {
   // Read data from path attribute file names and assign as mockData
   const updatedMockData = mockData.map((item) => {
     try {
-      const mockFilePath = path.join(
-        process.env.MOCK_DIR,
-        `test_${nameToFolder(testName)}`,
-        `mock_${item.id}.json`
-      );
+      const mockFilePath = path.join(testFolder, `mock_${item.id}.json`);
 
       const fileContent = fs.readFileSync(mockFilePath, 'utf8');
       const parsedContent = JSON.parse(fileContent);
@@ -414,7 +420,7 @@ const util_getMockDataForTest = (testName) => {
     successfulLoads: updatedMockData.filter((m) => m.id).length,
   });
 
-  return updatedMockData;
+  return attachServedToMockRecords(updatedMockData, testFolder);
 };
 
 const getMockDataForTest = async (req, res) => {
@@ -592,6 +598,11 @@ const deleteMockDataForTest = async (req, res) => {
       logger.warn('Mock file not found for deletion', { mockFilePath }, true);
     }
 
+    removeServed(
+      path.join(process.env.MOCK_DIR, `test_${nameToFolder(testName)}`),
+      mockId
+    );
+
     logger.info('Mock data deleted successfully', {
       testName,
       mockId,
@@ -624,16 +635,14 @@ const resetMockDataForTest = async (req, res) => {
       mockCount: currentTest.mockData.length,
     });
 
+    const testFolder = path.join(
+      process.env.MOCK_DIR,
+      `test_${nameToFolder(currentTest.name)}`
+    );
+    resetServed(testFolder);
+
     currentTest.mockData.forEach((mockData) => {
-      const mockFilePath = path.join(
-        process.env.MOCK_DIR,
-        `test_${nameToFolder(currentTest.name)}`,
-        `mock_${mockData.id}.json`
-      );
-
       mockData.served = false;
-      fs.writeFileSync(mockFilePath, JSON.stringify(mockData, null, 2));
-
       logger.debug('Reset mock served status', {
         testName: currentTest.name,
         mockId: mockData.id,
@@ -812,11 +821,11 @@ const getMockDataByIdForTest = async (req, res) => {
       return res.status(404).json({ error: 'Test not found' });
     }
 
-    const mockFilePath = path.join(
+    const testFolder = path.join(
       process.env.MOCK_DIR,
-      `test_${nameToFolder(test.name)}`,
-      `mock_${mockId}.json`
+      `test_${nameToFolder(test.name)}`
     );
+    const mockFilePath = path.join(testFolder, `mock_${mockId}.json`);
 
     if (!fs.existsSync(mockFilePath)) {
       logger.warn('Mock file not found', { testId, mockId, mockFilePath });
@@ -824,6 +833,10 @@ const getMockDataByIdForTest = async (req, res) => {
     }
 
     const mockData = JSON.parse(fs.readFileSync(mockFilePath, 'utf8'));
+    const [mockWithServed] = attachServedToMockRecords(
+      [stripServedFromMock(mockData)],
+      testFolder
+    );
 
     logger.info('Successfully retrieved mock data by id', {
       testId,
@@ -831,7 +844,7 @@ const getMockDataByIdForTest = async (req, res) => {
       mockId,
     });
 
-    res.status(200).json(mockData);
+    res.status(200).json(mockWithServed);
   } catch (error) {
     logger.error('Error reading mock data by id', {
       testId,
@@ -881,22 +894,31 @@ const updateMockDataForTest = async (req, res) => {
       mockUrl: updatedMockData.url,
     });
 
-    const mockFilePath = path.join(
+    const testFolder = path.join(
       process.env.MOCK_DIR,
-      `test_${nameToFolder(name)}`,
+      `test_${nameToFolder(name)}`
+    );
+    const mockFilePath = path.join(
+      testFolder,
       `mock_${updatedMockData.id}.json`
     );
 
     logger.debug('Mock file path', { mockFilePath });
 
-    fs.writeFileSync(mockFilePath, JSON.stringify(updatedMockData, null, 2));
+    if ('served' in updatedMockData) {
+      handleServedUpdate(testFolder, updatedMockData.id, updatedMockData.served);
+    }
+
+    const mockPayload = stripServedFromMock(updatedMockData);
+    fs.writeFileSync(mockFilePath, JSON.stringify(mockPayload, null, 2));
 
     logger.info('Mock data updated successfully', {
       testName: name,
       mockId: updatedMockData.id,
     });
 
-    res.json(updatedMockData);
+    const served = loadServedIds(testFolder).has(updatedMockData.id);
+    res.json({ ...mockPayload, served });
   } catch (error) {
     logger.error('Error updating mock data', {
       testName: name,
@@ -1177,6 +1199,8 @@ const duplicateTest = async (req, res) => {
         }
       });
     }
+
+    resetServed(newTestDir);
 
     logger.info('Test duplicated successfully', {
       originalId: originalTest.id,

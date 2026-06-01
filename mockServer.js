@@ -1,5 +1,4 @@
 const express = require('express');
-const fs = require('fs');
 const bodyParser = require('body-parser');
 const path = require('path');
 const logger = require('./src/utils/Logger');
@@ -12,6 +11,7 @@ const {
   getCompareRankMockToRequest,
   createIdMap,
 } = require('./src/utils/MockUtils');
+const { markMockServed } = require('./src/utils/ServedUtils');
 const { getTestByName } = require('./src/utils/TestUtils');
 
 const app = express();
@@ -128,29 +128,14 @@ app.all('*', (req, res) => {
     }
 
     if (foundMock) {
-      // Mark test mock as served if it's a test mock
-      foundMock.fileContent.served = true;
-      const tetFilePath = path.join(
+      const mockFolder = path.join(
         process.env.MOCK_DIR,
-        `test_${nameToFolder(testName)}`,
-        `mock_${foundMock.id}.json`
+        `test_${nameToFolder(testName)}`
       );
-
-      try {
-        fs.writeFileSync(
-          tetFilePath,
-          JSON.stringify(foundMock.fileContent, null, 2)
-        );
-        logger.debug('Updated mock served status', {
-          mockId: foundMock.id,
-          filePath: tetFilePath,
-        });
-      } catch (error) {
-        logger.error('Error updating mock served status', {
-          mockId: foundMock.id,
-          filePath: tetFilePath,
-          error: error.message,
-        });
+      const isTestMock = mockData.some((mock) => mock.id === foundMock.id);
+      if (isTestMock) {
+        markMockServed(mockFolder, foundMock.id);
+        foundMock.fileContent.served = true;
       }
 
       const responseData = foundMock.fileContent;

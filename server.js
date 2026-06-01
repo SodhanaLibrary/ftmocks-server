@@ -43,6 +43,7 @@ const {
   updateDefaultMock,
   uploadDefaultHarMocs,
   moveDefaultmocks,
+  resetDefaultMockServed,
 } = require('./src/routes/DefaultMockRoutes');
 const {
   getRecordedEvents,
@@ -257,6 +258,9 @@ app.put('/api/v1/defaultmocks/:id/variants', updateDefaultMockVariants);
 
 // Router for /api/v1/defaultmocks/:id PUT method
 app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
+
+// Router for /api/v1/defaultmocks/reset-served PUT method
+app.put('/api/v1/defaultmocks/reset-served', resetDefaultMockServed);
 
 app.get('/api/v1/env/project', getEnvProject);
 

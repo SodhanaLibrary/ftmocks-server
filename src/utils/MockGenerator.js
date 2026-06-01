@@ -14,6 +14,7 @@ const {
   compareMockToMock,
 } = require('./MockUtils');
 const { isFileLikeHarEntry } = require('./FileUtils');
+const { ensureServedFile, stripServedFromMock } = require('./ServedUtils');
 
 function isJsonResponse(entry) {
   // Check if the response has a content type header and it is JSON
@@ -397,7 +398,7 @@ function createMockFromUserInputForDefaultMocks(body) {
       delete element.fileContent;
     });
 
-    fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
+    fs.writeFileSync(mock_file, JSON.stringify(stripServedFromMock(body), null, 2));
     logger.debug('Created mock file', { mock_file });
 
     // Create an index file with references to individual response files
@@ -458,6 +459,8 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
         logger.debug('Created test directory', { mock_test_dir });
       }
 
+      ensureServedFile(mock_test_dir);
+
       let mock_list_file = path.join(mock_test_dir, '_mock_list.json');
       if (!fs.existsSync(mock_list_file)) {
         await fs.appendFile(mock_list_file, '', () => {
@@ -517,7 +520,7 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
         delete element.fileContent;
       });
 
-      fs.writeFileSync(mock_file, JSON.stringify(body, null, 2));
+      fs.writeFileSync(mock_file, JSON.stringify(stripServedFromMock(body), null, 2));
       logger.debug('Created test mock file', { mock_file });
 
       // Create an index file with references to individual response files
