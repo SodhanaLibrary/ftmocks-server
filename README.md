@@ -75,6 +75,30 @@ To run this project, ensure you have the following installed on your machine:
    PREFERRED_SERVER_PORTS=[4051]
    ```
 
+### Suppressing noisy mock-server logs (`.logIgnore`)
+
+The auxiliary mock HTTP server (`mockServer.js`, started via `/api/v1/mockServer` or during recording) logs warnings when no mock matches a request and info/debug lines when serving a file-backed mock response. Playwright tests using [ftmocks-utils](https://github.com/SodhanaLibrary/ftmocks-utils) use the same rules for **missing mock data, falling back** and **response is a file, serving file**.
+
+Add a `.logIgnore` file in your `MOCK_DIR` with one URL regex pattern per line. If a request URL matches any pattern, these logs are skipped:
+
+- **No matching mock found** (mock server)
+- **Sending file response** / **File response details** (mock server)
+- **missing mock data, falling back** / **response is a file, serving file** (ftmocks-utils / Playwright)
+
+Static asset URLs (`.js`, `.css`, images, fonts, etc.) are already suppressed for missing-mock-style messages.
+
+**Example** (`MOCK_DIR/.logIgnore`):
+
+```text
+# Analytics
+https://.*\.google-analytics\.com/.*
+
+# Expected unmocked paths
+/api/health
+```
+
+Lines starting with `#` and blank lines are ignored. Each other line is a JavaScript `RegExp` tested against the full request URL.
+
 ### Running the Project
 
 To start the project, use:

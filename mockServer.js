@@ -13,6 +13,10 @@ const {
 } = require('./src/utils/MockUtils');
 const { markMockServed } = require('./src/utils/ServedUtils');
 const { getTestByName } = require('./src/utils/TestUtils');
+const {
+  shouldLogMissingMockData,
+  getRequestUrl,
+} = require('./src/utils/LogIgnoreUtils');
 
 const app = express();
 
@@ -20,6 +24,7 @@ app.use(bodyParser.json());
 
 app.all('*', (req, res) => {
   try {
+    const requestUrl = getRequestUrl(req);
     logger.info('Mock server request received', {
       method: req.method,
       url: req.originalUrl,
@@ -154,11 +159,13 @@ app.all('*', (req, res) => {
           const { content, headers, status, file } = responseData.response;
 
           if (file) {
-            logger.info('Sending file response', {
-              mockId: foundMock.id,
-              file: file,
-              status: status,
-            });
+            if (shouldLogMissingMockData(requestUrl)) {
+              logger.info('Sending file response', {
+                mockId: foundMock.id,
+                file: file,
+                status: status,
+              });
+            }
 
             const filePath = path.join(
               process.env.MOCK_DIR,
@@ -167,12 +174,14 @@ app.all('*', (req, res) => {
               file
             );
 
-            logger.debug('File response details', {
-              mockId: foundMock.id,
-              file: file,
-              filePath: filePath,
-              headers: headers,
-            });
+            if (shouldLogMissingMockData(requestUrl)) {
+              logger.debug('File response details', {
+                mockId: foundMock.id,
+                file: file,
+                filePath: filePath,
+                headers: headers,
+              });
+            }
 
             const headerKeys = Object.keys(headers);
             headerKeys.forEach((aKey) => {
@@ -264,11 +273,13 @@ app.all('*', (req, res) => {
         }
       }, delay);
     } else {
-      logger.warn('No matching mock found', {
-        method: req.method,
-        url: req.originalUrl,
-        testName: testName,
-      });
+      if (shouldLogMissingMockData(requestUrl)) {
+        logger.warn('No matching mock found', {
+          method: req.method,
+          url: req.originalUrl,
+          testName: testName,
+        });
+      }
       res.status(404).json({ error: 'Not found' });
     }
   } catch (e) {
