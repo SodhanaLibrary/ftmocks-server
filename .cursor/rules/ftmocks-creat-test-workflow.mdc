@@ -45,7 +45,7 @@ When the user asks to run the **ftmocks test workflow**, **create an ftmocks moc
    - `type`: required by the API; use `folder` for folders. For leaf tests, use the same `type` as sibling leaves in the `ftmocks_get_tests` payload (many trees use `testcase` for runnable tests).
    - `parentId`: optional UUID for the parent folder in the ftmocks tree (take from the relevant folder node in `ftmocks_get_tests`).
 
-3. **Record mocks and events** — `ftmocks_record_playwright_mocks` with the tool arguments at the **top level** (same fields as the record/mocks API body: `url`, `patterns`, `testName`, mock server flags, `recordEvents`, etc.). This launches a browser; the user drives the app while mocks and events are captured. The recorder **writes the Playwright spec**; the response includes **`testFilePath`** (absolute path to the saved `.spec.js`) when that succeeds, or **`null`** if not. Report **`testFilePath`** to the user when it is non-null; do **not** add a separate “save the spec” step.
+3. **Record mocks and events** — `ftmocks_record_playwright_mocks` with the tool arguments at the **top level** (same fields as the record/mocks API body: `url`, `patterns`, `testName`, `stopMockServer`, `recordEvents`, etc.). Start the auxiliary mock HTTP server separately with **`ftmocks_start_mock_server`** when needed. This launches a browser; the user drives the app while mocks and events are captured. The recorder **writes the Playwright spec**; the response includes **`testFilePath`** (absolute path to the saved `.spec.js`) when that succeeds, or **`null`** if not. Report **`testFilePath`** to the user when it is non-null; do **not** add a separate “save the spec” step.
 
    **`url` and `patterns`** — take from the **same** `ftmocks_get_env_projects` row you used in step 1 (after `ftmocks_switch_project`): copy **`patterns`** verbatim. For **`url`**, pick **one** string from **`urls`** — prefer a local dev entry with a **`http://` or `https://`** scheme and **`localhost`** (often the first such item). For a deep link or staging, use that exact string from **`urls`**; add a scheme only if the browser requires it. If nothing in **`urls`** is usable, ask the user.
 
@@ -61,7 +61,6 @@ When the user asks to run the **ftmocks test workflow**, **create an ftmocks moc
      "patterns": ["^/api/.*", "^/valet/.*"],
      "avoidDuplicatesWithDefaultMocks": false,
      "stopMockServer": true,
-     "startMockServer": false,
      "recordEvents": true,
      "testName": "Traffic Mirroring",
      "avoidDuplicatesInTheTest": false

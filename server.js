@@ -631,26 +631,6 @@ app.post('/api/v1/record/playwright/mocks', async (req, res) => {
     } finally {
       browser = null;
     }
-    if (
-      req.body.startMockServer &&
-      process.env.PREFERRED_SERVER_PORTS?.length > 0
-    ) {
-      if (mockServerInstance) {
-        mockServerInstance.close();
-      }
-      updateMockServerTest(
-        req.body.testName,
-        JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]
-      );
-      mockServerInstance = mockServer.listen(
-        JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0],
-        () => {
-          console.log(
-            `Mock server listening at http://localhost:${JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]}`
-          );
-        }
-      );
-    }
 
     const { testFilePath } = await runPlaywrightCodegenWithMocks(req.body);
     return res.send({
