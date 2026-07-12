@@ -6,10 +6,7 @@ const cors = require('cors');
 const multer = require('multer');
 const { chromium } = require('playwright');
 const mockServer = require('./mockServer');
-const {
-  checkAiKeyAvailable,
-  editMockDataWithAI,
-} = require('./src/routes/AiRoutes');
+const { editMockDataWithAI } = require('./src/routes/AiRoutes');
 const {
   getTests,
   deleteTest,
@@ -87,7 +84,6 @@ const {
   uploadDefaultPlaywrightMocks,
 } = require('./src/routes/PlaywrightNetworkRoutes.js');
 const { saveFile, runTest, getTestSpecCode } = require('./src/routes/CodeRoutes.js');
-const { encrypt, decrypt, listKeys } = require('./src/routes/CryptoRoutes.js');
 const { updateMockServerTest } = require('./src/routes/MockServerRoutes.js');
 const {
   getApiSpecs,
@@ -97,7 +93,6 @@ const {
   deleteApiSpec,
 } = require('./src/routes/ApiSpecRoutes.js');
 const logger = require('./src/utils/Logger');
-const logRoutes = require('./src/routes/LogRoutes');
 const {
   runPlaywrightCodegen,
   runPlaywrightCodegenWithMocks,
@@ -336,9 +331,8 @@ app.get('/api/v1/mockServer', async (req, res) => {
 
   try {
     if (!fs.existsSync(configPath)) {
-      await fs.appendFile(configPath, '{}', () => {
-        console.log('mockServer.config.json created successfully');
-      });
+      fs.writeFileSync(configPath, '{}');
+      console.log('mockServer.config.json created successfully');
     }
     // Read the config file
     const configData = fs.readFileSync(configPath, 'utf8');
@@ -542,17 +536,6 @@ app.post('/api/v1/record/test', async (req, res) => {
   recordTest(browser, req, res);
 });
 
-app.post('/api/v1/record/stop', async (req, res) => {
-  if (browser) {
-    console.log('Browser session is already running. closing now');
-    browser.close();
-    browser = null;
-  }
-  return res.send({
-    status: 'stopped',
-    message: 'Browser session is not running.',
-  });
-});
 app.get('/api/v1/record/status', async (req, res) => {
   if (browser) {
     return res.send({
@@ -672,16 +655,8 @@ app.delete('/api/v1/record', async (req, res) => {
   });
 });
 
-app.post('/api/v1/crypto/encrypt', encrypt);
-app.post('/api/v1/crypto/decrypt', decrypt);
-app.get('/api/v1/crypto/listKeys', listKeys);
-
 // AI Routes
-app.get('/api/v1/ai/checkKeyAvailable', checkAiKeyAvailable);
 app.post('/api/v1/ai/editMockData', editMockDataWithAI);
-
-// Add log routes (add this with other route definitions)
-app.use('/api/v1', logRoutes);
 
 // Function to handle all unmatched URLs
 function handleUnmatchedUrls(req, res) {

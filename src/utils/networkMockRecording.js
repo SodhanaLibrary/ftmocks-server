@@ -156,11 +156,6 @@ async function attachNetworkMockRecording(context, recordingOptions) {
               existingMockDataFile,
               JSON.stringify(mockData, null, 2)
             );
-            await route.fulfill({
-              status: response.status(),
-              headers: response.headers(),
-              body: await response.body(),
-            });
             return;
           }
         }
@@ -180,11 +175,6 @@ async function attachNetworkMockRecording(context, recordingOptions) {
           if (matchResponse) {
             logger.info('Aborting duplicate mock data with default mocks', {
               defaultMockId: matchResponse.id,
-            });
-            await route.fulfill({
-              status: response.status(),
-              headers: response.headers(),
-              body: await response.body(),
             });
             return;
           }

@@ -460,5 +460,4 @@ async function runPlaywrightCodegenWithMocks(body) {
 module.exports = {
   runPlaywrightCodegen,
   runPlaywrightCodegenWithMocks,
-  transformPlaywrightCodegenForFtmocks,
 };

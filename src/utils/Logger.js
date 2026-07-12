@@ -58,25 +58,6 @@ class Logger {
     // Only write to file if debug mode is enabled
     if (process.env.debug) {
       console.log(logEntry);
-      // // Write to daily log file
-      // const today = new Date().toISOString().split('T')[0];
-      // const logFile = path.join(this.logsDir, `${today}.json`);
-      // let logs = [];
-      // if (fs.existsSync(logFile)) {
-      //   try {
-      //     const content = fs.readFileSync(logFile, 'utf8');
-      //     logs = JSON.parse(content);
-      //   } catch (error) {
-      //     console.error('Error reading log file:', error);
-      //     logs = [];
-      //   }
-      // }
-      // logs.push(logEntry);
-      // try {
-      //   fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-      // } catch (error) {
-      //   console.error('Error writing to log file:', error);
-      // }
     }
 
     // Always log to console in development or when debug is enabled

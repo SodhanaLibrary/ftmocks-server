@@ -256,59 +256,6 @@ const injectEventRecordingScript = async (
         return xpath;
       };
 
-      const getUniqueElementSelectorNth = (selector, mainElement) => {
-        const prevElements = filterElementsFromHtml(
-          prevEventSnapshot,
-          selector
-        );
-        if (prevElements.length > 1) {
-          return getElementsByRank(prevElements, mainElement)[0].index + 1;
-        }
-        return 1;
-      };
-
-      const getSelectorsByConfidence = (selectors) => {
-        const selectorCounts = selectors.map((selector) => {
-          if (selector.value.startsWith('/')) {
-            const prevElements = filterXpathElementsFromHtml(
-              prevEventSnapshot,
-              selector.value
-            );
-            const nextElements = filterXpathElementsFromHtml(
-              currentEventSnapshot,
-              selector.value
-            );
-            return {
-              selector: selector.value,
-              type: selector.type,
-              count: prevElements.length + nextElements.length,
-            };
-          } else {
-            const prevElements = filterElementsFromHtml(
-              prevEventSnapshot,
-              selector.value
-            );
-            const nextElements = filterElementsFromHtml(
-              currentEventSnapshot,
-              selector.value
-            );
-            return {
-              selector: selector.value,
-              type: selector.type,
-              count: prevElements.length + nextElements.length,
-            };
-          }
-        });
-        const zeroCountSelectors = selectorCounts
-          .filter((selector) => selector.count === 0)
-          .map((selector) => selector.selector);
-        const nonZeroCountSelectors = selectorCounts
-          .filter((selector) => selector.count > 0)
-          .sort((selObj1, selObj2) => selObj1.count - selObj2.count)
-          .map((selObj) => selObj.selector);
-        return [...nonZeroCountSelectors, ...zeroCountSelectors];
-      };
-
       const getBestSelectors = (element, event) => {
         const selectors = [];
         const excludeTagNames = ['script', 'style', 'link', 'meta'];
@@ -775,34 +722,6 @@ const injectEventRecordingScript = async (
           });
         }
       });
-      // document.addEventListener('change', (event) => {
-      //   const currentTarget = getParentElementWithEventOrId(event, 'onchange');
-      //   window.saveEventForTest({
-      //     type: 'change',
-      //     target: generateXPathWithNearestParentId(currentTarget),
-      //     time: new Date().toISOString(),
-      //     value: event.target.value,
-      //     selectors: getBestSelectors(currentTarget),
-      //     element: getElement(currentTarget),
-      //   });
-      // });
-      // document.addEventListener('submit', (event) => {
-      //   event.preventDefault();
-      //   const currentTarget = getParentElementWithEventOrId(event, 'onsubmit');
-      //   const formData = new FormData(event.target);
-      //   const entries = {};
-      //   formData.forEach((value, key) => {
-      //     entries[key] = value;
-      //   });
-      //   window.saveEventForTest({
-      //     type: 'submit',
-      //     target: generateXPathWithNearestParentId(currentTarget),
-      //     time: new Date().toISOString(),
-      //     value: entries,
-      //     selectors: getBestSelectors(currentTarget),
-      //     element: getElement(currentTarget),
-      //   });
-      // });
       window.addEventListener('popstate', () => {
         window.saveEventForTest({
           type: 'popstate-url',

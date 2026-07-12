@@ -66,9 +66,6 @@ const parsePlaywrightTrace = (traceDir) => {
   // Find trace files - Playwright trace contains multiple .trace files
   const files = fs.readdirSync(traceDir);
 
-  // Look for network trace file or main trace file
-  let traceData = null;
-
   // Try to find and parse trace.trace or any .trace file
   for (const file of files) {
     if (file.endsWith('.trace')) {

@@ -1,12 +1,10 @@
 const fs = require('fs');
-const urlmodule = require('url');
 const path = require('path');
 const uuid = require('uuid');
 const logger = require('./Logger');
 const {
   processURL,
   getDefaultMockData,
-  isSameRequest,
   removeDuplicates,
   compareMockToHarEntry,
   loadMockDataFromMockListFile,
@@ -15,29 +13,6 @@ const {
 } = require('./MockUtils');
 const { isFileLikeHarEntry } = require('./FileUtils');
 const { ensureServedFile, stripServedFromMock } = require('./ServedUtils');
-
-function isJsonResponse(entry) {
-  // Check if the response has a content type header and it is JSON
-  const contentTypeHeader = entry.response.headers.find(
-    (header) => header.name.toLowerCase() === 'content-type'
-  );
-
-  return (
-    contentTypeHeader &&
-    (contentTypeHeader.value.includes('application/json') ||
-      contentTypeHeader.value.includes('image/png'))
-  );
-}
-
-function extractFileName(filePath) {
-  // Use the path module to handle file paths across different operating systems
-  const path = require('path');
-
-  // Extract the base name (file name with extension) from the full path
-  const baseName = path.basename(filePath);
-
-  return baseName;
-}
 
 function getPostDataFromMockBody(body) {
   return body?.request?.postData ?? null;
@@ -553,6 +528,5 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
 
 module.exports = {
   processHAR,
-  isSameRequest,
   createMockFromUserInputForTest,
 };

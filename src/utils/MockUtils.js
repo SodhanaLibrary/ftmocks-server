@@ -902,21 +902,6 @@ const getAbsolutePathWithMockDir = (filePath) => {
   return path.resolve(process.env.MOCK_DIR, filePath);
 };
 
-const getRelativePathWithCurrentDir = (filePath, currentDir) => {
-  return path.relative(currentDir, filePath);
-};
-
-const getRelativePathWithMockDir = (filePath) => {
-  if (path.isAbsolute(filePath)) {
-    return path.relative(process.env.MOCK_DIR, filePath);
-  } else {
-    return path.relative(
-      process.env.MOCK_DIR,
-      getAbsolutePathWithMockDir(filePath)
-    );
-  }
-};
-
 const getRelativePath = (path1, path2) => {
   return path.relative(path1, path2);
 };
@@ -974,17 +959,12 @@ module.exports = {
   loadMockData,
   loadMockDataByTestName,
   isSameRequest,
-  areJsonEqual,
-  areJsonStringsEqual,
-  isValidJsonString,
   removeDuplicates,
   nameToFolder,
   compareMockToRequest,
   compareMockToHarEntry,
   compareMockToMock,
-  getRelativePathWithMockDir,
   getAbsolutePathWithMockDir,
-  getRelativePathWithCurrentDir,
   getRelativePath,
   getCompareRankMockToRequest,
   createIdMap,

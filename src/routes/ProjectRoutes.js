@@ -36,7 +36,6 @@ const loadEnvVariables = (project_env_file) => {
     `cookie,set-cookie,authorization,www-authenticate`;
 
   if (!path.isAbsolute(process.env.MOCK_DIR)) {
-    const originalMockDir = process.env.MOCK_DIR;
     process.env.MOCK_DIR = path.resolve(
       path.dirname(project_env_file),
       process.env.MOCK_DIR
@@ -341,6 +340,7 @@ const addProject = async (req, res) => {
       error: error.message,
       stack: error.stack,
     });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 

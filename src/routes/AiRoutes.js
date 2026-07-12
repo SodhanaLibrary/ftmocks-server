@@ -1,15 +1,6 @@
 const OpenAI = require('openai');
 const logger = require('../utils/Logger');
 
-const checkAiKeyAvailable = (req, res) => {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (apiKey && typeof apiKey === 'string' && apiKey.trim().length > 0) {
-    res.status(200).json({ available: true });
-  } else {
-    res.status(200).json({ available: false });
-  }
-};
-
 const editMockDataWithAI = async (req, res) => {
   try {
     const { mockData, instructions } = req.body;
@@ -162,6 +153,5 @@ Please return the modified mock data as valid JSON only.`;
 };
 
 module.exports = {
-  checkAiKeyAvailable,
   editMockDataWithAI,
 };

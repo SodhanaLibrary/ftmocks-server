@@ -123,13 +123,9 @@ function handleServedUpdate(mockFolder, mockId, served) {
 }
 
 module.exports = {
-  SERVED_FILE,
-  getServedFilePath,
   ensureServedFile,
-  loadServedList,
   loadServedIds,
   markMockServed,
-  unmarkMockServed,
   resetServed,
   removeServed,
   stripServedFromMock,

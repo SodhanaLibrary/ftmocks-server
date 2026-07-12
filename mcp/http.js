@@ -43,19 +43,6 @@ async function handleApiResponse(res, label) {
   };
 }
 
-async function handleTextResponse(res, label) {
-  const text = await res.text();
-  if (!res.ok) {
-    return {
-      content: [{ type: 'text', text: `HTTP ${res.status} ${label}\n${text}` }],
-      isError: true,
-    };
-  }
-  return {
-    content: [{ type: 'text', text: `${label}\n${text}` }],
-  };
-}
-
 async function fetchJson(method, path, { query, body } = {}) {
   const url = buildUrl(path, query);
   const opts = {
@@ -133,71 +120,8 @@ async function fetchMultipart(
   }
 }
 
-/** Plain GET / POST returning raw body (SSE or binary-friendly). */
-async function fetchRaw(method, path, { query, body, headers } = {}) {
-  const url = buildUrl(path, query);
-  const opts = { method, headers: headers || {} };
-  if (body !== undefined) {
-    opts.headers = { 'Content-Type': 'application/json', ...opts.headers };
-    opts.body = typeof body === 'string' ? body : JSON.stringify(body);
-  }
-  try {
-    const res = await fetch(url, opts);
-    const text = await res.text();
-    return { res, url, text };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return {
-      error: {
-        content: [{ type: 'text', text: `${method} ${url} failed: ${msg}` }],
-        isError: true,
-      },
-    };
-  }
-}
-
-async function fetchBinaryBase64(method, path, { query } = {}) {
-  const url = buildUrl(path, query);
-  try {
-    const res = await fetch(url, { method });
-    const buf = Buffer.from(await res.arrayBuffer());
-    const b64 = buf.toString('base64');
-    const ct = res.headers.get('content-type') || 'application/octet-stream';
-    if (!res.ok) {
-      return {
-        content: [
-          {
-            type: 'text',
-            text: `HTTP ${res.status} GET ${url}\n${b64.slice(0, 200)}…`,
-          },
-        ],
-        isError: true,
-      };
-    }
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `${ct};base64,\n${b64}`,
-        },
-      ],
-    };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return {
-      content: [{ type: 'text', text: `GET ${url} failed: ${msg}` }],
-      isError: true,
-    };
-  }
-}
-
 module.exports = {
-  getBaseUrl,
-  buildUrl,
   handleApiResponse,
-  handleTextResponse,
   fetchJson,
   fetchMultipart,
-  fetchRaw,
-  fetchBinaryBase64,
 };

@@ -24,3 +24,5 @@ yarn-error.log*
 
 __ftmocks-mock-mode-ignore-me.spec.js
 _logs.json
+
+testMockData/**/_served.json

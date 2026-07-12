@@ -12,6 +12,11 @@ const addUrlToProject = async ({ url, patterns }) => {
       projects = JSON.parse(data);
     }
 
+    // Ensure there's a project entry to operate on
+    if (!projects[0]) {
+      projects[0] = {};
+    }
+
     // Ensure urls array exists
     if (!Array.isArray(projects[0].urls)) {
       projects[0].urls = [];

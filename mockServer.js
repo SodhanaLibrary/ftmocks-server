@@ -106,7 +106,7 @@ app.all('*', (req, res) => {
     }
 
     const test = getTestByName(testName);
-    if (!foundMock && test.mode !== 'strict') {
+    if (!foundMock && test?.mode !== 'strict') {
       const mockRanks = {};
       mockData.forEach((tm) => {
         const rank = getCompareRankMockToRequest(tm, req);
