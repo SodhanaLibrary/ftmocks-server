@@ -66,9 +66,9 @@ To run this project, ensure you have the following installed on your machine:
 
 ### Configuration
 
-1. Create my-project.env file for your project
+1. Create an `ftmocks.env` file for your project
 
-2. Create a my-project.env file in the project root.
+2. Create an `ftmocks.env` file in the project root.
    ```bash
    MOCK_DIR=./example/my-project/testMockData
    PORT=5000
@@ -104,8 +104,52 @@ Lines starting with `#` and blank lines are ignored. Each other line is a JavaSc
 To start the project, use:
 
 ```bash
-npm start my-project
+npm start <absolute path to ftmocks.env>
 ```
+
+## Using the FtMocks UI
+
+Open `http://localhost:<PORT>/` after starting the server (see above).
+
+### Add a project from the UI
+
+1. On the home page (Projects table), click **Add Project**.
+2. In **Environment Location**, enter the path to the project's `ftmocks.env` file (e.g. `./example/my-project/ftmocks.env`), then click **Create Project**.
+3. Click the new row in the Projects table to switch to it — FtMocks starts serving mocks from that project's `MOCK_DIR`.
+
+### Create a test and record mock data
+
+1. Open the **Tests** tab.
+2. In the **Test Cases** sidebar, click the **+** icon (create a folder first with the folder icon if you want to group tests), enter a **Test Case Name**, optionally choose a **Parent Folder**, then click **Create Test Case**.
+3. Select the new test and open its **Record** tab.
+4. Fill in the **URL** to open and one or more **Patterns** (regexes matching the API calls you want captured as mocks). Leave **Stop mock server** / **Record events** checked unless you have a reason not to.
+5. Click **Record Mock Data** — a real, headed browser opens. Use your app there to generate the traffic you want recorded.
+6. Click **Stop recording** when done. Captured requests show up as mocks under the **Mocks** tab.
+
+### Run the mock server from the UI
+
+1. Open the **Mock Server** tab.
+2. Pick a **Test** from the autocomplete — its recorded mocks will be served.
+3. Enter a **Port** (or reuse one from the **Preferred Ports** shown below the field).
+4. Click **Run** to start it. While it's running, the button becomes **Update**, letting you switch the test or port without stopping first.
+5. Click **Stop** to shut it down.
+6. Point your application's API calls at `http://localhost:<port>`.
+
+### Codegen + mock recording (Playwright)
+
+1. From the test's **Record** tab, fill in **URL** / **Patterns** as above.
+2. Click **Playwright codegen + mocks** — this opens Playwright's codegen/Inspector window against a real browser while recording matching network traffic as mocks for the test.
+3. Interact with the app, then close the codegen browser/Inspector window when finished.
+4. The panel switches to the **Code** tab and loads the generated `.spec.js` from disk; the mocks recorded during the session appear under the **Mocks** tab.
+
+Use **Run playwright codegen** (in the Code tab) instead if you only want generated code without recording mocks.
+
+### Execute a test after recording
+
+1. In the test's **Record** tab, open the **Code** tab (this happens automatically right after codegen finishes).
+2. Edit the generated spec inline if needed.
+3. Click the **play icon** ("Save and Run Test") to save the spec into the Playwright directory and run it headless, or the **gavel icon** ("Save and Run Test With Playwright UI") to run it with the Playwright UI. Output streams live into the panel below.
+4. Use the **save icon** to persist the spec without running it, or the **copy icon** to copy the code to your clipboard.
 
 ## Model Context Protocol (MCP)
 
@@ -158,7 +202,7 @@ Adjust paths and port to match your setup:
 
 ### Tools overview
 
-Tools are registered in `mcp/tools.js` and named with an `ftmocks_` prefix.
+Tools are registered in `mcp/tools.js` and named with an `ftmocks_` prefix. This is the full list — there is no broader hidden set beyond what's below.
 
 **Local setup (no running server required):**
 
@@ -169,23 +213,53 @@ Tools are registered in `mcp/tools.js` and named with an `ftmocks_` prefix.
 
 Optional argument `project_dir` (absolute path) sets where `ftmocks/` and `playwright/` are created; defaults to the MCP process working directory.
 
-**HTTP API** — each tool below corresponds to one or more `/api/v1/…` routes, including:
+**Projects / environment** (requires the FtMocks HTTP API running):
 
-| Area | Examples |
-|------|-----------|
-| Tests | List/create/update/delete/duplicate tests; mock list CRUD; per-mock update/delete; variants; reset; reorder tests; move mocks to default mocks |
-| File uploads | HAR, Postman export, Playwright trace — for a specific test or for default mocks. MCP accepts **base64** file content plus an optional filename (see tool descriptions). |
-| Default mocks | List/create/update/delete mocks and variants; move defaults into tests |
-| Environment / projects | Current env snapshot (`/env/project`); projects list; switch/add/remove project; `ignoreForAll` |
-| Recorded flow | Recorded events CRUD, reorder, screenshots (responses may be base64 for files) |
-| Code | Save generated files under Playwright dir; run test (response can be long streamed-style text) |
-| Mock server | Start, restart, or stop the auxiliary mock HTTP server bound to a test |
-| API specs | List/get/create/update/delete files under `{MOCK_DIR}/api_specs` |
-| Versions | Compare versions; optional server-side `git pull` via `/versions` |
-| Browser recording | Endpoints that launch Playwright/browser on the **machine running FtMocks** |
-| Crypto / AI | Encrypt/decrypt/list keys; AI-assisted mock editing when configured |
+| Tool | Route |
+|------|-------|
+| `ftmocks_get_projects` | `GET /api/v1/projects` |
+| `ftmocks_create_project` | `POST /api/v1/projects` |
+| `ftmocks_switch_project` | `PUT /api/v1/projects` |
 
-The built-in **FtMocks request logger** (`/api/v1/logs` via `LogRoutes`) and **recorded logs** APIs (`/api/v1/recordedLogs`, `deleteAllLogs`) are intentionally **not** exposed as MCP tools. Use the REST API or UI for those.
+**Tests and mocks:**
+
+| Tool | Route |
+|------|-------|
+| `ftmocks_get_tests` | `GET /api/v1/tests` |
+| `ftmocks_create_test` | `POST /api/v1/tests` |
+| `ftmocks_update_test` | `PUT /api/v1/tests/:id` |
+| `ftmocks_delete_test` | `DELETE /api/v1/tests/:id` |
+| `ftmocks_get_mock_summary` | `GET /api/v1/tests/:id/mockSummary` |
+| `ftmocks_get_mock_data` | `GET /api/v1/tests/:id/mockdata/:mockId` |
+| `ftmocks_create_mock_data` | `POST /api/v1/tests/:id/mockdata` |
+| `ftmocks_upload_har_mockdata` | `POST /api/v1/tests/:id/harMockdata` (accepts **base64** HAR content plus an optional filename, or an absolute `harFilePath`) |
+
+**Mock server:**
+
+| Tool | Route |
+|------|-------|
+| `ftmocks_start_mock_server` | `POST /api/v1/mockServer` |
+| `ftmocks_stop_mock_server` | `DELETE /api/v1/mockServer` |
+
+**Playwright codegen:**
+
+| Tool | Route |
+|------|-------|
+| `ftmocks_record_playwright` | `POST /api/v1/record/playwright` — codegen without network mock or event recording |
+| `ftmocks_record_playwright_mocks` | `POST /api/v1/record/playwright/mocks` — codegen with network mock recording |
+
+These launch Playwright/a browser on the **machine running FtMocks** and return the generated `.spec.js` path.
+
+**Not exposed as MCP tools** — use the REST API or the FtMocks UI directly for these instead:
+
+- Mock/test variants, reset, reorder tests, duplicate tests, move mocks to/from default mocks
+- Default mocks CRUD and Postman/Playwright-trace uploads
+- Recorded events (record/replay flow), screenshots, recorded logs (`/api/v1/recordedLogs`)
+- Code save/run (`/api/v1/code/save`, `/api/v1/code/runTest`, `/api/v1/code/spec`)
+- API specs CRUD under `{MOCK_DIR}/api_specs`
+- Version comparison / server-side `git pull` (`/api/v1/versions`)
+- Browser recording (`/api/v1/record/mocks`, `/api/v1/record/test`)
+- AI-assisted mock editing (`/api/v1/ai/editMockData`, requires `OPENAI_API_KEY`)
 
 ### Files
 
