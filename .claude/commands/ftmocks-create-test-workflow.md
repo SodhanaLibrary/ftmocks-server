@@ -1,0 +1,109 @@
+# ftmocks-creat-test-workflow
+
+When the user asks to run the **ftmocks test workflow**, **create an ftmocks mock test**, **record mocks for a new test**, or similar, follow this loop.
+
+## Non-negotiable: MCP only for tests and mocks
+
+- **Do not** copy an existing Playwright spec, duplicate a sibling test’s structure, or scaffold a new test by hand to “match” another file. New runnable coverage comes from **`ftmocks_create_test`** + **`ftmocks_record_playwright_mocks`** (the recorder writes the spec).
+- **Do not** invent, paste, or manually edit in JSON/HTTP fixtures, mock responses, or “sample” API payloads to stand up a test. Captured mocks and events must come from the **ftmocks MCP** recording flow, not author-written data.
+- **Allowed** after a successful recording: **minimal** fixes in the **generated** spec (step 4) and lint/Prettier (step 5), as already described below.
+
+## MCP
+
+- **Server**: `ftmocks-mcp`
+- **Before each tool call**: read that tool’s schema under the MCP descriptors folder (required parameters differ per tool).
+- **Projects list tool**: Usually **`ftmocks_get_env_projects`**; your MCP may expose the same capability under another name (e.g. **`get_env_projects`**). Use the tool name from the descriptor; the response is an array of objects with **`env_file`**, **`urls`**, and **`patterns`** as in step 1.
+
+## Steps (in order)
+
+1. **Select project** (two calls; read each tool’s schema first):
+   - **`ftmocks_get_env_projects`** — returns an array of project rows. Each row includes:
+     - **`env_file`**: absolute path to that project’s `ftmocks.env` (pass this to `ftmocks_switch_project`).
+     - **`urls`**: string array of app entry URLs (see step 3 for recording).
+     - **`patterns`**: string array of network patterns for mock recording (see step 3).
+       Example shape:
+
+     ```json
+     [
+       {
+         "env_file": "/Users/you/.../sample-project/ftmocks/ftmocks.env",
+         "urls": ["http://localhost:5782/", "https://staging.example.com"],
+         "patterns": ["^/api/.*"]
+       },
+       {
+         "env_file": "/Users/you/.../sample-project/ftmocks/ui_sanity_admin/ftmocks.env",
+         "urls": ["http://localhost:5777/", "..."],
+         "patterns": ["^/api/.*", "^/valet/.*"]
+       }
+     ]
+     ```
+
+   - **`ftmocks_switch_project`** — pass **`env_file`** from the **same row** the user chose (match path segment for the selected sample project, tree folder like `ui_sanity_admin`, or ask if ambiguous). Keep that row in hand for step 3; do not invent `env_file`, **`url`**, or **`patterns`** when this response has them.
+
+2. **Create the test node** — After the project is active, call **`ftmocks_get_tests`** (read its schema; no args) to load the current test tree. Use that response to choose the parent folder’s id and to match sibling nodes’ **`type`** values when calling **`ftmocks_create_test`**:
+   - `name`: human-readable test name; must be **unique** among test nodes in this project (scan the `ftmocks_get_tests` tree for an existing leaf or folder with the same `name`; pick a new name if it collides). It must exactly match the **`testName`** you pass when recording.
+   - `type`: required by the API; use `folder` for folders. For leaf tests, use the same `type` as sibling leaves in the `ftmocks_get_tests` payload (many trees use `testcase` for runnable tests).
+   - `parentId`: optional UUID for the parent folder in the ftmocks tree (take from the relevant folder node in `ftmocks_get_tests`).
+
+3. **Record mocks and events** — `ftmocks_record_playwright_mocks` with the tool arguments at the **top level** (same fields as the record/mocks API body: `url`, `patterns`, `testName`, `stopMockServer`, `recordEvents`, etc.). Start the auxiliary mock HTTP server separately with **`ftmocks_start_mock_server`** when needed. This launches a browser; the user drives the app while mocks and events are captured. The recorder **writes the Playwright spec**; the response includes **`testFilePath`** (absolute path to the saved `.spec.js`) when that succeeds, or **`null`** if not. Report **`testFilePath`** to the user when it is non-null; do **not** add a separate “save the spec” step.
+
+   **`url` and `patterns`** — take from the **same** `ftmocks_get_env_projects` row you used in step 1 (after `ftmocks_switch_project`): copy **`patterns`** verbatim. For **`url`**, pick **one** string from **`urls`** — prefer a local dev entry with a **`http://` or `https://`** scheme and **`localhost`** (often the first such item). For a deep link or staging, use that exact string from **`urls`**; add a scheme only if the browser requires it. If nothing in **`urls`** is usable, ask the user.
+
+   **Requirements**
+   - Set **`recordEvents`: `true`** so clicks, navigation, and other UI steps are persisted (e.g. to `_events.json`). Omitting this captures mocks only.
+   - Set **`testName`** to the exact same string as the ftmocks test leaf **`name`** (the unique name from step 2, matching `initiatePlaywrightRoutes(..., '<name>', ...)` where your repo uses that helper).
+
+   Example arguments (illustrative; **`url`** / **`patterns`** should match the selected project row from step 1, not hard-coded guesses):
+
+   ```json
+   {
+     "url": "http://localhost:5777/",
+     "patterns": ["^/api/.*", "^/valet/.*"],
+     "avoidDuplicatesWithDefaultMocks": false,
+     "stopMockServer": true,
+     "recordEvents": true,
+     "testName": "Traffic Mirroring",
+     "avoidDuplicatesInTheTest": false
+   }
+   ```
+
+   Wait until the user finishes the recorded session and you have **`testFilePath`** (or a clear failure) from the recorder response.
+
+4. **Run the test** — When **`testFilePath`** is non-null, run Playwright headlessly against that file. **Execute** the command in the shell (working directory = Playwright package root as below); report pass/fail output. Use the **absolute path** from **`testFilePath`** in place of `<file path>`:
+
+   ```bash
+   npx playwright test <file path> --headless
+   ```
+
+   Example (quote paths if they contain spaces):
+
+   ```bash
+   npx playwright test "/Users/you/workspace/sample-project/playwright/tests/mock-tests/foo.spec.js" --headless
+   ```
+
+   Run the command from the **directory that owns the Playwright config** for that repo (usually the package root next to `playwright.config.*` / the `package.json` that depends on `@playwright/test`). If **`testFilePath`** is **`null`**, skip this step and report that the spec path is unknown.
+
+   **If the run fails** (non-zero exit, test failures, or compile errors in the output): read the Playwright / stack traces, apply **minimal** fixes in the generated spec or directly related test helpers, then **run the same command again**. Repeat **fix → `npx playwright test … --headless`** until the run succeeds. If failure is environmental (app not running, missing secrets, wrong CWD) or needs product clarification, stop and tell the user what is blocking instead of guessing.
+
+5. **Lint and format the spec** — After step 4 succeeds and **`testFilePath`** is set, same **package root** as step 4. **Execute** the repo’s tooling on that file (read `package.json` for scripts such as `lint` / `eslint` / `prettier` if they accept a path). If there is no file-scoped script, use:
+
+   ```bash
+   npx prettier --write <file path>
+   npx eslint <file path>
+   ```
+
+   Use the **absolute** **`testFilePath`** in place of `<file path>` (quote if needed). Add `--fix` to ESLint when that matches the project’s usual practice. Resolve any remaining lint issues in the spec with **minimal** edits, then re-run lint/Prettier on the file until clean. Skip this step if **`testFilePath`** is **`null`**.
+
+## Optional checks
+
+- `ftmocks_get_env_projects` — re-list rows if you need to re-check **`urls`** / **`patterns`** / **`env_file`** after switching.
+
+## Do not
+
+- Duplicate an existing test or author a new spec from scratch; do not hand-write mock payloads or fixture files — use only the MCP tools in **Steps 1–3** to create the node and record mocks/events.
+- Skip reading MCP tool schemas before calling.
+- Guess **`env_file`**, recording **`url`**, or **`patterns`** instead of taking them from the **`ftmocks_get_env_projects`** row for the selected project when that tool is available.
+- Do not wrap \`ftmocks_record_playwright_mocks\` arguments in \`payload\`; use top-level fields per the MCP descriptor.
+- Omit other required keys without checking the current tool schema.
+- Give a new test the same **`name`** / **`testName`** as another node already present in the **`ftmocks_get_tests`** tree for that project.
+- Turn off **`recordEvents`** unless the user explicitly asks for mocks-only recording (Playwright codegen from events depends on it).
