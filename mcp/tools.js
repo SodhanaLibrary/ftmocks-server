@@ -194,6 +194,30 @@ function registerFtMocksTools(mcpServer) {
   );
 
   mcpServer.registerTool(
+    'ftmocks_duplicate_test',
+    {
+      description:
+        'POST /api/v1/tests/:id/duplicate?name=… — duplicate a test (copies its mock files into a new "<name> (Copy)" test). Requires test id (path) and the exact original test display name (query), both from ftmocks_get_tests.',
+      inputSchema: {
+        id: z.string().min(1).describe('Test id from ftmocks_get_tests'),
+        name: z
+          .string()
+          .min(1)
+          .describe('Exact original test display name (query param)'),
+      },
+    },
+    async ({ id, name }) => {
+      const out = await fetchJson(
+        'POST',
+        `/api/v1/tests/${encodeURIComponent(id)}/duplicate`,
+        { query: { name } }
+      );
+      if (out.error) return out.error;
+      return handleApiResponse(out.res, `POST ${out.url}`);
+    }
+  );
+
+  mcpServer.registerTool(
     'ftmocks_update_test',
     {
       description: 'PUT /api/v1/tests/:id',
