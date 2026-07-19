@@ -35,7 +35,7 @@ app.all('*', (req, res) => {
     });
 
     const mockDataObj = loadMockData();
-    const mockData = mockDataObj.mocks;
+    const mockData = mockDataObj.mocks || [];
     const testName = mockDataObj.testName;
     const defaultMockData = getDefaultMockData();
     const testMockIdMap = createIdMap(mockData);

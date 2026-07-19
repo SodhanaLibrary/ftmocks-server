@@ -375,7 +375,10 @@ const loadMockData = () => {
       error: error.message,
       stack: error.stack,
     });
-    return [];
+    // Keep the shape consistent with the success path so callers can safely
+    // read `.mocks`/`.testName` and fall back to default mocks when a test's
+    // config or _mock_list.json is missing, instead of crashing on `[].mocks`.
+    return { mocks: [], testName: null };
   }
 };
 

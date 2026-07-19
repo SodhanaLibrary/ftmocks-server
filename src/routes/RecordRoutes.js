@@ -250,7 +250,7 @@ const injectEventRecordingScript = async (
           prevEventSnapshot,
           xpath
         );
-        if (prevElements.snapshotLength > 1 && mainElement) {
+        if (prevElements.length > 1 && mainElement) {
           return `(${xpath})[${getElementsByRank(prevElements, mainElement)[0].index + 1}]`;
         }
         return xpath;
@@ -690,7 +690,10 @@ const injectEventRecordingScript = async (
           });
         }
       });
-      document.addEventListener('keypress', (event) => {
+      // Use 'keydown' rather than 'keypress': keypress only fires for keys that
+      // produce a character, so Tab/Escape/Backspace/Arrow keys never reach a
+      // keypress listener and were silently dropped from recordings.
+      document.addEventListener('keydown', (event) => {
         if (
           event.key === 'Enter' ||
           event.key === 'Tab' ||

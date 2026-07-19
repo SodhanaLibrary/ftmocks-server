@@ -104,6 +104,23 @@ const app = express();
 app.use(cors());
 let mockServerInstance;
 
+// Start the shared mock server on `port`, attaching an 'error' listener so a
+// failed bind (e.g. EADDRINUSE) rejects the promise instead of surfacing as an
+// uncaught exception that crashes the process. Resolves with the listening
+// server once it is actually accepting connections.
+const startMockServer = (port) =>
+  new Promise((resolve, reject) => {
+    const instance = mockServer.listen(port);
+    instance.once('listening', () => {
+      console.log(`Mock server listening at http://localhost:${port}`);
+      resolve(instance);
+    });
+    instance.once('error', (err) => {
+      console.error(`Failed to start mock server on port ${port}:`, err);
+      reject(err);
+    });
+  });
+
 // Read command line arguments
 const args = process.argv.slice(2);
 // Check for --debug flag in command line arguments
@@ -357,7 +374,7 @@ app.get('/api/v1/mockServer', async (req, res) => {
 });
 
 // Router for /api/v1/mockServer POST method
-app.post('/api/v1/mockServer', (req, res) => {
+app.post('/api/v1/mockServer', async (req, res) => {
   const { testName, port } = req.body;
 
   if (!testName || !port) {
@@ -366,17 +383,10 @@ app.post('/api/v1/mockServer', (req, res) => {
 
   try {
     updateMockServerTest(testName, port);
-    // Start the server
-    mockServerInstance = mockServer.listen(port, () => {
-      console.log(`Mock server listening at http://localhost:${port}`);
-    });
+    // Start the server (waits for the socket to bind or fail)
+    mockServerInstance = await startMockServer(port);
 
-    // Here you would typically start a new mock server instance
-    // This is a placeholder for that logic
     console.log(`Starting mock server for test ${testName} on port ${port}`);
-
-    // In a real implementation, you'd start the server here
-    // and return information about the started server
 
     res.status(200).json({
       message: 'Mock server started successfully',
@@ -390,7 +400,7 @@ app.post('/api/v1/mockServer', (req, res) => {
 });
 
 // Router for /api/v1/mockServer PUT method
-app.put('/api/v1/mockServer', (req, res) => {
+app.put('/api/v1/mockServer', async (req, res) => {
   const { testName, port } = req.body;
 
   if (!testName || !port) {
@@ -405,17 +415,10 @@ app.put('/api/v1/mockServer', (req, res) => {
       mockServerInstance = null;
     }
 
-    // Start the server
-    mockServerInstance = mockServer.listen(port, () => {
-      console.log(`Mock server listening at http://localhost:${port}`);
-    });
+    // Start the server (waits for the socket to bind or fail)
+    mockServerInstance = await startMockServer(port);
 
-    // Here you would typically start a new mock server instance
-    // This is a placeholder for that logic
     console.log(`Starting mock server for test ${testName} on port ${port}`);
-
-    // In a real implementation, you'd start the server here
-    // and return information about the started server
 
     res.status(200).json({
       message: 'Mock server started successfully',
@@ -424,6 +427,7 @@ app.put('/api/v1/mockServer', (req, res) => {
     });
   } catch (error) {
     console.error('Error starting mock server:', error);
+    mockServerInstance = null;
     res.status(500).json({ error: 'Failed to start mock server' });
   }
 });
@@ -487,10 +491,46 @@ app.post(
 
 let browser = null;
 
+// Close the shared browser, awaiting so a rejection (e.g. the browser already
+// crashed or disconnected) is caught here instead of surfacing as an unhandled
+// promise rejection that crashes the process.
+const closeBrowserSafely = async () => {
+  if (!browser) {
+    return;
+  }
+  try {
+    await browser.close();
+  } catch (error) {
+    logger.error('Error closing browser:', error);
+  } finally {
+    browser = null;
+  }
+};
+
+// Parse PREFERRED_SERVER_PORTS (a JSON array string like "[4051]") into an array
+// of ports. Returns [] for unset, blank, or malformed values instead of letting
+// JSON.parse throw, so callers can safely guard on length.
+const getPreferredServerPorts = () => {
+  const raw = process.env.PREFERRED_SERVER_PORTS;
+  if (!raw) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    logger.error('Invalid PREFERRED_SERVER_PORTS value', {
+      value: raw,
+      error: error.message,
+    });
+    return [];
+  }
+};
+
 app.post('/api/v1/record/mocks', async (req, res) => {
   if (browser) {
     console.log('Browser session is already running. closing now');
-    browser.close();
+    await closeBrowserSafely();
   }
   if (req.body.stopMockServer && mockServerInstance) {
     mockServerInstance.close();
@@ -501,35 +541,24 @@ app.post('/api/v1/record/mocks', async (req, res) => {
 });
 
 app.post('/api/v1/record/test', async (req, res) => {
-  try {
-    if (browser) {
-      console.log('Browser session is already running. closing now');
-      browser.close();
-    }
-  } catch (error) {
-    logger.error('Error closing browser:', error);
-  } finally {
-    browser = null;
+  if (browser) {
+    console.log('Browser session is already running. closing now');
+    await closeBrowserSafely();
   }
-  if (
-    req.body.startMockServer &&
-    process.env.PREFERRED_SERVER_PORTS?.length > 0
-  ) {
+  const preferredPorts = getPreferredServerPorts();
+  if (req.body.startMockServer && preferredPorts.length > 0) {
     if (mockServerInstance) {
       mockServerInstance.close();
+      mockServerInstance = null;
     }
-    updateMockServerTest(
-      req.body.testName,
-      JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]
-    );
-    mockServerInstance = mockServer.listen(
-      JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0],
-      () => {
-        console.log(
-          `Mock server listening at http://localhost:${JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]}`
-        );
-      }
-    );
+    const preferredPort = preferredPorts[0];
+    updateMockServerTest(req.body.testName, preferredPort);
+    try {
+      mockServerInstance = await startMockServer(preferredPort);
+    } catch (error) {
+      logger.error('Failed to start mock server for record/test', error);
+      mockServerInstance = null;
+    }
   }
 
   browser = await chromium.launch({ headless: false });
@@ -553,35 +582,24 @@ app.get('/api/v1/record/status', async (req, res) => {
 // Playwright codegen without network mock or event recording (same body/options as /playwright/mocks)
 app.post('/api/v1/record/playwright', async (req, res) => {
   try {
-    try {
-      if (browser) {
-        console.log('Browser session is already running. closing now');
-        browser.close();
-      }
-    } catch (error) {
-      logger.error('Error closing browser:', error);
-    } finally {
-      browser = null;
+    if (browser) {
+      console.log('Browser session is already running. closing now');
+      await closeBrowserSafely();
     }
-    if (
-      req.body.startMockServer &&
-      process.env.PREFERRED_SERVER_PORTS?.length > 0
-    ) {
+    const preferredPorts = getPreferredServerPorts();
+    if (req.body.startMockServer && preferredPorts.length > 0) {
       if (mockServerInstance) {
         mockServerInstance.close();
+        mockServerInstance = null;
       }
-      updateMockServerTest(
-        req.body.testName,
-        JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]
-      );
-      mockServerInstance = mockServer.listen(
-        JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0],
-        () => {
-          console.log(
-            `Mock server listening at http://localhost:${JSON.parse(process.env.PREFERRED_SERVER_PORTS)[0]}`
-          );
-        }
-      );
+      const preferredPort = preferredPorts[0];
+      updateMockServerTest(req.body.testName, preferredPort);
+      try {
+        mockServerInstance = await startMockServer(preferredPort);
+      } catch (error) {
+        logger.error('Failed to start mock server for record/playwright', error);
+        mockServerInstance = null;
+      }
     }
 
     const { testFilePath } = await runPlaywrightCodegen(req.body, {
@@ -604,15 +622,9 @@ app.post('/api/v1/record/playwright', async (req, res) => {
 // Playwright codegen with the same network mock recording as POST /api/v1/record/mocks
 app.post('/api/v1/record/playwright/mocks', async (req, res) => {
   try {
-    try {
-      if (browser) {
-        console.log('Browser session is already running. closing now');
-        browser.close();
-      }
-    } catch (error) {
-      logger.error('Error closing browser:', error);
-    } finally {
-      browser = null;
+    if (browser) {
+      console.log('Browser session is already running. closing now');
+      await closeBrowserSafely();
     }
 
     const { testFilePath } = await runPlaywrightCodegenWithMocks(req.body);
@@ -645,10 +657,9 @@ app.get('/api/v1/record', async (req, res) => {
 
 app.delete('/api/v1/record', async (req, res) => {
   if (browser) {
-    browser.close();
+    await closeBrowserSafely();
     process.env.recordTest = null;
   }
-  browser = null;
   return res.send({
     status: 'stopped',
     message: 'Browser session is not running.',
