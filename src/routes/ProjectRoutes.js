@@ -25,6 +25,12 @@ const loadEnvVariables = (project_env_file) => {
   process.env.MOCK_DIR = result.parsed.MOCK_DIR;
   process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
   process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
+  // REACT_TESTS_DIR is the React analogue of PLAYWRIGHT_DIR: the directory where
+  // generated React test files (*.test.js) are saved.
+  process.env.REACT_TESTS_DIR = result.parsed.REACT_TESTS_DIR;
+  // PROJECT_TYPE controls which recording features are shown in the UI.
+  // Supported values: 'playwright' (default) or 'react'.
+  process.env.PROJECT_TYPE = result.parsed.PROJECT_TYPE || 'playwright';
   process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
   process.env.BASE_URL = result.parsed.BASE_URL;
   process.env.HTTP_CREDENTIALS_USERNAME =
@@ -351,7 +357,16 @@ const getLatestProject = () => {
   }
   const defaultData = fs.readFileSync(defaultPath, 'utf8');
   const parsedData = JSON.parse(defaultData);
-  return parsedData?.length > 0 ? parsedData[0].env_file : 'my-project.env';
+  if (!parsedData?.length) {
+    return 'my-project.env';
+  }
+  // Return the first project whose env file still exists on disk. Entries can
+  // point at env files that have since been deleted/moved; skip those and fall
+  // back to the next available one so startup doesn't crash.
+  const existingProject = parsedData.find(
+    (project) => project?.env_file && fs.existsSync(project.env_file)
+  );
+  return existingProject ? existingProject.env_file : 'my-project.env';
 };
 
 module.exports = {

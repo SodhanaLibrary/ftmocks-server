@@ -59,7 +59,11 @@ const {
   recordLogData,
   deleteAllLogs,
 } = require('./src/routes/RecordedLogsRoutes');
-const { getEnvProject } = require('./src/routes/EnvRoutes.js');
+const {
+  getEnvProject,
+  getEnvFile,
+  saveEnvFile,
+} = require('./src/routes/EnvRoutes.js');
 const {
   getLatestVersions,
   updateLatestVersions,
@@ -275,6 +279,8 @@ app.put('/api/v1/defaultmocks/:id', updateDefaultMock);
 app.put('/api/v1/defaultmocks/reset-served', resetDefaultMockServed);
 
 app.get('/api/v1/env/project', getEnvProject);
+app.get('/api/v1/env/file', getEnvFile);
+app.put('/api/v1/env/file', saveEnvFile);
 
 // Router for /api/v1/recordedEvents GET method
 app.get('/api/v1/recordedEvents', getRecordedEvents);

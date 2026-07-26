@@ -22,11 +22,10 @@ function findPlaywrightSpecInTree(dir, specBaseName) {
 }
 
 /**
- * Resolves a path under PLAYWRIGHT_DIR/tests using only the basename of fileName
- * and ensures the result stays inside tests/.
+ * Resolves a path under a given tests root using only the basename of fileName
+ * and ensures the result stays inside that root.
  */
-function resolveSafePlaywrightSpecPath(absolutePlaywrightDir, parents, fileName) {
-  const testsRoot = path.resolve(absolutePlaywrightDir, 'tests');
+function resolveSafeSpecPathUnderRoot(testsRoot, parents, fileName) {
   const parentFolder = getParentFolder(parents);
   const baseDir = path.resolve(testsRoot, parentFolder);
   if (baseDir !== testsRoot && !baseDir.startsWith(testsRoot + path.sep)) {
@@ -44,6 +43,84 @@ function resolveSafePlaywrightSpecPath(absolutePlaywrightDir, parents, fileName)
   return { filePath, fullDirectoryPath: baseDir };
 }
 
+/**
+ * Picks the tests root for a generated file. React test files (*.test.js) go to
+ * REACT_TESTS_DIR (which already points at the tests directory); everything else
+ * goes under PLAYWRIGHT_DIR/tests. Mirrors how PLAYWRIGHT_DIR locates specs.
+ */
+function resolveTestsRootForFile(fileName) {
+  const isReactTest = /\.test\.js$/i.test(String(fileName || ''));
+  if (isReactTest && process.env.REACT_TESTS_DIR) {
+    return getAbsolutePathWithMockDir(process.env.REACT_TESTS_DIR);
+  }
+  const absolutePlaywrightDir = getAbsolutePathWithMockDir(
+    process.env.PLAYWRIGHT_DIR || ''
+  );
+  return path.resolve(absolutePlaywrightDir, 'tests');
+}
+
+function isReactTestFile(fileName) {
+  return /\.test\.js$/i.test(String(fileName || ''));
+}
+
+/**
+ * Walks up from startDir to find the nearest directory containing package.json.
+ * Used as the working directory when running React tests (jest resolves its
+ * config/rootDir from the project root). Returns null if none is found.
+ */
+function findNearestPackageJsonDir(startDir) {
+  let dir = path.resolve(startDir);
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    if (fs.existsSync(path.join(dir, 'package.json'))) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      return null;
+    }
+    dir = parent;
+  }
+}
+
+/**
+ * Builds the { command, args, cwd, env } used to run a generated test file.
+ * React test files (*.test.js) run via REACT_TEST_COMMAND (default `npx jest`)
+ * from the nearest package.json directory; everything else runs via Playwright.
+ */
+function buildTestRunSpec(filePath, fileName, withUI) {
+  if (isReactTestFile(fileName)) {
+    const reactCommand = process.env.REACT_TEST_COMMAND || 'npx jest';
+    const parts = reactCommand.split(/\s+/).filter(Boolean);
+    const [command, ...commandArgs] = parts;
+    const cwd =
+      findNearestPackageJsonDir(path.dirname(filePath)) ||
+      getAbsolutePathWithMockDir(process.env.REACT_TESTS_DIR || '');
+    return {
+      command,
+      args: [...commandArgs, filePath],
+      cwd,
+      env: { ...process.env, NODE_ENV: 'test' },
+    };
+  }
+
+  const absolutePlaywrightDir = getAbsolutePathWithMockDir(
+    process.env.PLAYWRIGHT_DIR || ''
+  );
+  return {
+    command: 'npx',
+    args: [
+      'playwright',
+      'test',
+      filePath,
+      '--retries=0',
+      withUI ? '--ui' : '--headed',
+    ],
+    cwd: absolutePlaywrightDir,
+    env: { ...process.env, NODE_ENV: 'dev' },
+  };
+}
+
 // POST /api/v1/code/save - Save generated code to file
 const saveFile = async (req, res) => {
   try {
@@ -57,15 +134,12 @@ const saveFile = async (req, res) => {
       });
     }
 
-    const absolutePlaywrightDir = getAbsolutePathWithMockDir(
-      process.env.PLAYWRIGHT_DIR || ''
-    );
-
     let filePath;
     let fullDirectoryPath;
     try {
-      ({ filePath, fullDirectoryPath } = resolveSafePlaywrightSpecPath(
-        absolutePlaywrightDir,
+      const testsRoot = resolveTestsRootForFile(fileName);
+      ({ filePath, fullDirectoryPath } = resolveSafeSpecPathUnderRoot(
+        testsRoot,
         parents,
         fileName
       ));
@@ -96,34 +170,39 @@ const saveFile = async (req, res) => {
 const runTest = async (req, res) => {
   try {
     const { testName, generatedCode, fileName, parents, withUI } = req.body;
-    const absolutePlaywrightDir = getAbsolutePathWithMockDir(
-      process.env.PLAYWRIGHT_DIR || ''
-    );
+    const isReactTest = isReactTestFile(fileName);
 
-    if (
-      fileName !== '__ftmocks-mock-mode-ignore-me.spec.js' &&
-      fs.existsSync(
-        path.join(
-          absolutePlaywrightDir,
-          'tests',
-          '__ftmocks-mock-mode-ignore-me.spec.js'
-        )
-      )
-    ) {
-      fs.rmSync(
-        path.join(
-          absolutePlaywrightDir,
-          'tests',
-          '__ftmocks-mock-mode-ignore-me.spec.js'
-        )
+    // Playwright-only: clean up the transient mock-mode spec before a real run.
+    if (!isReactTest) {
+      const absolutePlaywrightDir = getAbsolutePathWithMockDir(
+        process.env.PLAYWRIGHT_DIR || ''
       );
+      if (
+        fileName !== '__ftmocks-mock-mode-ignore-me.spec.js' &&
+        fs.existsSync(
+          path.join(
+            absolutePlaywrightDir,
+            'tests',
+            '__ftmocks-mock-mode-ignore-me.spec.js'
+          )
+        )
+      ) {
+        fs.rmSync(
+          path.join(
+            absolutePlaywrightDir,
+            'tests',
+            '__ftmocks-mock-mode-ignore-me.spec.js'
+          )
+        );
+      }
     }
 
     let filePath;
     let fullDirectoryPath;
     try {
-      ({ filePath, fullDirectoryPath } = resolveSafePlaywrightSpecPath(
-        absolutePlaywrightDir,
+      const testsRoot = resolveTestsRootForFile(fileName);
+      ({ filePath, fullDirectoryPath } = resolveSafeSpecPathUnderRoot(
+        testsRoot,
         parents,
         fileName
       ));
@@ -145,20 +224,12 @@ const runTest = async (req, res) => {
 
     // Use spawn instead of execSync to capture output in real-time
     const { spawn } = require('child_process');
-    const testProcess = spawn(
-      'npx',
-      [
-        'playwright',
-        'test',
-        filePath,
-        '--retries=0',
-        withUI ? '--ui' : '--headed',
-      ],
-      {
-        env: { ...process.env, NODE_ENV: 'dev' },
-        cwd: absolutePlaywrightDir,
-      }
+    const { command, args, cwd, env } = buildTestRunSpec(
+      filePath,
+      fileName,
+      withUI
     );
+    const testProcess = spawn(command, args, { env, cwd });
 
     // Stream stdout to response
     testProcess.stdout.on('data', (data) => {
@@ -220,22 +291,40 @@ const getTestSpecCode = async (req, res) => {
       /* use trimmed literal */
     }
 
-    const pwDir = process.env.PLAYWRIGHT_DIR || '';
-    if (!pwDir) {
-      return res.status(503).json({
-        error:
-          'PLAYWRIGHT_DIR is not configured; cannot resolve Playwright spec path',
-      });
-    }
+    const isReact = process.env.PROJECT_TYPE === 'react';
 
-    const absolutePlaywrightDir = getAbsolutePathWithMockDir(pwDir);
-    const testsRoot = path.join(absolutePlaywrightDir, 'tests');
-    const specBaseName = `${nameToFolder(testName).toLowerCase()}.spec.js`;
+    let rootDir;
+    let testsRoot;
+    let specBaseName;
+    if (isReact) {
+      const reactDir = process.env.REACT_TESTS_DIR || '';
+      if (!reactDir) {
+        return res.status(503).json({
+          error:
+            'REACT_TESTS_DIR is not configured; cannot resolve React test path',
+        });
+      }
+      // REACT_TESTS_DIR already points at the tests directory.
+      rootDir = getAbsolutePathWithMockDir(reactDir);
+      testsRoot = rootDir;
+      specBaseName = `${nameToFolder(testName).toLowerCase()}.test.js`;
+    } else {
+      const pwDir = process.env.PLAYWRIGHT_DIR || '';
+      if (!pwDir) {
+        return res.status(503).json({
+          error:
+            'PLAYWRIGHT_DIR is not configured; cannot resolve Playwright spec path',
+        });
+      }
+      rootDir = getAbsolutePathWithMockDir(pwDir);
+      testsRoot = path.join(rootDir, 'tests');
+      specBaseName = `${nameToFolder(testName).toLowerCase()}.spec.js`;
+    }
 
     const filePath = findPlaywrightSpecInTree(testsRoot, specBaseName);
     if (!filePath || !fs.existsSync(filePath)) {
       return res.status(404).json({
-        error: 'Playwright spec not found',
+        error: isReact ? 'React test not found' : 'Playwright spec not found',
         specFileName: specBaseName,
         testsRoot,
       });
@@ -245,7 +334,7 @@ const getTestSpecCode = async (req, res) => {
     res.status(200).json({
       fileName: specBaseName,
       filePath,
-      relativePath: path.relative(absolutePlaywrightDir, filePath),
+      relativePath: path.relative(rootDir, filePath),
       content,
     });
   } catch (error) {

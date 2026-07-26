@@ -106,6 +106,52 @@ npm start ./ftmocks.env
 
 ---
 
+## Project types & environment variables
+
+FtMocks supports two kinds of projects, selected with `PROJECT_TYPE` in your `ftmocks.env`:
+
+| `PROJECT_TYPE` | Test framework | Generated file | Saved to | Run with |
+| --- | --- | --- | --- | --- |
+| `playwright` (default) | Playwright | `<test-name>.spec.js` | `PLAYWRIGHT_DIR/tests` | `npx playwright test` |
+| `react` | Jest + React Testing Library | `<test-name>.test.js` | `REACT_TESTS_DIR` | `REACT_TEST_COMMAND` (default `npx jest`) |
+
+`PROJECT_TYPE` drives what the **Record** section shows in the UI: for `react` it swaps the Playwright codegen actions for **Generate React Code** and saves/runs Jest tests; for `playwright` (or when unset) it keeps the Playwright codegen flow. You can set it — and the variables below — from the **Projects** page (Edit env file) or by hand.
+
+### Common variables
+
+| Variable | Description |
+| --- | --- |
+| `MOCK_DIR` | Directory holding recorded mocks (relative paths resolve from the env file). **Required.** |
+| `PORT` | Port for the FtMocks UI/API. Default `5000`. |
+| `PREFERRED_SERVER_PORTS` | JSON array of preferred ports for the standalone mock server, e.g. `[4051]`. |
+| `PROJECT_TYPE` | `playwright` (default) or `react`. Selects the recording/codegen features described above. |
+
+### Playwright projects
+
+| Variable | Description |
+| --- | --- |
+| `PLAYWRIGHT_DIR` | Playwright project directory (contains `tests/`). Generated specs are saved to `PLAYWRIGHT_DIR/tests` and run with `npx playwright test`. |
+
+### React projects
+
+| Variable | Description |
+| --- | --- |
+| `REACT_TESTS_DIR` | Directory where generated `*.test.js` files are saved and read (e.g. `../src/tests`). Relative paths resolve from `MOCK_DIR`. |
+| `REACT_TEST_COMMAND` | Command used to run a React test. Default `npx jest`. The test file path is appended, and the command runs from the nearest `package.json` directory with `NODE_ENV=test`. Set per project, e.g. `npx react-scripts test --watchAll=false` (CRA) or `npx vitest run` (Vitest). |
+
+Example `ftmocks.env` for a React project:
+
+```env
+MOCK_DIR=./testMockData
+PORT=5000
+PROJECT_TYPE=react
+REACT_TESTS_DIR=../src/tests
+```
+
+Generated React tests import their runtime from [`ftmocks-utils`](https://github.com/SodhanaLibrary/ftmocks-utils) (`initiateJestFetch`, `getByXPath`), so the target project must have `ftmocks-utils` (>=1.7.0), `jest`, and `@testing-library/react` installed.
+
+---
+
 ## Model Context Protocol (MCP)
 
 FtMocks ships an MCP server so AI agents (Cursor, Claude, etc.) can record mocks, generate tests, and run them programmatically.
