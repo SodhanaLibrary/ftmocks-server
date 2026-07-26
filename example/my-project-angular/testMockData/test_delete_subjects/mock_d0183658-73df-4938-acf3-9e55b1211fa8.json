@@ -1,0 +1,36 @@
+{
+  "url": "/api/subjects/6",
+  "time": "Fri Oct 24 2025 22:16:25 GMT+0530 (India Standard Time)",
+  "method": "DELETE",
+  "request": {
+    "headers": {
+      "accept": "*/*",
+      "origin": "http://localhost:4050",
+      "referer": "http://localhost:4050/",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"139\", \"Not;A=Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": [],
+    "postData": null
+  },
+  "response": {
+    "file": false,
+    "status": 200,
+    "headers": {
+      "x-powered-by": "Express",
+      "access-control-allow-origin": "*",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "42",
+      "etag": "W/\"2a-zyykhdLjjhYOd0otkmCjYi3t8Ok\"",
+      "date": "Fri, 24 Oct 2025 16:46:25 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+    },
+    "content": "{\"message\":\"Subject deleted successfully\"}"
+  },
+  "id": "d0183658-73df-4938-acf3-9e55b1211fa8",
+  "served": true,
+  "ignoreParams": []
+}

@@ -1,6 +1,6 @@
 # FtMocks
 
-**Record browser interactions → auto-generate Playwright & React tests → run them. No mock server required.**
+**Record browser interactions → auto-generate Playwright, React & Angular tests → run them. No mock server required.**
 
 FtMocks captures real network traffic as you use your app, generates ready-to-run test specs, and embeds the recorded mocks directly into your tests. Your CI pipeline needs zero extra infrastructure.
 
@@ -66,7 +66,7 @@ Click the **play icon** to run headless, or the **gavel icon** for Playwright UI
 - **One-step record + codegen** — captures network mocks and generates test code simultaneously
 - **Inline mock execution** — tests run against recorded data, not live APIs; no mock server process needed in CI
 - **HAR / Postman / Playwright trace import** — bring in mocks from existing recordings
-- **React test generation** — generate React component tests alongside Playwright e2e tests
+- **React & Angular test generation** — generate React component tests or Angular spec files alongside Playwright e2e tests
 - **Default mocks** — shared fallback responses across all tests in a project
 - **AI-assisted mock editing** — edit mock payloads with an LLM (requires `OPENAI_API_KEY`)
 - **MCP server** — drive FtMocks from Cursor, Claude, or any MCP-capable agent
@@ -108,14 +108,15 @@ npm start ./ftmocks.env
 
 ## Project types & environment variables
 
-FtMocks supports two kinds of projects, selected with `PROJECT_TYPE` in your `ftmocks.env`:
+FtMocks supports three kinds of projects, selected with `PROJECT_TYPE` in your `ftmocks.env`:
 
 | `PROJECT_TYPE` | Test framework | Generated file | Saved to | Run with |
 | --- | --- | --- | --- | --- |
 | `playwright` (default) | Playwright | `<test-name>.spec.js` | `PLAYWRIGHT_DIR/tests` | `npx playwright test` |
 | `react` | Jest + React Testing Library | `<test-name>.test.js` | `REACT_TESTS_DIR` | `REACT_TEST_COMMAND` (default `npx jest`) |
+| `angular` | Jest (jest-preset-angular) | `<test-name>.spec.ts` | `ANGULAR_TESTS_DIR` | `ANGULAR_TEST_COMMAND` (default `npx jest`) |
 
-`PROJECT_TYPE` drives what the **Record** section shows in the UI: for `react` it swaps the Playwright codegen actions for **Generate React Code** and saves/runs Jest tests; for `playwright` (or when unset) it keeps the Playwright codegen flow. You can set it — and the variables below — from the **Projects** page (Edit env file) or by hand.
+`PROJECT_TYPE` drives what the **Record** section shows in the UI. For `react` it swaps the Playwright codegen actions for **Generate React Code**; for `angular` it swaps them for **Generate Angular Code** (Jest + Angular TestBed); for `playwright` (or when unset) it keeps the Playwright codegen flow. You can set it — and the variables below — from the **Projects** page (Edit env file) or by hand.
 
 ### Common variables
 
@@ -124,7 +125,7 @@ FtMocks supports two kinds of projects, selected with `PROJECT_TYPE` in your `ft
 | `MOCK_DIR` | Directory holding recorded mocks (relative paths resolve from the env file). **Required.** |
 | `PORT` | Port for the FtMocks UI/API. Default `5000`. |
 | `PREFERRED_SERVER_PORTS` | JSON array of preferred ports for the standalone mock server, e.g. `[4051]`. |
-| `PROJECT_TYPE` | `playwright` (default) or `react`. Selects the recording/codegen features described above. |
+| `PROJECT_TYPE` | `playwright` (default), `react`, or `angular`. Selects the recording/codegen features described above. |
 
 ### Playwright projects
 
@@ -149,6 +150,24 @@ REACT_TESTS_DIR=../src/tests
 ```
 
 Generated React tests import their runtime from [`ftmocks-utils`](https://github.com/SodhanaLibrary/ftmocks-utils) (`initiateJestFetch`, `getByXPath`), so the target project must have `ftmocks-utils` (>=1.7.0), `jest`, and `@testing-library/react` installed.
+
+### Angular projects
+
+| Variable | Description |
+| --- | --- |
+| `ANGULAR_TESTS_DIR` | Directory where generated `*.spec.ts` files are saved and read (e.g. `../src/app/tests`). Relative paths resolve from `MOCK_DIR`. The Angular analogue of `PLAYWRIGHT_DIR`. |
+| `ANGULAR_TEST_COMMAND` | Command used to run an Angular test. Default `npx jest` (via [jest-preset-angular](https://github.com/thymikee/jest-preset-angular)). The test file path is appended, and the command runs from the nearest `package.json` directory with `NODE_ENV=test`. |
+
+Example `ftmocks.env` for an Angular project:
+
+```env
+MOCK_DIR=./testMockData
+PORT=5000
+PROJECT_TYPE=angular
+ANGULAR_TESTS_DIR=../src/app/tests
+```
+
+Generated Angular tests run under Jest (jest-preset-angular): they render the component with Angular `TestBed` and install an FtMocks `HttpClient` interceptor from [`ftmocks-utils`](https://github.com/SodhanaLibrary/ftmocks-utils) (`ftmocksHttpInterceptor`, `getByXPath`). The target project needs `ftmocks-utils` (>=1.7.0), `jest`, and `jest-preset-angular` installed. See [`example/my-project-angular`](example/my-project-angular) for a complete working setup.
 
 ---
 

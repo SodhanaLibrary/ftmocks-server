@@ -25,11 +25,28 @@ const loadEnvVariables = (project_env_file) => {
   process.env.MOCK_DIR = result.parsed.MOCK_DIR;
   process.env.PREFERRED_SERVER_PORTS = result.parsed.PREFERRED_SERVER_PORTS;
   process.env.PLAYWRIGHT_DIR = result.parsed.PLAYWRIGHT_DIR;
+  // Assign an env var from the parsed file, or delete it so a value from a
+  // previously loaded project doesn't linger (and doesn't become the string
+  // "undefined" via process.env coercion) after switching projects.
+  const setOrClearEnv = (key) => {
+    if (result.parsed[key] !== undefined && result.parsed[key] !== '') {
+      process.env[key] = result.parsed[key];
+    } else {
+      delete process.env[key];
+    }
+  };
   // REACT_TESTS_DIR is the React analogue of PLAYWRIGHT_DIR: the directory where
-  // generated React test files (*.test.js) are saved.
-  process.env.REACT_TESTS_DIR = result.parsed.REACT_TESTS_DIR;
+  // generated React test files (*.test.js) are saved. REACT_TEST_COMMAND overrides
+  // the command used to run them (default `npx jest`).
+  setOrClearEnv('REACT_TESTS_DIR');
+  setOrClearEnv('REACT_TEST_COMMAND');
+  // ANGULAR_TESTS_DIR is the Angular analogue: the directory where generated
+  // Angular test files (*.spec.ts) are saved. ANGULAR_TEST_COMMAND overrides the
+  // command used to run them (default `npx jest` via jest-preset-angular).
+  setOrClearEnv('ANGULAR_TESTS_DIR');
+  setOrClearEnv('ANGULAR_TEST_COMMAND');
   // PROJECT_TYPE controls which recording features are shown in the UI.
-  // Supported values: 'playwright' (default) or 'react'.
+  // Supported values: 'playwright' (default), 'react', or 'angular'.
   process.env.PROJECT_TYPE = result.parsed.PROJECT_TYPE || 'playwright';
   process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
   process.env.BASE_URL = result.parsed.BASE_URL;

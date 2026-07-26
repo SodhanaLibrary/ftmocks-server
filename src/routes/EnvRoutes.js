@@ -53,6 +53,15 @@ const getEnvProject = async (req, res) => {
         process.env.MOCK_DIR
       );
     }
+    if (process.env.ANGULAR_TESTS_DIR) {
+      const absoluteAngularTestsDir = getAbsolutePathWithMockDir(
+        process.env.ANGULAR_TESTS_DIR
+      );
+      process.env.RELATIVE_MOCK_DIR_FROM_ANGULAR_TESTS_DIR = getRelativePath(
+        absoluteAngularTestsDir,
+        process.env.MOCK_DIR
+      );
+    }
     const envConfig = {
       MOCK_DIR: process.env.MOCK_DIR,
       PORT: process.env.PORT,
@@ -64,6 +73,9 @@ const getEnvProject = async (req, res) => {
       REACT_TESTS_DIR: process.env.REACT_TESTS_DIR,
       RELATIVE_MOCK_DIR_FROM_REACT_TESTS_DIR:
         process.env.RELATIVE_MOCK_DIR_FROM_REACT_TESTS_DIR,
+      ANGULAR_TESTS_DIR: process.env.ANGULAR_TESTS_DIR,
+      RELATIVE_MOCK_DIR_FROM_ANGULAR_TESTS_DIR:
+        process.env.RELATIVE_MOCK_DIR_FROM_ANGULAR_TESTS_DIR,
       RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR:
         process.env.RELATIVE_MOCK_DIR_FROM_PLAYWRIGHT_DIR,
       RELATIVE_FALLBACK_DIR_FROM_PLAYWRIGHT_DIR:

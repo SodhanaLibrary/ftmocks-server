@@ -1,0 +1,26 @@
+[
+  {
+    "id": "e5e89a66-63b0-49a1-827d-5306d5e8cb0e",
+    "url": "/api/teachers",
+    "method": "GET",
+    "time": "Fri Oct 24 2025 22:16:20 GMT+0530 (India Standard Time)"
+  },
+  {
+    "id": "bd15719d-91ae-4e4a-b20d-fc0f140edc2d",
+    "url": "/api/subjects",
+    "method": "GET",
+    "time": "Fri Oct 24 2025 22:16:22 GMT+0530 (India Standard Time)"
+  },
+  {
+    "id": "d0183658-73df-4938-acf3-9e55b1211fa8",
+    "url": "/api/subjects/6",
+    "method": "DELETE",
+    "time": "Fri Oct 24 2025 22:16:25 GMT+0530 (India Standard Time)"
+  },
+  {
+    "id": "1ebdebf6-5d64-437a-8d19-7ac2a1565c63",
+    "url": "/api/subjects",
+    "method": "GET",
+    "time": "Fri Oct 24 2025 22:16:25 GMT+0530 (India Standard Time)"
+  }
+]

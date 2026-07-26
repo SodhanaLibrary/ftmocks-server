@@ -45,13 +45,16 @@ function resolveSafeSpecPathUnderRoot(testsRoot, parents, fileName) {
 
 /**
  * Picks the tests root for a generated file. React test files (*.test.js) go to
- * REACT_TESTS_DIR (which already points at the tests directory); everything else
- * goes under PLAYWRIGHT_DIR/tests. Mirrors how PLAYWRIGHT_DIR locates specs.
+ * REACT_TESTS_DIR and Angular test files (*.spec.ts) go to ANGULAR_TESTS_DIR
+ * (each already points at the tests directory); everything else goes under
+ * PLAYWRIGHT_DIR/tests. Mirrors how PLAYWRIGHT_DIR locates specs.
  */
 function resolveTestsRootForFile(fileName) {
-  const isReactTest = /\.test\.js$/i.test(String(fileName || ''));
-  if (isReactTest && process.env.REACT_TESTS_DIR) {
+  if (isReactTestFile(fileName) && process.env.REACT_TESTS_DIR) {
     return getAbsolutePathWithMockDir(process.env.REACT_TESTS_DIR);
+  }
+  if (isAngularTestFile(fileName) && process.env.ANGULAR_TESTS_DIR) {
+    return getAbsolutePathWithMockDir(process.env.ANGULAR_TESTS_DIR);
   }
   const absolutePlaywrightDir = getAbsolutePathWithMockDir(
     process.env.PLAYWRIGHT_DIR || ''
@@ -61,6 +64,10 @@ function resolveTestsRootForFile(fileName) {
 
 function isReactTestFile(fileName) {
   return /\.test\.js$/i.test(String(fileName || ''));
+}
+
+function isAngularTestFile(fileName) {
+  return /\.spec\.ts$/i.test(String(fileName || ''));
 }
 
 /**
@@ -85,8 +92,9 @@ function findNearestPackageJsonDir(startDir) {
 
 /**
  * Builds the { command, args, cwd, env } used to run a generated test file.
- * React test files (*.test.js) run via REACT_TEST_COMMAND (default `npx jest`)
- * from the nearest package.json directory; everything else runs via Playwright.
+ * React test files (*.test.js) run via REACT_TEST_COMMAND and Angular test files
+ * (*.spec.ts) via ANGULAR_TEST_COMMAND (both default `npx jest`) from the nearest
+ * package.json directory; everything else runs via Playwright.
  */
 function buildTestRunSpec(filePath, fileName, withUI) {
   if (isReactTestFile(fileName)) {
@@ -96,6 +104,21 @@ function buildTestRunSpec(filePath, fileName, withUI) {
     const cwd =
       findNearestPackageJsonDir(path.dirname(filePath)) ||
       getAbsolutePathWithMockDir(process.env.REACT_TESTS_DIR || '');
+    return {
+      command,
+      args: [...commandArgs, filePath],
+      cwd,
+      env: { ...process.env, NODE_ENV: 'test' },
+    };
+  }
+
+  if (isAngularTestFile(fileName)) {
+    const angularCommand = process.env.ANGULAR_TEST_COMMAND || 'npx jest';
+    const parts = angularCommand.split(/\s+/).filter(Boolean);
+    const [command, ...commandArgs] = parts;
+    const cwd =
+      findNearestPackageJsonDir(path.dirname(filePath)) ||
+      getAbsolutePathWithMockDir(process.env.ANGULAR_TESTS_DIR || '');
     return {
       command,
       args: [...commandArgs, filePath],
@@ -170,10 +193,11 @@ const saveFile = async (req, res) => {
 const runTest = async (req, res) => {
   try {
     const { testName, generatedCode, fileName, parents, withUI } = req.body;
-    const isReactTest = isReactTestFile(fileName);
+    const isNonPlaywright =
+      isReactTestFile(fileName) || isAngularTestFile(fileName);
 
     // Playwright-only: clean up the transient mock-mode spec before a real run.
-    if (!isReactTest) {
+    if (!isNonPlaywright) {
       const absolutePlaywrightDir = getAbsolutePathWithMockDir(
         process.env.PLAYWRIGHT_DIR || ''
       );
@@ -292,6 +316,7 @@ const getTestSpecCode = async (req, res) => {
     }
 
     const isReact = process.env.PROJECT_TYPE === 'react';
+    const isAngular = process.env.PROJECT_TYPE === 'angular';
 
     let rootDir;
     let testsRoot;
@@ -308,6 +333,18 @@ const getTestSpecCode = async (req, res) => {
       rootDir = getAbsolutePathWithMockDir(reactDir);
       testsRoot = rootDir;
       specBaseName = `${nameToFolder(testName).toLowerCase()}.test.js`;
+    } else if (isAngular) {
+      const angularDir = process.env.ANGULAR_TESTS_DIR || '';
+      if (!angularDir) {
+        return res.status(503).json({
+          error:
+            'ANGULAR_TESTS_DIR is not configured; cannot resolve Angular test path',
+        });
+      }
+      // ANGULAR_TESTS_DIR already points at the tests directory.
+      rootDir = getAbsolutePathWithMockDir(angularDir);
+      testsRoot = rootDir;
+      specBaseName = `${nameToFolder(testName).toLowerCase()}.spec.ts`;
     } else {
       const pwDir = process.env.PLAYWRIGHT_DIR || '';
       if (!pwDir) {
@@ -324,7 +361,11 @@ const getTestSpecCode = async (req, res) => {
     const filePath = findPlaywrightSpecInTree(testsRoot, specBaseName);
     if (!filePath || !fs.existsSync(filePath)) {
       return res.status(404).json({
-        error: isReact ? 'React test not found' : 'Playwright spec not found',
+        error: isReact
+          ? 'React test not found'
+          : isAngular
+            ? 'Angular test not found'
+            : 'Playwright spec not found',
         specFileName: specBaseName,
         testsRoot,
       });

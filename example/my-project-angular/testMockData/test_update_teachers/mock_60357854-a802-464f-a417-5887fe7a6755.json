@@ -1,0 +1,38 @@
+{
+  "url": "/api/teachers",
+  "time": "Fri Oct 24 2025 20:53:13 GMT+0530 (India Standard Time)",
+  "method": "GET",
+  "request": {
+    "headers": {
+      "accept": "*/*",
+      "origin": "http://localhost:4050",
+      "referer": "http://localhost:4050/",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"139\", \"Not;A=Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": [],
+    "postData": null
+  },
+  "response": {
+    "file": false,
+    "status": 200,
+    "headers": {
+      "x-powered-by": "Express",
+      "access-control-allow-origin": "*",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "364",
+      "etag": "W/\"16c-NAha25J+6mZ99zCzS21m8bcGYaA\"",
+      "date": "Fri, 24 Oct 2025 15:23:13 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+    },
+    "content": "[\n  {\n    \"id\": 1,\n    \"name\": \"Mr. Thomas Anderson\",\n    \"subject\": \"Mathematics\"\n  },\n  {\n    \"id\": 2,\n    \"name\": \"Ms. Maria Rodriguez\",\n    \"subject\": \"English\"\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Mr. James Miller\",\n    \"subject\": \"Science\"\n  },\n  {\n    \"id\": 4,\n    \"name\": \"Mrs. Susan Lee\",\n    \"subject\": \"History\"\n  },\n  {\n    \"id\": 5,\n    \"name\": \"Dr. Rachel Scott\",\n    \"subject\": \"Physical Education\"\n  },\n  {\n    \"id\": 6,\n    \"name\": \"Dr.Update\",\n    \"subject\": \"Chem\",\n    \"yearsOfExperience\": \"3\"\n  }\n]"
+  },
+  "id": "60357854-a802-464f-a417-5887fe7a6755",
+  "served": true,
+  "ignoreParams": [],
+  "isDuplicate": true,
+  "waitForPrevious": true
+}

@@ -1,0 +1,17 @@
+# Dependencies
+/node_modules
+
+# Angular build output
+/dist
+/tmp
+/out-tsc
+/.angular
+
+# IDE / OS
+.DS_Store
+.idea
+.vscode
+
+# Logs
+*.log
+npm-debug.log*
