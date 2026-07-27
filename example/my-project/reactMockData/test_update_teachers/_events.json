@@ -1,0 +1,216 @@
+[
+  {
+    "id": "eb0df018-e6d1-46e8-a178-82dfc2db04f2",
+    "type": "url",
+    "target": "http://localhost:4050/",
+    "time": "2025-10-24T15:23:01.700Z",
+    "value": "http://localhost:4050/"
+  },
+  {
+    "type": "click",
+    "target": "//*[@id='teacher-6-edit-btn']",
+    "time": "2025-10-24T15:23:05.500Z",
+    "value": {
+      "clientX": 922,
+      "clientY": 689,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Edit')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='teacher-6-edit-btn']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Edit",
+      "id": "teacher-6-edit-btn",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "cf38b4ff-42ce-4140-9678-35d52c0fa3b3"
+  },
+  {
+    "type": "click",
+    "target": "input[name='name']",
+    "time": "2025-10-24T15:23:08.363Z",
+    "value": {
+      "clientX": 173,
+      "clientY": 209,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='teacher-form-name']"
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "teacher-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "Dr.New",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "405c35c6-d8cf-4764-957b-0b1e527ec74d"
+  },
+  {
+    "type": "input",
+    "target": "//*[@id='teacher-form-name']",
+    "time": "2025-10-24T15:23:08.949Z",
+    "value": "Dr.Update",
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "input[name='name']",
+        "nth": 1
+      }
+    ],
+    "element": {
+      "tagName": "INPUT",
+      "textContent": null,
+      "id": "teacher-form-name",
+      "role": null,
+      "name": "name",
+      "ariaLabel": null,
+      "value": "Dr.Ne",
+      "type": "text",
+      "checked": false,
+      "disabled": false,
+      "placeholder": "",
+      "title": "",
+      "href": null,
+      "src": null,
+      "alt": ""
+    },
+    "id": "26153178-7765-43fc-9420-7bcf4aaf9956"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Update')]",
+    "time": "2025-10-24T15:23:13.360Z",
+    "value": {
+      "clientX": 740,
+      "clientY": 205,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Update')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='teacher-form-submit']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Update",
+      "id": "teacher-form-submit",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "45bf73ca-2e3a-4f9d-b2f0-ddfe42c19e78"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), 'Dr.Update')]",
+    "time": "2025-10-24T15:23:16.091Z",
+    "value": {
+      "clientX": 113,
+      "clientY": 677,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), 'Dr.Update')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[1]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "Dr.Update",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "ad7df024-e2cc-423c-9d1b-cbff14a21351"
+  },
+  {
+    "type": "click",
+    "target": "//td[contains(text(), 'Chem')]",
+    "time": "2025-10-24T15:23:17.359Z",
+    "value": {
+      "clientX": 382,
+      "clientY": 673,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//td[contains(text(), 'Chem')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='root']/div/div[2]/div[2]/table/tbody/tr[6]/td[2]"
+      }
+    ],
+    "element": {
+      "tagName": "TD",
+      "textContent": "Chem",
+      "id": "",
+      "role": null,
+      "ariaLabel": null,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "b3ebb1ee-9f6d-4e6e-a6cc-8f82e77d9d3f"
+  }
+]

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "2ca12d8f-ee6b-41db-aa77-8128c355acdd",
+    "url": "/api/teachers",
+    "method": "GET",
+    "time": "Fri Oct 24 2025 20:49:14 GMT+0530 (India Standard Time)"
+  },
+  {
+    "id": "e764f7f2-f9e0-46b3-89ee-204d1da00732",
+    "url": "/api/teachers",
+    "method": "POST",
+    "time": "Fri Oct 24 2025 20:49:35 GMT+0530 (India Standard Time)"
+  },
+  {
+    "id": "e7c48a57-0f7f-4495-b2d2-37b499200bca",
+    "url": "/api/teachers",
+    "method": "GET",
+    "time": "Fri Oct 24 2025 20:49:35 GMT+0530 (India Standard Time)"
+  }
+]

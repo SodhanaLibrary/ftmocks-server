@@ -40,6 +40,10 @@ const loadEnvVariables = (project_env_file) => {
   // the command used to run them (default `npx jest`).
   setOrClearEnv('REACT_TESTS_DIR');
   setOrClearEnv('REACT_TEST_COMMAND');
+  // REACT_APP_FROM_TESTS_DIR is the import path of the root App component,
+  // relative to the tests directory (default `../App`), used when generating
+  // React test code (e.g. `import App from '<REACT_APP_FROM_TESTS_DIR>'`).
+  setOrClearEnv('REACT_APP_FROM_TESTS_DIR');
   // ANGULAR_TESTS_DIR is the Angular analogue: the directory where generated
   // Angular test files (*.spec.ts) are saved. ANGULAR_TEST_COMMAND overrides the
   // command used to run them (default `npx jest` via jest-preset-angular).
@@ -48,6 +52,9 @@ const loadEnvVariables = (project_env_file) => {
   // PROJECT_TYPE controls which recording features are shown in the UI.
   // Supported values: 'playwright' (default), 'react', or 'angular'.
   process.env.PROJECT_TYPE = result.parsed.PROJECT_TYPE || 'playwright';
+  // PROJECT_NAME is a human-friendly label shown in the Projects table
+  // instead of the raw env file path.
+  setOrClearEnv('PROJECT_NAME');
   process.env.FALLBACK_DIR = result.parsed.FALLBACK_DIR;
   process.env.BASE_URL = result.parsed.BASE_URL;
   process.env.HTTP_CREDENTIALS_USERNAME =
@@ -102,6 +109,25 @@ const loadFtMocksEnvVariables = () => {
   }
 };
 
+// Reads PROJECT_NAME out of a project's env file without touching
+// process.env, so the Projects table can show a name for every project,
+// not just the currently active one.
+const getProjectName = (envFile) => {
+  try {
+    if (!envFile || !fs.existsSync(envFile)) {
+      return undefined;
+    }
+    const parsed = require('dotenv').parse(fs.readFileSync(envFile));
+    return parsed.PROJECT_NAME || undefined;
+  } catch (error) {
+    logger.warn('Failed to read PROJECT_NAME from env file', {
+      envFile,
+      error: error.message,
+    });
+    return undefined;
+  }
+};
+
 const getRecordedProjects = async (req, res) => {
   const defaultPath = 'projects.json';
 
@@ -117,6 +143,10 @@ const getRecordedProjects = async (req, res) => {
 
     const defaultData = fs.readFileSync(defaultPath, 'utf8');
     let parsedData = JSON.parse(defaultData);
+    parsedData = parsedData.map((project) => ({
+      ...project,
+      name: getProjectName(project.env_file),
+    }));
 
     logger.info('Successfully retrieved recorded projects', {
       projects: parsedData,

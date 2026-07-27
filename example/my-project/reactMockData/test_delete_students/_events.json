@@ -1,0 +1,81 @@
+[
+  {
+    "id": "0a2f547d-7d6f-4313-ad24-544cb1b57c55",
+    "type": "url",
+    "target": "http://localhost:4050/",
+    "time": "2025-10-24T15:32:03.560Z",
+    "value": "http://localhost:4050/"
+  },
+  {
+    "type": "click",
+    "target": "//button[contains(text(), 'Students')]",
+    "time": "2025-10-24T15:32:09.090Z",
+    "value": {
+      "clientX": 1042,
+      "clientY": 47,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Students')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='header-menu-students']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Students",
+      "id": "header-menu-students",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "2750a5c9-4825-4a0b-9a23-b1c64ce4cc1c"
+  },
+  {
+    "type": "click",
+    "target": "//*[@id='student-6-delete-btn']",
+    "time": "2025-10-24T15:32:28.157Z",
+    "value": {
+      "clientX": 852,
+      "clientY": 685,
+      "windowWidth": 1280,
+      "windowHeight": 720
+    },
+    "selectors": [
+      {
+        "type": "locator",
+        "value": "//button[contains(text(), 'Delete')]"
+      },
+      {
+        "type": "locator",
+        "value": "//*[@id='student-6-delete-btn']"
+      }
+    ],
+    "element": {
+      "tagName": "BUTTON",
+      "textContent": "Delete",
+      "id": "student-6-delete-btn",
+      "role": null,
+      "name": "",
+      "ariaLabel": null,
+      "value": "",
+      "type": "button",
+      "disabled": false,
+      "title": "",
+      "href": null,
+      "src": null
+    },
+    "id": "9444cd43-c79e-40a7-80df-df08d9013e27"
+  }
+]

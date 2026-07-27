@@ -126,6 +126,7 @@ FtMocks supports three kinds of projects, selected with `PROJECT_TYPE` in your `
 | `PORT` | Port for the FtMocks UI/API. Default `5000`. |
 | `PREFERRED_SERVER_PORTS` | JSON array of preferred ports for the standalone mock server, e.g. `[4051]`. |
 | `PROJECT_TYPE` | `playwright` (default), `react`, or `angular`. Selects the recording/codegen features described above. |
+| `PROJECT_NAME` | Human-friendly label shown for this project in the **Projects** table, instead of the raw env file path. Optional. |
 
 ### Playwright projects
 

@@ -63,6 +63,7 @@ const getEnvProject = async (req, res) => {
       );
     }
     const envConfig = {
+      PROJECT_NAME: process.env.PROJECT_NAME,
       MOCK_DIR: process.env.MOCK_DIR,
       PORT: process.env.PORT,
       PREFERRED_SERVER_PORTS: process.env.PREFERRED_SERVER_PORTS,
@@ -71,6 +72,7 @@ const getEnvProject = async (req, res) => {
       FALLBACK_DIR: process.env.FALLBACK_DIR,
       PROJECT_TYPE: process.env.PROJECT_TYPE || 'playwright',
       REACT_TESTS_DIR: process.env.REACT_TESTS_DIR,
+      REACT_APP_FROM_TESTS_DIR: process.env.REACT_APP_FROM_TESTS_DIR,
       RELATIVE_MOCK_DIR_FROM_REACT_TESTS_DIR:
         process.env.RELATIVE_MOCK_DIR_FROM_REACT_TESTS_DIR,
       ANGULAR_TESTS_DIR: process.env.ANGULAR_TESTS_DIR,

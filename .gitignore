@@ -130,6 +130,7 @@ dist
 .pnp.*
 example/**/_logs.json
 example/**/_snaps/**
+example/**/_served.json
 # uploads dir
 uploads/
 projects.json

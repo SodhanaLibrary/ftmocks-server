@@ -1,0 +1,40 @@
+{
+  "url": "/api/subjects/6",
+  "time": "Fri Oct 24 2025 22:15:27 GMT+0530 (India Standard Time)",
+  "method": "PUT",
+  "request": {
+    "headers": {
+      "accept": "*/*",
+      "content-type": "application/json",
+      "origin": "http://localhost:4050",
+      "referer": "http://localhost:4050/",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36",
+      "sec-ch-ua": "\"Chromium\";v=\"139\", \"Not;A=Brand\";v=\"99\"",
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": "\"macOS\""
+    },
+    "queryString": [],
+    "postData": {
+      "mimeType": "application/json",
+      "text": "{\"id\":6,\"name\":\"Sb.Update\",\"credits\":\"5\"}"
+    }
+  },
+  "response": {
+    "file": false,
+    "status": 200,
+    "headers": {
+      "x-powered-by": "Express",
+      "access-control-allow-origin": "*",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "41",
+      "etag": "W/\"29-ajdjDtWwbMMzZvHeaa4F/oVgCLE\"",
+      "date": "Fri, 24 Oct 2025 16:45:27 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+    },
+    "content": "{\"id\":6,\"name\":\"Sb.Update\",\"credits\":\"5\"}"
+  },
+  "id": "a042d863-90e6-458c-8a76-fd0ef64b89b7",
+  "served": true,
+  "ignoreParams": []
+}

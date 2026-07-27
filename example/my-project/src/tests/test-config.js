@@ -1,3 +1,3 @@
 export const ftmocksConifg = {
-    MOCK_DIR: "./testMockData",
+    MOCK_DIR: "./reactMockData",
 }
