@@ -42,8 +42,18 @@ const addUrlToProject = async ({ url, patterns }) => {
 
 const getLatestProjectUrls = () => {
   const projectsFile = path.resolve('projects.json');
-  const projects = JSON.parse(fs.readFileSync(projectsFile, 'utf8'));
-  return { urls: projects[0].urls, patterns: projects[0].patterns };
+  try {
+    if (!fs.existsSync(projectsFile)) {
+      return { urls: [], patterns: [] };
+    }
+    const projects = JSON.parse(fs.readFileSync(projectsFile, 'utf8'));
+    return {
+      urls: projects[0]?.urls || [],
+      patterns: projects[0]?.patterns || [],
+    };
+  } catch (err) {
+    return { urls: [], patterns: [] };
+  }
 };
 
 module.exports = {

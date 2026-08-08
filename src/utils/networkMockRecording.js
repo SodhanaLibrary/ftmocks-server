@@ -10,6 +10,20 @@ const {
 const { stripServedFromMock } = require('./ServedUtils');
 const { saveIfItIsFile } = require('./FileUtils');
 
+// Serializes read-modify-write access per file path so concurrent route
+// handlers can't interleave between reading and writing the same mock
+// list file and silently drop each other's entries.
+const fileLocks = new Map();
+function withFileLock(filePath, fn) {
+  const previous = fileLocks.get(filePath) || Promise.resolve();
+  const run = previous.then(fn, fn);
+  fileLocks.set(
+    filePath,
+    run.catch(() => {})
+  );
+  return run;
+}
+
 const excludeHeaders = (headers) => {
   if (!process.env.EXCLUDED_HEADERS) {
     return headers;
@@ -185,18 +199,19 @@ async function attachNetworkMockRecording(context, recordingOptions) {
           testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',
           '_mock_list.json'
         );
-        let mockList = [];
-        if (fs.existsSync(mockListPath)) {
-          mockList = JSON.parse(fs.readFileSync(mockListPath, 'utf8'));
-        }
-        mockList.push({
-          id: mockData.id,
-          url: mockData.url,
-          method: mockData.method,
-          time: mockData.time,
+        await withFileLock(mockListPath, () => {
+          let mockList = [];
+          if (fs.existsSync(mockListPath)) {
+            mockList = JSON.parse(fs.readFileSync(mockListPath, 'utf8'));
+          }
+          mockList.push({
+            id: mockData.id,
+            url: mockData.url,
+            method: mockData.method,
+            time: mockData.time,
+          });
+          fs.writeFileSync(mockListPath, JSON.stringify(mockList, null, 2));
         });
-
-        fs.writeFileSync(mockListPath, JSON.stringify(mockList, null, 2));
         const mocDataPath = path.join(
           process.env.MOCK_DIR,
           testName ? `test_${nameToFolder(testName)}` : 'defaultMocks',

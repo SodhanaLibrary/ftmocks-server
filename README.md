@@ -140,6 +140,7 @@ FtMocks supports three kinds of projects, selected with `PROJECT_TYPE` in your `
 | --- | --- |
 | `REACT_TESTS_DIR` | Directory where generated `*.test.js` files are saved and read (e.g. `../src/tests`). Relative paths resolve from `MOCK_DIR`. |
 | `REACT_TEST_COMMAND` | Command used to run a React test. Default `npx jest`. The test file path is appended, and the command runs from the nearest `package.json` directory with `NODE_ENV=test`. Set per project, e.g. `npx react-scripts test --watchAll=false` (CRA) or `npx vitest run` (Vitest). |
+| `REACT_APP_FROM_TESTS_DIR` | Import path of the root `App` component, relative to `REACT_TESTS_DIR`. Used in generated tests as `import App from '<REACT_APP_FROM_TESTS_DIR>'`. Default `../App`. |
 
 Example `ftmocks.env` for a React project:
 
@@ -148,6 +149,7 @@ MOCK_DIR=./testMockData
 PORT=5000
 PROJECT_TYPE=react
 REACT_TESTS_DIR=../src/tests
+REACT_APP_FROM_TESTS_DIR=../App
 ```
 
 Generated React tests import their runtime from [`ftmocks-utils`](https://github.com/SodhanaLibrary/ftmocks-utils) (`initiateJestFetch`, `getByXPath`), so the target project must have `ftmocks-utils` (>=1.7.0), `jest`, and `@testing-library/react` installed.

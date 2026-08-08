@@ -18,6 +18,15 @@ function getPostDataFromMockBody(body) {
   return body?.request?.postData ?? null;
 }
 
+function isExcludedHeader(headerName) {
+  if (!process.env.EXCLUDED_HEADERS) {
+    return false;
+  }
+  return process.env.EXCLUDED_HEADERS.toLowerCase()
+    .split(',')
+    .includes(headerName.toLowerCase());
+}
+
 function ensureMockRequestShape(body) {
   if (!body.request) {
     body.request = {
@@ -137,11 +146,7 @@ function processHAR(
             method,
             request: {
               headers: entry.request.headers.reduce((headers, header) => {
-                if (
-                  !process.env.EXCLUDED_HEADERS.toLowerCase()
-                    .split(',')
-                    .includes(header.name.toLowerCase())
-                ) {
+                if (!isExcludedHeader(header.name)) {
                   headers[header.name] = header.value;
                 }
                 return headers;
@@ -154,11 +159,7 @@ function processHAR(
               status:
                 entry.response.status === 304 ? 200 : entry.response.status,
               headers: entry.response.headers.reduce((headers, header) => {
-                if (
-                  !process.env.EXCLUDED_HEADERS.toLowerCase()
-                    .split(',')
-                    .includes(header.name.toLowerCase())
-                ) {
+                if (!isExcludedHeader(header.name)) {
                   headers[header.name] = header.value;
                 }
                 return headers;
@@ -438,10 +439,8 @@ async function createMockFromUserInputForTest(body, testName, avoidDuplicates) {
 
       let mock_list_file = path.join(mock_test_dir, '_mock_list.json');
       if (!fs.existsSync(mock_list_file)) {
-        await fs.appendFile(mock_list_file, '', () => {
-          logger.debug('Created mock list file', { mock_list_file });
-          console.log('_mock_list.json file created successfully');
-        });
+        fs.writeFileSync(mock_list_file, '');
+        logger.debug('Created mock list file', { mock_list_file });
       }
 
       const existResps = loadMockDataFromMockListFile(

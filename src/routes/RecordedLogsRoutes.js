@@ -88,9 +88,7 @@ const recordLogData = async (req, res) => {
       fs.mkdirSync(mockDir);
     }
     if (!fs.existsSync(mockLogsFilePath)) {
-      await fs.appendFile(mockLogsFilePath, '', () => {
-        console.log('list file created successfully');
-      });
+      fs.writeFileSync(mockLogsFilePath, '');
       mockDataSummary = [];
     } else {
       mockDataSummary = JSON.parse(fs.readFileSync(mockLogsFilePath, 'utf8'));

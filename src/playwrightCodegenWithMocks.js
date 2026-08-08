@@ -357,7 +357,11 @@ async function runPlaywrightCodegen(body, options = {}) {
     process.env.recordTest = testName;
     process.env.recordMocks = testName;
   }
-  addUrlToProject({ url, patterns });
+  try {
+    await addUrlToProject({ url, patterns });
+  } catch (err) {
+    logger.error('Failed to add url to project', { url, patterns, error: err.message });
+  }
 
   const launchOptions = {
     headless: false,
